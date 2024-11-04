@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-// Creates tables for holding the data in forum.db database
+// Creates tables for holding the data in database
 func CreateTables() {
 	// Create Users table
 	_, err := DB.Exec(`
