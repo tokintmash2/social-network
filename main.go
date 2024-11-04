@@ -3,10 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
-	"net/http"
-	"real-forum/api"
-	"real-forum/database"
-	"real-forum/handlers"
+	"social-network/database"
 
 	_ "github.com/mattn/go-sqlite3"
 )
