@@ -11,16 +11,27 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 export default function RegisterPage() {
 	const router = useRouter()
-	const [user, setUser] = React.useState({
+
+	type User = {
+		email: string
+		password: string
+		firstName: string
+		lastName: string
+		dob: Date | null // Date or null for dob
+		avatar?: File // Optional
+		nickname?: string // Optional
+		about?: string // Optional
+	}
+
+	const [user, setUser] = React.useState<User>({
 		email: '',
 		password: '',
 		firstName: '',
 		lastName: '',
-		dob: '',
-		avatar: '',
-		nickname: '',
-		about: '',
+		dob: null,
+		// avatar, nickname, and about are optional, so we can omit them here
 	})
+
 	const [buttonDisabled, setButtonDisabled] = React.useState(false)
 
 	useEffect(() => {
@@ -65,13 +76,14 @@ export default function RegisterPage() {
 
 					<form>
 						{/* Firstname */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>First name</span>
+								<span className='label-text-alt opacity-75'>Required</span>
 							</div>
 							<input
 								type='text'
-								className='input input-bordered'
+								className='input input-sm input-bordered'
 								value={user.firstName}
 								onChange={(e) =>
 									setUser({
@@ -83,13 +95,14 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Lastname */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>Last name</span>
+								<span className='label-text-alt opacity-75'>Required</span>
 							</div>
 							<input
 								type='text'
-								className='input input-bordered'
+								className='input input-sm input-bordered'
 								value={user.lastName}
 								onChange={(e) =>
 									setUser({
@@ -101,13 +114,14 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Email */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2 mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>Email</span>
+								<span className='label-text-alt opacity-75'>Required</span>
 							</div>
 							<input
 								type='email'
-								className='input input-bordered'
+								className='input input-sm input-bordered'
 								value={user.email}
 								onChange={(e) =>
 									setUser({
@@ -119,14 +133,15 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Date of birth */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>Date of birth</span>
+								<span className='label-text-alt opacity-75'>Required</span>
 							</div>
 							<DatePicker
 								dateFormat='dd/MM/yyyy'
 								selected={startDate}
-								className='input input-bordered w-full'
+								className='input input-sm input-bordered w-full'
 								locale='en-GB'
 								onChange={(date) => {
 									if (date) {
@@ -137,31 +152,45 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Avatar */}
-						<label className='form-control w-full'>
-							<div className='label'>
-								<span className='label-text'>Avatar</span>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
+								<span className='label-text'>Avatar/Image</span>
 							</div>
+
 							<input
-								type='text'
-								className='input input-bordered'
-								value={user.avatar}
-								onChange={(e) =>
+								type='file'
+								className='file-input file-input-sm file-input-bordered'
+								accept='image/png, image/jpeg'
+								onChange={(e) => {
+									const file = e.target.files?.[0]
+									if (file) {
+										if (file.size > 2 * 1024 * 1024) {
+											// max size of 2MB
+											toast.error('File size should be less than 2MB')
+											return
+										}
+										if (!['image/png', 'image/jpeg'].includes(file.type)) {
+											toast.error('Only PNG and JPEG files are allowed')
+											return
+										}
+									}
+
 									setUser({
 										...user,
-										avatar: e.target.value,
+										avatar: file,
 									})
-								}
+								}}
 							/>
 						</label>
 
 						{/* Nickname */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>Nickname</span>
 							</div>
 							<input
 								type='text'
-								className='input input-bordered'
+								className='input input-sm input-bordered'
 								value={user.nickname}
 								onChange={(e) =>
 									setUser({
@@ -173,31 +202,32 @@ export default function RegisterPage() {
 						</label>
 
 						{/* About me */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>About me</span>
 							</div>
-							<input
-								type='text'
-								className='input input-bordered'
+							<textarea
+								className='textarea textarea-bordered h-24'
 								value={user.about}
+								spellCheck={false}
 								onChange={(e) =>
 									setUser({
 										...user,
 										about: e.target.value,
 									})
 								}
-							/>
+							></textarea>
 						</label>
 
 						{/* Password */}
-						<label className='form-control w-full'>
-							<div className='label'>
+						<label className='form-control w-full mb-2'>
+							<div className='label pb-1'>
 								<span className='label-text'>Password</span>
+								<span className='label-text-alt opacity-75'>Required</span>
 							</div>
 							<input
 								type='password'
-								className='input input-bordered'
+								className='input input-sm input-bordered'
 								value={user.password}
 								onChange={(e) =>
 									setUser({
