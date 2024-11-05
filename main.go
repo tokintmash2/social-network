@@ -5,8 +5,6 @@ import (
 	"log"
 	"social-network/backend/database"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,23 +23,24 @@ func main() {
 
 	// Initialize the forum database and create necessary tables
 	database.ConnectToDB()
+	err = database.RunMigrations(db)
 
 	// Run migrations
-	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
-	if err != nil {
-		log.Fatal("Could not create SQLite driver:", err)
-	}
+	// driver, err := sqlite.WithInstance(db, &sqlite.Config{})
+	// if err != nil {
+	// 	log.Fatal("Could not create SQLite driver:", err)
+	// }
 
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://backend/database/migrations",
-		"sqlite3", driver)
-	if err != nil {
-		log.Fatal("Could not create migrate instance:", err)
-	}
+	// m, err := migrate.NewWithDatabaseInstance(
+	// 	"file://backend/database/migrations",
+	// 	"sqlite3", driver)
+	// if err != nil {
+	// 	log.Fatal("Could not create migrate instance:", err)
+	// }
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal("Could not run up migrations:", err)
-	}
+	// if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	// 	log.Fatal("Could not run up migrations:", err)
+	// }
 
-	log.Println("Migrations applied successfully")
+	// log.Println("Migrations applied successfully")
 }
