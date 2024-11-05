@@ -5,7 +5,10 @@ import (
 	"log"
 	"social-network/database"
 
-	_ "github.com/mattn/go-sqlite3" 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var db *sql.DB
@@ -22,5 +25,23 @@ func main() {
 
 	// Initialize the forum database and create necessary tables
 	database.ConnectToDB()
-	// database.CreateTables()
+
+	// Run migrations
+	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
+	if err != nil {
+		log.Fatal("Could not create SQLite driver:", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://database/migrations/sqlite",
+		"sqlite3", driver)
+	if err != nil {
+		log.Fatal("Could not create migrate instance:", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("Could not run up migrations:", err)
+	}
+
+	log.Println("Migrations applied successfully")
 }
