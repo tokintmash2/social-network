@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
-	"social-network/database"
+	"social-network/backend/database"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://database/migrations/sqlite",
+		"file://backend/database/migrations",
 		"sqlite3", driver)
 	if err != nil {
 		log.Fatal("Could not create migrate instance:", err)
