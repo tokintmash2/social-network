@@ -20,5 +20,5 @@ func main() {
 
 	// Initialize the forum database and create necessary tables
 	database.ConnectToDB()
-	database.CreateTables()
+	// database.CreateTables()
 }
