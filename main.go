@@ -1,29 +1,29 @@
 package main
 
 import (
-	"database/sql"
-	"log"
 	"social-network/backend/database"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+// var db *sql.DB
 
 func main() {
-	var err error
+	// var err error
 
 	// Connect to the SQLite database
-	db, err = sql.Open("sqlite3", "database.db")
-	if err != nil {
-		log.Fatal("Error while connecting to the database:", err)
-	}
-	defer db.Close() // Close the database connection when main() exits
+	// db, err = sql.Open("sqlite3", "database.db")
+	// if err != nil {
+	// 	log.Fatal("Error while connecting to the database:", err)
+	// }
+	// defer db.Close() // Close the database connection when main() exits
 
 	// Initialize the forum database and create necessary tables
 	database.ConnectToDB()
-	err = database.RunMigrations(db)
+	defer database.DB.Close()
+	// err = database.RunMigrations(database.DB)
+	database.RunMigrations(database.DB)
 
 	// Run migrations
 	// driver, err := sqlite.WithInstance(db, &sqlite.Config{})
