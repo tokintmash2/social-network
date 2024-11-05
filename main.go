@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"social-network/database"
+
+	_ "github.com/mattn/go-sqlite3" 
 )
 
 var db *sql.DB
