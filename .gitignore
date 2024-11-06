@@ -2,6 +2,7 @@
 terraform/*
 
 ### Social-network PROJECT ###
+database.db
 backend/database/sqlite/social-network.db
 backend/database/images/*
 
