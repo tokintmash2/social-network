@@ -1,7 +1,7 @@
 package main
 
 import (
-	"social-network/backend/database"
+	"social-network/database"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
