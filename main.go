@@ -1,0 +1,46 @@
+package main
+
+import (
+	"social-network/backend/database"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+// var db *sql.DB
+
+func main() {
+	// var err error
+
+	// Connect to the SQLite database
+	// db, err = sql.Open("sqlite3", "database.db")
+	// if err != nil {
+	// 	log.Fatal("Error while connecting to the database:", err)
+	// }
+	// defer db.Close() // Close the database connection when main() exits
+
+	// Initialize the forum database and create necessary tables
+	database.ConnectToDB()
+	defer database.DB.Close()
+	// err = database.RunMigrations(database.DB)
+	database.RunMigrations(database.DB)
+
+	// Run migrations
+	// driver, err := sqlite.WithInstance(db, &sqlite.Config{})
+	// if err != nil {
+	// 	log.Fatal("Could not create SQLite driver:", err)
+	// }
+
+	// m, err := migrate.NewWithDatabaseInstance(
+	// 	"file://backend/database/migrations",
+	// 	"sqlite3", driver)
+	// if err != nil {
+	// 	log.Fatal("Could not create migrate instance:", err)
+	// }
+
+	// if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	// 	log.Fatal("Could not run up migrations:", err)
+	// }
+
+	// log.Println("Migrations applied successfully")
+}
