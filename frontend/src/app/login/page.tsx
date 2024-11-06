@@ -1,31 +1,65 @@
-'use client'
-import Link from 'next/link'
-import React from 'react'
-import { useRouter } from 'next/navigation'
-import { axios } from 'axios'
+"use client"
+import Link from "next/link"
+import React, { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
+import toast, { Toaster } from "react-hot-toast"
 
-export default function RegisterPage() {
-	const [user, setUser] = React.useState({
-		email: '',
-		password: '',
+export default function LoginPage() {
+	const router = useRouter()
+
+	type User = {
+		email: string
+		password: string
+	}
+	const [user, setUser] = React.useState<User>({
+		email: "",
+		password: "",
 	})
 
-	const onLogin = async () => {}
+	const [buttonDisabled, setButtonDisabled] = React.useState(false)
+
+	useEffect(() => {
+		if (user.email.trim().length > 0 && user.password.trim().length > 0) {
+			setButtonDisabled(false)
+		} else {
+			setButtonDisabled(true)
+		}
+	}, [user])
+
+	const [loading, setLoading] = React.useState(false)
+
+	const onLogin = async () => {
+		try {
+			setLoading(true)
+			const response = await axios.post("api/users/signin", user)
+			console.log("signin response", response.data)
+			router.push("/profile")
+		} catch (error: unknown) {
+			toast.error(error instanceof Error ? error.message : "An unexpected error occurred")
+		} finally {
+			setLoading(false)
+		}
+	}
+
 	return (
-		<div className='min-h-screen bg-base-200 flex items-center justify-center'>
-			<div className='card rounded-md w-full max-w-128 my-4 bg-base-100 shadow-xl'>
-				<div className='card-body'>
-					<h2 className='card-title text-center mb-3'>Log in</h2>
+		<div className="min-h-screen bg-base-200 flex items-center justify-center">
+			<div>
+				<Toaster />
+			</div>
+			<div className="card rounded-md w-full max-w-128 my-4 bg-base-100 shadow-xl">
+				<div className="card-body">
+					<h2 className="card-title text-center mb-3">Log in</h2>
 
 					<form>
 						{/* Email */}
-						<label className='form-control w-full'>
-							<div className='label'>
-								<span className='label-text'>Email</span>
+						<label className="form-control w-full">
+							<div className="label">
+								<span className="label-text">Email</span>
 							</div>
 							<input
-								type='email'
-								className='input input-bordered'
+								type="email"
+								className="input input-bordered"
 								value={user.email}
 								onChange={(e) =>
 									setUser({
@@ -37,13 +71,13 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Password */}
-						<label className='form-control w-full'>
-							<div className='label'>
-								<span className='label-text'>Password</span>
+						<label className="form-control w-full">
+							<div className="label">
+								<span className="label-text">Password</span>
 							</div>
 							<input
-								type='password'
-								className='input input-bordered'
+								type="password"
+								className="input input-bordered"
 								value={user.password}
 								onChange={(e) =>
 									setUser({
@@ -55,21 +89,22 @@ export default function RegisterPage() {
 						</label>
 
 						{/* Submit Button */}
-						<div className='form-control mt-6'>
+						<div className="form-control mt-6">
 							<button
-								type='submit'
-								className='btn btn-outline btn-primary'
+								type="submit"
+								className="btn btn-outline btn-primary"
+								disabled={buttonDisabled}
 								onClick={onLogin}
 							>
-								Log in
+								{loading ? "Logging in.." : "Log in"}
 							</button>
 						</div>
 					</form>
 
 					{/* Link to Register */}
-					<p className='text-center mt-4'>
-						Don't have an account yet?{' '}
-						<Link href='/register' className='text-primary'>
+					<p className="text-center mt-4">
+						Don&apos;t have an account yet?{" "}
+						<Link href="/register" className="text-primary">
 							Register
 						</Link>
 					</p>

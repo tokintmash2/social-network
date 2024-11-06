@@ -39,7 +39,8 @@ export default function RegisterPage() {
 			user.email.trim().length > 0 &&
 			user.password.trim().length > 0 &&
 			user.firstName.trim().length > 0 &&
-			user.lastName.trim().length > 0
+			user.lastName.trim().length > 0 &&
+			user.dob !== null
 		) {
 			setButtonDisabled(false)
 		} else {
