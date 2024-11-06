@@ -43,7 +43,7 @@ func RunMigrations(db *sql.DB) error {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://backend/database/migrations",
+		"file://database/migrations",
 		"sqlite3", driver)
 	if err != nil {
 		log.Fatal("Could not create migrate instance:", err)
