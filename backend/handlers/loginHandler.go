@@ -11,8 +11,11 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login attempt!")
 
-	email := r.PostFormValue("email")
-	password := r.PostFormValue("password")
+	// email := r.PostFormValue("email")
+	// password := r.PostFormValue("password")
+
+	// email := "email@email.com"
+	// password := "password"
 
 	// check user auth
 	// success, userCookie, userId := validators.ValidateUserLogin(email, password)
