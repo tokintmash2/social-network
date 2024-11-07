@@ -15,6 +15,7 @@ func main() {
 	// err = database.RunMigrations(database.DB)
 	database.RunMigrations(database.DB)
 
+	
 	// utils.CreateSession(1)
 	// pass, _ := utils.HashPassword("password")
 	// fmt.Println(pass)
