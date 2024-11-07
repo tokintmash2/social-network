@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
-	"social-network/backend/database"
+	"social-network/database"
 	"time"
 
 	"github.com/google/uuid"
