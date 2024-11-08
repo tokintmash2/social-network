@@ -32,6 +32,43 @@ func VerifyUser(user structs.User) (int, bool) {
 	return userID, err == nil
 }
 
+func CreateUser(user structs.User) (int64, error) {
+	// Hash the password before storing
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return 0, err
+	}
+
+	// SQL query to insert new user
+	query := `
+		INSERT INTO users (email, password, first_name, last_name, username, avatar, about_me)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`
+
+	// Execute the query
+	result, err := db.Exec(query,
+		user.Email,
+		string(hashedPassword),
+		user.FirstName,
+		user.LastName,
+		user.Username,
+		user.avatar,
+		user.About,
+	)
+	
+	if err != nil {
+		return 0, err
+	}
+
+	// Get the ID of the newly created user
+	userID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
+}
+
 func SetUserOnline(userID int) error {
 	_, err := database.DB.Exec("INSERT OR REPLACE INTO online_status (user_id, online_status) VALUES (?, ?)", userID, true)
 	if err != nil {
