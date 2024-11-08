@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"social-network/structs"
 	"social-network/utils"
+	"time"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginHandler2(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login attempt!")
 
 	// email := r.PostFormValue("email")
 	// password := r.PostFormValue("password")
 
-	// email := "email@email.com"
-	// password := "password"
+	// email := "User@email.com"
+	// password := "Asd"
 
 	// check user auth
 	// success, userCookie, userId := validators.ValidateUserLogin(email, password)
@@ -89,9 +90,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(writeData)
 }
 
-func LoginHandler2(w http.ResponseWriter, r *http.Request) {
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user structs.User
+
+	user.ID = 1
+	user.Password = "123"
+
 	json.NewDecoder(r.Body).Decode(&user)
 
 	fmt.Printf("LoginHandler user: %+v\n", user)
