@@ -33,7 +33,7 @@ func VerifyUser(user structs.User) (int, bool) {
 }
 
 func SetUserOnline(userID int) error {
-	_, err := database.DB.Exec("INSERT OR REPLACE INTO online_status (user_id, online) VALUES (?, ?)", userID, true)
+	_, err := database.DB.Exec("INSERT OR REPLACE INTO online_status (user_id, online_status) VALUES (?, ?)", userID, true)
 	if err != nil {
 		log.Println("Error setting user online:", err)
 		return err
