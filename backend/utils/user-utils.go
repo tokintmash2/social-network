@@ -9,6 +9,7 @@ import (
 )
 
 func VerifyUser(user structs.User) (int, bool) {
+	log.Println("Verifying user")
 	var storedPassword string
 	var userID int
 	err := database.DB.QueryRow(`
@@ -18,11 +19,13 @@ func VerifyUser(user structs.User) (int, bool) {
     LIMIT 1`,
 		user.Identifier, user.Identifier,
 	).Scan(&userID, &storedPassword)
-	// fmt.Printf("Useri email %v", user.Email)
+	log.Printf("Useri email %v", user.Email)
 	if err != nil {
+		log.Println("Error verifying user:", err)
 		return 0, false
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(user.Password))
+	log.Println("Verifying user", userID, err)
 	return userID, err == nil
 }
 

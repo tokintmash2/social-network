@@ -94,8 +94,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user structs.User
 
-	user.ID = 1
-	user.Password = "123"
+	
+	user.Password = "Password"
+	user.Username = "User"
+	user.Email = "User@email.com"
 
 	json.NewDecoder(r.Body).Decode(&user)
 
