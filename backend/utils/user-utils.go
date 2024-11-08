@@ -9,7 +9,7 @@ import (
 )
 
 func VerifyUser(user structs.User) (int, bool) {
-	log.Println("Verifying user")
+	log.Println("Verifying user:", user)
 	var storedPassword string
 	var userID int
 	err := database.DB.QueryRow(`
@@ -19,7 +19,10 @@ func VerifyUser(user structs.User) (int, bool) {
     LIMIT 1`,
 		user.Identifier, user.Identifier,
 	).Scan(&userID, &storedPassword)
-	log.Printf("Useri email %v", user.Email)
+	log.Println("Useri email:", user.Email)
+	log.Println("User identifier", user.Identifier)
+	log.Printf("Looking up user with identifier: %s", user.Identifier)
+
 	if err != nil {
 		log.Println("Error verifying user:", err)
 		return 0, false

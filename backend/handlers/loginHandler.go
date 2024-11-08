@@ -94,10 +94,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user structs.User
 
-	
+	// FOR TESTING ----------
 	user.Password = "Password"
 	user.Username = "User"
 	user.Email = "User@email.com"
+	user.Identifier = "User"
+	// ----------------------
 
 	json.NewDecoder(r.Body).Decode(&user)
 
