@@ -32,7 +32,7 @@ func VerifyUser(user structs.User) (int, bool) {
 	return userID, err == nil
 }
 
-func CreateUser(user structs.User) (int64, error) {
+func CreateUser(user structs.User) (int, error) {
 	// Hash the password before storing
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -66,7 +66,7 @@ func CreateUser(user structs.User) (int64, error) {
 		return 0, err
 	}
 
-	return userID, nil
+	return int(userID), nil
 }
 
 func SetUserOnline(userID int) error {
