@@ -57,6 +57,18 @@ func CreateUser(user structs.User) (int, error) {
 		user.AboutMe,
 	)
 
+	// Add this right after the Exec call to see the actual values being passed
+log.Printf("Attempting to insert user with values: %v, %v, %v, %v, %v, %v, %v, %v",
+user.Email,
+string(hashedPassword),
+user.FirstName,
+user.LastName,
+user.DOB,
+user.Username,
+user.Avatar,
+user.AboutMe)
+
+
 	if err != nil {
 		return 0, err
 	}

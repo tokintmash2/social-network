@@ -17,8 +17,8 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// FOR TESTING ----------
 	newUser.Password = "Password"
-	newUser.Username = "User1"
-	newUser.Email = "User1@email.com"
+	newUser.Username = "User3"
+	newUser.Email = "User4@email.com"
 	newUser.DOB = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
 	newUser.Identifier = "User"
 	// ----------------------
