@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type User struct {
 	ID         int
 	Email      string
@@ -8,6 +10,7 @@ type User struct {
 	FirstName  string
 	LastName   string
 	Age        int
+	DOB        time.Time
 	AboutMe    string
 	Avatar     string
 	Gender     string

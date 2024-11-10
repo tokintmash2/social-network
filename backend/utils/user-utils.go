@@ -41,8 +41,8 @@ func CreateUser(user structs.User) (int, error) {
 
 	// SQL query to insert new user
 	query := `
-		INSERT INTO users (email, password, first_name, last_name, username, avatar, about_me)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO users (email, password, first_name, last_name, dob, username, avatar, about_me)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	// Execute the query
@@ -51,6 +51,7 @@ func CreateUser(user structs.User) (int, error) {
 		string(hashedPassword),
 		user.FirstName,
 		user.LastName,
+		user.DOB,
 		user.Username,
 		user.Avatar,
 		user.AboutMe,
@@ -65,6 +66,8 @@ func CreateUser(user structs.User) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	log.Println("New user ID:", userID)
 
 	return int(userID), nil
 }
