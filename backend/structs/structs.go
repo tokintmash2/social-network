@@ -8,6 +8,8 @@ type User struct {
 	FirstName  string
 	LastName   string
 	Age        int
+	AboutMe    string
+	Avatar     string
 	Gender     string
 	Identifier string
 }

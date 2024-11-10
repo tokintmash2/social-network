@@ -46,16 +46,16 @@ func CreateUser(user structs.User) (int64, error) {
 	`
 
 	// Execute the query
-	result, err := db.Exec(query,
+	result, err := database.DB.Exec(query,
 		user.Email,
 		string(hashedPassword),
 		user.FirstName,
 		user.LastName,
 		user.Username,
-		user.avatar,
-		user.About,
+		user.Avatar,
+		user.AboutMe,
 	)
-	
+
 	if err != nil {
 		return 0, err
 	}
