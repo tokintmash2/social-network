@@ -19,9 +19,9 @@ func VerifyUser(user structs.User) (int, bool) {
     LIMIT 1`,
 		user.Identifier, user.Identifier,
 	).Scan(&userID, &storedPassword)
-	log.Println("Useri email:", user.Email)
-	log.Println("User identifier", user.Identifier)
-	log.Printf("Looking up user with identifier: %s", user.Identifier)
+	// log.Println("Useri email:", user.Email)
+	// log.Println("User identifier", user.Identifier)
+	// log.Printf("Looking up user with identifier: %s", user.Identifier)
 
 	if err != nil {
 		log.Println("Error verifying user:", err)
@@ -56,18 +56,6 @@ func CreateUser(user structs.User) (int, error) {
 		user.Avatar,
 		user.AboutMe,
 	)
-
-	// Add this right after the Exec call to see the actual values being passed
-log.Printf("Attempting to insert user with values: %v, %v, %v, %v, %v, %v, %v, %v",
-user.Email,
-string(hashedPassword),
-user.FirstName,
-user.LastName,
-user.DOB,
-user.Username,
-user.Avatar,
-user.AboutMe)
-
 
 	if err != nil {
 		return 0, err
