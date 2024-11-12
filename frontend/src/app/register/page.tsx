@@ -19,7 +19,7 @@ export default function RegisterPage() {
 		lastName: string
 		dob: Date | null // Date or null for dob
 		avatar?: File // Optional
-		nickname?: string // Optional
+		username?: string // Optional
 		about?: string // Optional
 	}
 
@@ -29,6 +29,7 @@ export default function RegisterPage() {
 		firstName: '',
 		lastName: '',
 		dob: null,
+		username: '',
 		// avatar, nickname, and about are optional, so we can omit them here
 	})
 
@@ -53,7 +54,7 @@ export default function RegisterPage() {
 	const onRegister = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.post('api/users/signup', user)
+			const response = await axios.post('http://localhost:3000/register', user)
 			console.log('signup response', response.data)
 			router.push('/login')
 		} catch (error: unknown) {
@@ -192,11 +193,11 @@ export default function RegisterPage() {
 							<input
 								type='text'
 								className='input input-sm input-bordered'
-								value={user.nickname}
+								value={user.username}
 								onChange={(e) =>
 									setUser({
 										...user,
-										nickname: e.target.value,
+										username: e.target.value,
 									})
 								}
 							/>

@@ -47,7 +47,7 @@ export default function LoginPage() {
   const onLogin = async () => {
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:8080/login", user, {
+      const response = await axios.post("http://localhost:3000/login", user, {
         withCredentials: true, // Important for receiving cookies
       });
 
