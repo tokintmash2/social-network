@@ -20,12 +20,12 @@ func main() {
 
 	mux := http.NewServeMux()
 	server := &http.Server{
-		Addr: ":8000",
+		Addr: ":8080",
 		// Handler: midware.CorsMiddleware(mux),
 		Handler: mux,
 	}
 	handlers.RunHandlers(mux)
-	fmt.Println("Backend running on port 8000")
+	fmt.Println("Backend running on port 8080")
 	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
