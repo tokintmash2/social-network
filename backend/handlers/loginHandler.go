@@ -7,17 +7,11 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
-	"time"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("LoginHandler called")
-
-	// email := r.PostFormValue("email")
-	// password := r.PostFormValue("password")z
-
-	// log.Printf("LoginHandler email: %s, password: %s\n", email, password)
 
 	var user structs.User
 
@@ -27,8 +21,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// user.Email = "User@email.com"
 	// user.Identifier = "User"
 	// // ----------------------
-
-
 
 	json.NewDecoder(r.Body).Decode(&user)
 
@@ -55,85 +47,83 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func LoginHandler2(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Login attempt!")
+// func LoginHandler2(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Println("Login attempt!")
 
-	// email := r.PostFormValue("email")
-	// password := r.PostFormValue("password")
+// email := r.PostFormValue("email")
+// password := r.PostFormValue("password")
 
-	// email := "User@email.com"
-	// password := "Asd"
+// email := "User@email.com"
+// password := "Asd"
 
-	// check user auth
-	// success, userCookie, userId := validators.ValidateUserLogin(email, password)
-	// var callback = make(map[string]string)
-	// if success {
-	// 	sessionCookie := http.Cookie{
-	// 		Name:     "socialNetworkSession",
-	// 		Value:    userCookie,
-	// 		Expires:  time.Now().Add(time.Minute * 500),
-	// 		Path:     "/",
-	// 		HttpOnly: true,
-	// 		SameSite: http.SameSiteNoneMode,
-	// 		Secure:   true,
-	// 	}
-	// 	http.SetCookie(w, &sessionCookie)
+// check user auth
+// success, userCookie, userId := validators.ValidateUserLogin(email, password)
+// var callback = make(map[string]string)
+// if success {
+// 	sessionCookie := http.Cookie{
+// 		Name:     "socialNetworkSession",
+// 		Value:    userCookie,
+// 		Expires:  time.Now().Add(time.Minute * 500),
+// 		Path:     "/",
+// 		HttpOnly: true,
+// 		SameSite: http.SameSiteNoneMode,
+// 		Secure:   true,
+// 	}
+// 	http.SetCookie(w, &sessionCookie)
 
-	// 	authCookie := http.Cookie{
-	// 		Name:     "socialNetworkAuth",
-	// 		Value:    "true",
-	// 		Expires:  time.Now().Add(time.Minute * 500),
-	// 		Path:     "/",
-	// 		SameSite: http.SameSiteNoneMode,
-	// 		Secure:   true,
-	// 	}
-	// 	http.SetCookie(w, &authCookie)
-	// 	callback["login"] = "success"
-	// 	callback["userid"] = userId
-	// 	callback["useravatar"] = validators.ValidateUserAvatar(userId)
-	// 	callback["useremail"] = validators.ValidateUserEmailFromId(userId)
-	// } else {
-	// 	callback["login"] = "fail"
-	// 	callback["error"] = userCookie
-	// }
+// 	authCookie := http.Cookie{
+// 		Name:     "socialNetworkAuth",
+// 		Value:    "true",
+// 		Expires:  time.Now().Add(time.Minute * 500),
+// 		Path:     "/",
+// 		SameSite: http.SameSiteNoneMode,
+// 		Secure:   true,
+// 	}
+// 	http.SetCookie(w, &authCookie)
+// 	callback["login"] = "success"
+// 	callback["userid"] = userId
+// 	callback["useravatar"] = validators.ValidateUserAvatar(userId)
+// 	callback["useremail"] = validators.ValidateUserEmailFromId(userId)
+// } else {
+// 	callback["login"] = "fail"
+// 	callback["error"] = userCookie
+// }
 
-	//-------------------
+//-------------------
 
-	// success, userCookie, userId := validators.ValidateUserLogin(email, password)
-	var callback = make(map[string]string)
-	// if success {
-	sessionCookie := http.Cookie{
-		Name:     "socialNetworkSession",
-		Value:    "userCookie", // testing
-		Expires:  time.Now().Add(time.Minute * 500),
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
-	}
-	http.SetCookie(w, &sessionCookie)
+// success, userCookie, userId := validators.ValidateUserLogin(email, password)
+// 	var callback = make(map[string]string)
+// 	// if success {
+// 	sessionCookie := http.Cookie{
+// 		Name:     "socialNetworkSession",
+// 		Value:    "userCookie", // testing
+// 		Expires:  time.Now().Add(time.Minute * 500),
+// 		Path:     "/",
+// 		HttpOnly: true,
+// 		SameSite: http.SameSiteNoneMode,
+// 		Secure:   true,
+// 	}
+// 	http.SetCookie(w, &sessionCookie)
 
-	authCookie := http.Cookie{
-		Name:     "socialNetworkAuth",
-		Value:    "true",
-		Expires:  time.Now().Add(time.Minute * 500),
-		Path:     "/",
-		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
-	}
-	http.SetCookie(w, &authCookie)
-	callback["login"] = "success"
-	callback["userid"] = "userId"
-	callback["useravatar"] = "validators.ValidateUserAvatar(userId)"
-	callback["useremail"] = "validators.ValidateUserEmailFromId(userId)"
-	// } else {
-	// 	callback["login"] = "fail"
-	// 	callback["error"] = userCookie
-	// }
+// 	authCookie := http.Cookie{
+// 		Name:     "socialNetworkAuth",
+// 		Value:    "true",
+// 		Expires:  time.Now().Add(time.Minute * 500),
+// 		Path:     "/",
+// 		SameSite: http.SameSiteNoneMode,
+// 		Secure:   true,
+// 	}
+// 	http.SetCookie(w, &authCookie)
+// 	callback["login"] = "success"
+// 	callback["userid"] = "userId"
+// 	callback["useravatar"] = "validators.ValidateUserAvatar(userId)"
+// 	callback["useremail"] = "validators.ValidateUserEmailFromId(userId)"
+// 	// } else {
+// 	// 	callback["login"] = "fail"
+// 	// 	callback["error"] = userCookie
+// 	// }
 
-	writeData, _ := json.Marshal(callback)
-	// helpers.CheckErr("handleLogin", err)
-	w.Write(writeData)
-}
-
-
+// 	writeData, _ := json.Marshal(callback)
+// 	// helpers.CheckErr("handleLogin", err)
+// 	w.Write(writeData)
+// }

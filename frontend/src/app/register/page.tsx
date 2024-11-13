@@ -54,7 +54,7 @@ export default function RegisterPage() {
 	const onRegister = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.post('http://localhost:3000/register', user)
+			const response = await axios.post('http://localhost:8080/register', user)
 			console.log('signup response', response.data)
 			router.push('/login')
 		} catch (error: unknown) {
@@ -147,7 +147,11 @@ export default function RegisterPage() {
 								locale='en-GB'
 								onChange={(date) => {
 									if (date) {
-										setStartDate(date)
+										setStartDate(date);
+										setUser({
+											...user,
+											dob: date
+										});
 									}
 								}}
 							/>

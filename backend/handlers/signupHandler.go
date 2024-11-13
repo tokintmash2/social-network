@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
-	"time"
 )
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,13 +14,13 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&newUser)
 
-	// FOR TESTING ----------
-	newUser.Password = "Password"
-	newUser.Username = "User3"
-	newUser.Email = "User4@email.com"
-	newUser.DOB = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
-	// newUser.Identifier = "User"
-	// ----------------------
+	// // FOR TESTING ----------
+	// newUser.Password = "Password"
+	// newUser.Username = "User3"
+	// newUser.Email = "User4@email.com"
+	// newUser.DOB = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+	// // newUser.Identifier = "User"
+	// // ----------------------
 
 	// Create the new user
 	userID, err := utils.CreateUser(newUser)
