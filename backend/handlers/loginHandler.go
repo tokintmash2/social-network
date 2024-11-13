@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
@@ -10,6 +11,8 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("LoginHandler called")
 
 	var user structs.User
 
@@ -20,7 +23,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// user.Identifier = "User"
 	// // ----------------------
 
-	
+
 
 	json.NewDecoder(r.Body).Decode(&user)
 

@@ -19,9 +19,9 @@ func VerifyUser(user structs.User) (int, bool) {
     LIMIT 1`,
 		user.Identifier, user.Identifier,
 	).Scan(&userID, &storedPassword)
-	// log.Println("Useri email:", user.Email)
-	// log.Println("User identifier", user.Identifier)
-	// log.Printf("Looking up user with identifier: %s", user.Identifier)
+	log.Println("Useri email:", user.Email)
+	log.Println("User identifier", user.Identifier)
+	log.Printf("Looking up user with identifier: %s", user.Identifier)
 
 	if err != nil {
 		log.Println("Error verifying user:", err)

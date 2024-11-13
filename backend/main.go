@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/database"
+	"social-network/database/middleware"
 	"social-network/handlers"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -21,8 +22,8 @@ func main() {
 	mux := http.NewServeMux()
 	server := &http.Server{
 		Addr: ":8080",
-		// Handler: midware.CorsMiddleware(mux),
-		Handler: mux,
+		Handler: middleware.CorsMiddleware(mux),
+		// Handler: mux,
 	}
 	handlers.RunHandlers(mux)
 	fmt.Println("Backend running on port 8080")
