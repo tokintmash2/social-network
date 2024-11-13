@@ -14,5 +14,5 @@ type User struct {
 	AboutMe    string
 	Avatar     string
 	Gender     string
-	Identifier string
+	// Identifier string
 }

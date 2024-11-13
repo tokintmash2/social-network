@@ -14,6 +14,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("LoginHandler called")
 
+	// email := r.PostFormValue("email")
+	// password := r.PostFormValue("password")z
+
+	// log.Printf("LoginHandler email: %s, password: %s\n", email, password)
+
 	var user structs.User
 
 	// // FOR TESTING ----------

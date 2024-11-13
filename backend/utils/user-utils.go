@@ -12,16 +12,22 @@ func VerifyUser(user structs.User) (int, bool) {
 	log.Println("Verifying user:", user)
 	var storedPassword string
 	var userID int
+	// err := database.DB.QueryRow(`
+    // SELECT id, password 
+    // FROM users 
+    // WHERE (email = ? OR username = ?) 
+    // LIMIT 1`,
 	err := database.DB.QueryRow(`
     SELECT id, password 
     FROM users 
-    WHERE (email = ? OR username = ?) 
+    WHERE (email = ?) 
     LIMIT 1`,
-		user.Identifier, user.Identifier,
+		user.Email,
+		// user.Identifier, user.Identifier,
 	).Scan(&userID, &storedPassword)
 	log.Println("Useri email:", user.Email)
-	log.Println("User identifier", user.Identifier)
-	log.Printf("Looking up user with identifier: %s", user.Identifier)
+	// log.Println("User identifier", user.Identifier)
+	// log.Printf("Looking up user with identifier: %s", user.Identifier)
 
 	if err != nil {
 		log.Println("Error verifying user:", err)
