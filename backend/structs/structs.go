@@ -16,3 +16,22 @@ type User struct {
 	Gender     string
 	// Identifier string
 }
+
+type Message struct { // Needs review
+	Type         string
+	Sender       int
+	Recipient    string
+	Content      string
+	CreatedAt    time.Time
+	Conversation struct {
+		ID        int
+		Recipient int
+		Sender    int
+	}
+}
+
+type UserInfo struct { // Needs review
+	ID       int
+	Username string
+	Avatar   string
+}
