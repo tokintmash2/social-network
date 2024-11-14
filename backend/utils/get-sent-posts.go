@@ -32,6 +32,8 @@ func ConvertToIntSlice(strSlice []string) []int {
 
 // createPost creates a new post in the database
 func CreatePost(newPost structs.Post) error {
+
+	
 	tx, err := database.DB.Begin()
 	if err != nil {
 		return err
@@ -50,7 +52,7 @@ func CreatePost(newPost structs.Post) error {
 	}
 
 	// Retrieve last inserted post ID
-	lastPostID, _ := GetLastInsertedPostID()
+	// lastPostID, _ := GetLastInsertedPostID()
 	// err = tx.QueryRow("SELECT last_insert_rowid()").Scan(&postID)
 	// if err != nil {
 	// 	log.Printf("Error getting last inserted post ID: %v\n", err)
@@ -58,16 +60,16 @@ func CreatePost(newPost structs.Post) error {
 	// }
 
 	// Can this be replaced with group_ID?
-	for _, categoryID := range newPost.CategoryIDs {
-		_, err = tx.Exec(`
-            INSERT INTO post_categories (post_id, category_id)
-            VALUES (?, ?)
-        `, lastPostID, categoryID)
-		if err != nil {
-			log.Printf("Error associating category: %v\n", err)
-			return err
-		}
-	}
+	// for _, categoryID := range newPost.CategoryIDs {
+	// 	_, err = tx.Exec(`
+    //         INSERT INTO post_categories (post_id, category_id)
+    //         VALUES (?, ?)
+    //     `, lastPostID, categoryID)
+	// 	if err != nil {
+	// 		log.Printf("Error associating category: %v\n", err)
+	// 		return err
+	// 	}
+	// }
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)

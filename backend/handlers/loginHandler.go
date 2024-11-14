@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
+	"time"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +29,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID, verified := utils.VerifyUser(user)
 	if verified {
+
+		// Send test post
+		testPost := structs.Post{
+			UserID:    userID,
+			Content:   "Test post",
+			CreatedAt: time.Now(),
+		}
+
+		utils.CreatePost(testPost)
+
+		//------------------
+
 		err := utils.SetUserOnline(userID)
 		if err != nil {
 			http.Error(w, "Error setting user online", http.StatusInternalServerError)
