@@ -30,10 +30,14 @@ export default function LoginPage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const ws = initializeWebSocket();
+    return () => ws.close();
+  }, []);
+
   const [loading, setLoading] = React.useState(false);
 
   const onLogin = async () => {
-    console.log("Login function called");
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:8080/login", user, {
@@ -41,10 +45,7 @@ export default function LoginPage() {
       });
 
       if (response.data.success) {
-        // Initialize WebSocket connection after successful login
-        console.log("response.data.success:", response.data.success);
-        const ws = initializeWebSocket();
-        ws.send(JSON.stringify({ type: 'login', user: user.email }));
+        console.log("Login successful");
         router.push("/profile");
       } else {
         toast.error(response.data.message);

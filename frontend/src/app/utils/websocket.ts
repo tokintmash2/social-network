@@ -1,30 +1,20 @@
-
-let wsConnection: WebSocket | null = null;
-
-export const getWebSocket = () => wsConnection;
-
-
 export const initializeWebSocket = () => {
-
-  console.log("Initializing WebSocket");
-
   const ws = new WebSocket("ws://localhost:8080/ws");
-  wsConnection = ws;
 
   ws.onopen = () => {
     console.log("Connected to WebSocket");
     // Send authentication message after connection if needed
-    // ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }));
+    ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }));
   };
 
   ws.onmessage = (event) => {
     const message = JSON.parse(event.data);
     // Handle different message types
     switch (message.type) {
-      case "chat":
+      case 'chat':
         console.log("Chat message:", message.content);
         break;
-      case "notification":
+      case 'notification':
         console.log("Notification:", message.content);
         break;
       default:
