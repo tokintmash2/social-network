@@ -50,12 +50,16 @@ func CreatePostApiHandler(writer http.ResponseWriter, request *http.Request) {
 			CategoryIDs: newPost.CategoryIDs,
 		}
 
-		err = utils.CreatePost(post)
-		if err != nil {
-			log.Printf("Error creating post: %v\n", err)
-			http.Error(writer, "Error creating post", http.StatusInternalServerError)
-			return
-		}
+
+
+		log.Println("Post:", post) // testing
+
+		// err = utils.CreatePost(post)
+		// if err != nil {
+		// 	log.Printf("Error creating post: %v\n", err)
+		// 	http.Error(writer, "Error creating post", http.StatusInternalServerError)
+		// 	return
+		// }
 
 		response := map[string]interface{}{
 			"success": true,

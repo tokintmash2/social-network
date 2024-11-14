@@ -37,3 +37,12 @@ type UserInfo struct { // Needs review
 	Avatar   string
 	LastMessage time.Time
 }
+
+type Post struct { // Need review
+	ID          int
+	UserID      int
+	Title       string
+	Content     string
+	CreatedAt   time.Time
+	CategoryIDs []int
+}
