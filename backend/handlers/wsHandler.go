@@ -44,6 +44,8 @@ type Client struct {
 
 func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
+	log.Println("Handling connections")
+
 	// userID := strconv.Itoa(userIDWS)
 
 	cookie, err := r.Cookie("session")

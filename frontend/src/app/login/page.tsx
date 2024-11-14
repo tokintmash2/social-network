@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { initializeWebSocket } from "@/app/utils/socket";
+import { initializeWebSocket } from "@/app/utils/websocket";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,34 +32,20 @@ export default function LoginPage() {
 
   const [loading, setLoading] = React.useState(false);
 
-  // const onLogin = async () => {
-  // 	try {
-  // 		setLoading(true)
-  // 		const response = await axios.post("api/users/signin", user)
-  // 		console.log("signin response", response.data)
-  // 		router.push("/profile")
-  // 	} catch (error: unknown) {
-  // 		toast.error(error instanceof Error ? error.message : "An unexpected error occurred")
-  // 	} finally {
-  // 		setLoading(false)
-  // 	}
-  // }
-
   const onLogin = async () => {
+    console.log("Login function called");
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:8080/login", user, {
-        // ...user,
-        // identifier: user.email,
-        withCredentials: true, // Important for receiving cookies
+        withCredentials: true,
       });
 
       if (response.data.success) {
+        // Initialize WebSocket connection after successful login
+        console.log("response.data.success:", response.data.success);
+        const ws = initializeWebSocket();
+        ws.send(JSON.stringify({ type: 'login', user: user.email }));
         router.push("/profile");
-        useEffect(() => {
-          const ws = initializeWebSocket();
-          return () => ws.close();
-        }, []);
       } else {
         toast.error(response.data.message);
       }
