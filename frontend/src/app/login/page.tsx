@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { initializeWebSocket } from "@/app/utils/socket";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,6 +56,10 @@ export default function LoginPage() {
 
       if (response.data.success) {
         router.push("/profile");
+        useEffect(() => {
+          const ws = initializeWebSocket();
+          return () => ws.close();
+        }, []);
       } else {
         toast.error(response.data.message);
       }

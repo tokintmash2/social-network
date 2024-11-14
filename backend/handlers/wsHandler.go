@@ -6,9 +6,7 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
-	"sort"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -34,6 +32,7 @@ var upgrader = websocket.Upgrader{ // buffers missing
 		return true
 	},
 }
+
 
 type Client struct {
 	connection  *websocket.Conn
@@ -227,7 +226,7 @@ func onlineUsers(userID int) structs.Message {
 	// })
 
 	message := structs.Message{
-		Type:         "online_users",
+		Type: "online_users",
 		// OnlineUsers:  onlineUsers,
 		// OfflineUsers: offlineUsers,
 	}
