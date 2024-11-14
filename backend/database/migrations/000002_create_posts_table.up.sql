@@ -3,7 +3,7 @@ CREATE TABLE posts (
     user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
     image TEXT,  -- Path to an optional image associated with the post
-    privacy_setting TEXT CHECK (privacy_setting IN ('public', 'private', 'followers')),
+    privacy_setting TEXT CHECK (privacy_setting IN ('public', 'private', 'custom')),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
