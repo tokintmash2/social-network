@@ -27,36 +27,82 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if request.Method == http.MethodPost {
-		var newPost struct {
-			// Title       string `json:"title"`
-			Content     string `json:"content"`
-			Privacy     string `json:"privacy"`
-			// CategoryIDs []int  `json:"categoryIDs"`
-		}
+	// if request.Method == http.MethodPost {
+	// 	var newPost struct {
+	// 		// Title       string `json:"title"`
+	// 		Content     string `json:"content"`
+	// 		Privacy     string `json:"privacy"`
+	// 		// CategoryIDs []int  `json:"categoryIDs"`
+	// 	}
 
-		err := json.NewDecoder(request.Body).Decode(&newPost)
+	// 	err := json.NewDecoder(request.Body).Decode(&newPost)
+	// 	if err != nil {
+	// 		http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
+	// 		return
+	// 	}
+
+	// 	if newPost.Privacy == "" || newPost.Content == "" {
+	// 		http.Error(writer, "Content, Privacy setting cannot be empty", http.StatusBadRequest)
+	// 		return
+	// 	}
+
+	// 	post := structs.Post{
+	// 		UserID:    userID,
+	// 		Content:   "Test post",
+	// 		Privacy:   "public",
+	// 		Image:     "test.jpg",
+	// 		CreatedAt: time.Now(),
+	// 	}
+
+	// 	log.Println("Post:", post) // testing
+
+	// 	post.Content = newPost.Content
+	// 	post.Privacy = newPost.Privacy
+
+	// 	err = utils.CreatePost(post)
+	// 	if err != nil {
+	// 		log.Printf("Error creating post: %v\n", err)
+	// 		http.Error(writer, "Error creating post", http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	response := map[string]interface{}{
+	// 		"success": true,
+	// 	}
+
+	// 	writer.Header().Set("Content-Type", "application/json")
+	// 	json.NewEncoder(writer).Encode(response)
+	// 	return
+	// }
+
+	if request.Method == http.MethodPost {
+		var post structs.Post
+
+		err := json.NewDecoder(request.Body).Decode(&post)
 		if err != nil {
 			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
 			return
 		}
 
-		if newPost.Privacy == "" || newPost.Content == "" {
+		if post.Privacy == "" || post.Content == "" {
 			http.Error(writer, "Content, Privacy setting cannot be empty", http.StatusBadRequest)
 			return
 		}
 
-		post := structs.Post{
-			UserID:    userID,
-			Content:   "Test post",
-			Privacy:   "public",
-			Image:     "test.jpg",
-			CreatedAt: time.Now(),
-		}
+		// post := structs.Post{
+		// 	UserID:    userID,
+		// 	Content:   "Test post",
+		// 	Privacy:   "public",
+		// 	Image:     "test.jpg",
+		// 	CreatedAt: time.Now(),
+		// }
 
 		log.Println("Post:", post) // testing
 
-		err = utils.CreatePost(newPost)
+		post.UserID = userID
+		post.CreatedAt = time.Now()
+
+		err = utils.CreatePost(post)
 		if err != nil {
 			log.Printf("Error creating post: %v\n", err)
 			http.Error(writer, "Error creating post", http.StatusInternalServerError)

@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
-	"time"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// log.Println("LoginHandler called")
+
+	// response := map[string]string{}
 
 	var user structs.User
 
@@ -22,13 +23,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	userID, verified := utils.VerifyUser(user)
 
 	// Send test post
-	testPost := structs.Post{
-		UserID:    userID,
-		Content:   "Test post",
-		Privacy:   "public",
-		Image:     "test.jpg",
-		CreatedAt: time.Now(),
-	}
+	// testPost := structs.Post{
+	// 	UserID:    userID,
+	// 	Content:   "Test post",
+	// 	Privacy:   "public",
+	// 	Image:     "test.jpg",
+	// 	CreatedAt: time.Now(),
+	// }
 
 	if verified {
 
@@ -46,11 +47,37 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, cookie)
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "sessionUUID": sessionUUID})
 
-		utils.CreatePost(testPost) // Create a test post
+		// utils.CreatePost(testPost) // Create a test post
 
 	} else {
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Wrong email or password"})
 	}
+
+	// if verified {
+
+	// 	err := utils.SetUserOnline(userID)
+	// 	if err != nil {
+	// 		http.Error(w, "Error setting user online", http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	sessionUUID, err := utils.CreateSession(userID)
+	// 	if err != nil {
+	// 		http.Error(w, "Failed to create a session", http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	cookie := utils.CreateSessionCookie(sessionUUID)
+	// 	http.SetCookie(w, cookie)
+	// 	response["success"] = "true"
+	// 	response["sessionUUID"] = sessionUUID
+	// 	json.NewEncoder(w).Encode(response)
+
+	// 	utils.CreatePost(testPost) // Create a test post
+
+	// } else {
+	// 	response["success"] = "false"
+	// 	response["message"] = "Wrong email or password"
+	// 	json.NewEncoder(w).Encode(response)
+	// }
 }
 
 // func LoginHandler2(w http.ResponseWriter, r *http.Request) {
