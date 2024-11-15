@@ -40,11 +40,11 @@ type UserInfo struct { // Needs review
 
 type Post struct { // Need review
 	ID        int
-	UserID    int
-	Title     string
-	Content   string
-	Privacy   string
-	Image     string
-	CreatedAt time.Time
+	UserID    int       `json:"user_id"`
+	GroupID   int       `json:"group_id"`
+	Content   string    `json:"content"`
+	Privacy   string    `json:"privacy"`
+	Image     string    `json:"image"`
+	CreatedAt time.Time `json:"created_at"`
 	// CategoryIDs []int
 }

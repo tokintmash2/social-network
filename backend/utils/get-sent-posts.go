@@ -30,7 +30,6 @@ func ConvertToIntSlice(strSlice []string) []int {
 	return intSlice
 }
 
-// createPost creates a new post in the database
 func CreatePost(newPost structs.Post) error {
 
 	log.Println("Got post:", newPost)
@@ -71,6 +70,34 @@ func CreatePost(newPost structs.Post) error {
 	// 		return err
 	// 	}
 	// }
+
+	if err = tx.Commit(); err != nil {
+		log.Printf("Error committing transaction: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+func CreateGroupPost(newPost structs.Post) error {
+
+	log.Println("Got group post:", newPost)
+	
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Insert post
+	_, err = tx.Exec(`
+        INSERT INTO group_posts (group_id, user_id, content, privacy_setting, image, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+		newPost.GroupID, newPost.UserID, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
+	)
+	if err != nil {
+		log.Printf("Error inserting post: %v\n", err)
+		return err
+	}
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
