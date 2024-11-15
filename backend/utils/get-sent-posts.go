@@ -33,6 +33,7 @@ func ConvertToIntSlice(strSlice []string) []int {
 // createPost creates a new post in the database
 func CreatePost(newPost structs.Post) error {
 
+	log.Println("Got post:", newPost)
 	
 	tx, err := database.DB.Begin()
 	if err != nil {
@@ -42,9 +43,9 @@ func CreatePost(newPost structs.Post) error {
 
 	// Insert post
 	_, err = tx.Exec(`
-        INSERT INTO posts (user_id, content, created_at)
-        VALUES (?, ?, ?)`,
-		newPost.UserID, newPost.Content, newPost.CreatedAt,
+        INSERT INTO posts (user_id, content, privacy_setting, image, timestamp)
+        VALUES (?, ?, ?, ?, ?)`,
+		newPost.UserID, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
 	)
 	if err != nil {
 		log.Printf("Error inserting post: %v\n", err)

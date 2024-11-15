@@ -10,7 +10,7 @@ import (
 )
 
 // CreatePostHandler manages post creation functionality
-func CreatePostApiHandler(writer http.ResponseWriter, request *http.Request) {
+func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 	cookie, err := request.Cookie("session")
 	if err != nil {
 		http.Redirect(writer, request, "/log-in", http.StatusSeeOther)
@@ -43,14 +43,12 @@ func CreatePostApiHandler(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		post := structs.Post{
-			UserID:      userID,
-			Title:       newPost.Title,
-			Content:     newPost.Content,
-			CreatedAt:   time.Now(),
-			CategoryIDs: newPost.CategoryIDs,
+			UserID:    userID,
+			Content:   "Test post",
+			Privacy:   "public",
+			Image:     "test.jpg",
+			CreatedAt: time.Now(),
 		}
-
-
 
 		log.Println("Post:", post) // testing
 

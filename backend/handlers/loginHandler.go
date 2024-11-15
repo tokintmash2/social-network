@@ -12,34 +12,26 @@ import (
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("LoginHandler called")
+	// log.Println("LoginHandler called")
 
 	var user structs.User
-
-	// // FOR TESTING ----------
-	// user.Password = "Password"
-	// user.Username = "User"
-	// user.Email = "User@email.com"
-	// user.Identifier = "User"
-	// // ----------------------
 
 	json.NewDecoder(r.Body).Decode(&user)
 
 	fmt.Printf("LoginHandler user: %+v\n", user)
 
 	userID, verified := utils.VerifyUser(user)
+
+	// Send test post
+	testPost := structs.Post{
+		UserID:    userID,
+		Content:   "Test post",
+		Privacy:   "public",
+		Image:     "test.jpg",
+		CreatedAt: time.Now(),
+	}
+
 	if verified {
-
-		// Send test post
-		testPost := structs.Post{
-			UserID:    userID,
-			Content:   "Test post",
-			CreatedAt: time.Now(),
-		}
-
-		utils.CreatePost(testPost)
-
-		//------------------
 
 		err := utils.SetUserOnline(userID)
 		if err != nil {
@@ -54,7 +46,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		cookie := utils.CreateSessionCookie(sessionUUID)
 		http.SetCookie(w, cookie)
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "sessionUUID": sessionUUID})
-		// userIDWS = userID
+
+		utils.CreatePost(testPost) // Create a test post
+
 	} else {
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Wrong email or password"})
 	}

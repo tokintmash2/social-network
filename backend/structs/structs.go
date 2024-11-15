@@ -43,6 +43,8 @@ type Post struct { // Need review
 	UserID      int
 	Title       string
 	Content     string
+	Privacy      string
+	Image       string
 	CreatedAt   time.Time
-	CategoryIDs []int
+	// CategoryIDs []int
 }
