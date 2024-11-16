@@ -148,6 +148,7 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		if post.Privacy == "" || post.Content == "" || post.GroupID == 0 {
+		// if post.Content == "" || post.GroupID == 0 {
 			http.Error(writer, "Content, Privacy or Group ID setting cannot be empty", http.StatusBadRequest)
 			return
 		}
@@ -157,7 +158,7 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 		post.UserID = userID
 		post.CreatedAt = time.Now()
 
-		err = utils.CreatePost(post)
+		err = utils.CreateGroupPost(post)
 		if err != nil {
 			log.Printf("Error creating post: %v\n", err)
 			http.Error(writer, "Error creating post", http.StatusInternalServerError)

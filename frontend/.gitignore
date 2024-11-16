@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+cookies.txt
 
 # next.js
 /.next/

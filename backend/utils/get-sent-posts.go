@@ -89,10 +89,12 @@ func CreateGroupPost(newPost structs.Post) error {
 	defer tx.Rollback()
 
 	// Insert post
+
+	// Need to add provacy setting?
 	_, err = tx.Exec(`
-        INSERT INTO group_posts (group_id, user_id, content, privacy_setting, image, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?)`,
-		newPost.GroupID, newPost.UserID, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
+        INSERT INTO group_posts (group_id, user_id, content, image, timestamp)
+        VALUES (?, ?, ?, ?, ?)`,
+		newPost.GroupID, newPost.UserID, newPost.Content, newPost.Image, newPost.CreatedAt,
 	)
 	if err != nil {
 		log.Printf("Error inserting post: %v\n", err)
