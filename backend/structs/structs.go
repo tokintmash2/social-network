@@ -16,6 +16,14 @@ type User struct {
 	Gender    string
 }
 
+type Group struct {
+	ID          int
+	CreatorID   int `json:"creator_id"`
+	Name        string `json:"group_name"`
+	Description string `json:"group_description"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type Message struct { // Needs review
 	Type             string
 	Sender           int
