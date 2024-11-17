@@ -3,28 +3,28 @@ package structs
 import "time"
 
 type User struct {
-	ID         int
-	Email      string
-	Password   string
-	Username   string
-	FirstName  string
-	LastName   string
-	Age        int
-	DOB        time.Time
-	AboutMe    string
-	Avatar     string
-	Gender     string
+	ID        int
+	Email     string
+	Password  string
+	Username  string
+	FirstName string
+	LastName  string
+	Age       int
+	DOB       time.Time
+	AboutMe   string
+	Avatar    string
+	Gender    string
 }
 
 type Message struct { // Needs review
-	Type         string
-	Sender       int
-	Recipient    string
-	Content      string
-	CreatedAt    time.Time
-	SenderUsername string
+	Type             string
+	Sender           int
+	Recipient        string
+	Content          string
+	CreatedAt        time.Time
+	SenderUsername   string
 	ReceiverUsername string
-	Conversation struct {
+	Conversation     struct {
 		ID        int
 		Recipient int
 		Sender    int
@@ -32,8 +32,19 @@ type Message struct { // Needs review
 }
 
 type UserInfo struct { // Needs review
-	ID       int
-	Username string
-	Avatar   string
+	ID          int
+	Username    string
+	Avatar      string
 	LastMessage time.Time
+}
+
+type Post struct { // Need review
+	ID        int
+	UserID    int       `json:"user_id"`
+	GroupID   int       `json:"group_id"`
+	Content   string    `json:"content"`
+	Privacy   string    `json:"privacy"`
+	Image     string    `json:"image"`
+	CreatedAt time.Time `json:"created_at"`
+	// CategoryIDs []int
 }
