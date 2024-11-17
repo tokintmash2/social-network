@@ -4,7 +4,57 @@ import (
 	"log"
 	"social-network/database"
 	"social-network/structs"
+	"time"
 )
+
+func AddGroupMember(groupID, userID, adminID int) error {
+	_, err := database.DB.Exec(`
+        INSERT INTO group_memberships (group_id, user_id, role, joined_at)
+        VALUES (?, ?, 'member', ?)`,
+		groupID, userID, time.Now(),
+	)
+	if err != nil {
+		log.Println("Error adding member:", err)
+		return err
+	}
+
+	// if err = tx.Commit(); err != nil {
+	// 	log.Printf("Error committing transaction: %v\n", err)
+	// 	return err
+	// }
+
+	return nil
+}
+
+func IsGroupAdmin(groupID, userID int) bool {
+    var exists bool
+    err := database.DB.QueryRow(`
+        SELECT EXISTS (
+            SELECT 1 FROM group_memberships 
+            WHERE group_id = ? AND user_id = ? AND role = 'admin'
+        )`, groupID, userID).Scan(&exists)
+    
+    if err != nil {
+        log.Printf("Error checking admin status: %v\n", err)
+        return false
+    }
+    return exists
+}
+
+func IsMemberInGroup(groupID, userID int) bool {
+    var exists bool
+    err := database.DB.QueryRow(`
+        SELECT EXISTS (
+            SELECT 1 FROM group_memberships 
+            WHERE group_id = ? AND user_id = ?
+        )`, groupID, userID).Scan(&exists)
+    
+    if err != nil {
+        log.Printf("Error checking membership: %v\n", err)
+        return false
+    }
+    return exists
+}
 
 func CreateGroup(group structs.Group) error {
 	log.Println("Got group:", group)
