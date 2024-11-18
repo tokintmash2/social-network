@@ -63,6 +63,28 @@ func GetUsername(userID int) (string, error) {
 	return "Unknown", nil
 }
 
+func GetUserProfile(userID int) (structs.User, error) {
+	var userProfile structs.User
+	err := database.DB.QueryRow(`
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.dob, u.avatar
+        FROM users u
+        WHERE u.id = ?`,
+		userID,
+	).Scan(
+		&userProfile.ID,
+		&userProfile.Username,
+		&userProfile.Email,		
+		&userProfile.FirstName,
+		&userProfile.LastName,
+		&userProfile.DOB,
+		&userProfile.Avatar,
+	)
+	if err != nil {
+		return structs.User{}, err
+	}
+	return userProfile, nil
+}
+
 func VerifyUser(user structs.User) (int, bool) {
 	log.Println("Verifying user:", user)
 	var storedPassword string

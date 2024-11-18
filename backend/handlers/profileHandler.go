@@ -23,7 +23,7 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	sessionUUID := cookie.Value
-	userID, validSession := utils.VerifySession(sessionUUID, "GroupsHandler")
+	userID, validSession := utils.VerifySession(sessionUUID, "ProfileHandler")
 	if !validSession {
 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
 		return
@@ -38,10 +38,9 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		// siin on pooleli - vaja profile teha jsoniks ja lisada func
-
 		response := map[string]interface{}{
 			"success": true,
+			"profile": profile, // Entire profile object
 		}
 
 		writer.Header().Set("Content-Type", "application/json")

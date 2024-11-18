@@ -9,18 +9,18 @@ type User struct {
 	Username  string
 	FirstName string
 	LastName  string
-	Age       int
-	DOB       time.Time
-	AboutMe   string
-	Avatar    string
-	Gender    string
+	// Age       int
+	DOB     time.Time
+	AboutMe string
+	Avatar  string
+	// Gender    string
 }
 
 type Group struct {
 	ID          int
-	CreatorID   int `json:"creator_id"`
-	Name        string `json:"group_name"`
-	Description string `json:"group_description"`
+	CreatorID   int       `json:"creator_id"`
+	Name        string    `json:"group_name"`
+	Description string    `json:"group_description"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
