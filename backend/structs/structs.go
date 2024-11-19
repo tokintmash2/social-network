@@ -9,10 +9,11 @@ type User struct {
 	Username  string
 	FirstName string
 	LastName  string
+	DOB       time.Time
+	AboutMe   string
+	Avatar    string
+	IsPublic  bool
 	// Age       int
-	DOB     time.Time
-	AboutMe string
-	Avatar  string
 	// Gender    string
 }
 

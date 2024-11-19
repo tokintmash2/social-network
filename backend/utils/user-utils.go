@@ -66,7 +66,7 @@ func GetUsername(userID int) (string, error) {
 func GetUserProfile(userID int) (structs.User, error) {
 	var userProfile structs.User
 	err := database.DB.QueryRow(`
-        SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.dob, u.avatar
+        SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.dob, u.avatar, u.about_me, u.is_public
         FROM users u
         WHERE u.id = ?`,
 		userID,
@@ -78,11 +78,32 @@ func GetUserProfile(userID int) (structs.User, error) {
 		&userProfile.LastName,
 		&userProfile.DOB,
 		&userProfile.Avatar,
+		&userProfile.AboutMe,
+		&userProfile.IsPublic,
 	)
 	if err != nil {
 		return structs.User{}, err
 	}
+
+	if !userProfile.IsPublic {
+        // Return limited profile for private accounts
+        return structs.User{
+            Username: userProfile.Username,
+            IsPublic: userProfile.IsPublic,
+        }, nil
+    }
+
 	return userProfile, nil
+}
+
+func ToggleUserPrivacy(userID int) error {
+	_, err := database.DB.Exec(`
+        UPDATE users
+        SET is_public = NOT is_public
+        WHERE id = ?`,
+		userID,
+	)
+	return err
 }
 
 func VerifyUser(user structs.User) (int, bool) {
