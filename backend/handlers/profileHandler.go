@@ -7,14 +7,11 @@ import (
 	"social-network/utils"
 )
 
+// Returns the user's profile data JSON
+// If profile is public, returns full profile data
+// If profile is private, returns only usernname
 func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 	log.Println("ProfileHandler called")
-
-	// My profile & other user profile
-
-	log.Println("ProfileHandler called")
-
-	// var userID int
 
 	cookie, err := request.Cookie("session")
 	if err != nil {
