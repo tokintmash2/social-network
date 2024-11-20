@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
-import { initializeWebSocket } from '@/app/utils/websocket'
+// import { initializeWebSocket } from '@/app/utils/websocket'
 
 export default function LoginPage() {
 	const router = useRouter()
@@ -41,7 +41,7 @@ export default function LoginPage() {
 			})
 
 			if (response.data.success) {
-				const ws = initializeWebSocket()
+				// const ws = initializeWebSocket()
 				// ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }));
 				console.log('Login successful')
 				router.push('/profile')
