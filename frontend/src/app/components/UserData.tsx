@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 
-export default function UserData({ userId }: { userId: string }) {
+type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE'
+type UserDataProps = {
+	userId: string
+	accessType: ProfileAccess
+}
+
+export default function UserData({ userId, accessType }: UserDataProps) {
 	const [userData, setUserData] = useState<{
 		email: string
 		firstName: string

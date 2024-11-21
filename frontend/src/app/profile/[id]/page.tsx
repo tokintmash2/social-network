@@ -1,4 +1,4 @@
-import UserData from './UserData'
+import UserData from '../../components/UserData'
 
 export default async function UserProfile({ params }: { params: { id: string } }) {
 	const resolvedParams = await params
@@ -11,7 +11,7 @@ export default async function UserProfile({ params }: { params: { id: string } }
 				Profile page of user:
 				<span className='p-2'>{id}</span>
 			</p>
-			<UserData userId={id} />
+			<UserData userId={id} isOwnProfile={false} />
 		</div>
 	)
 }
