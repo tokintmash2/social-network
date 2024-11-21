@@ -46,17 +46,27 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 		fetchUserData()
 	}, [userId])
 
-	const handleToggleProfilePrivacy = () => {
+	const handleToggleProfilePrivacy = async () => {
 		setUserData((prevUserData) => {
-			console.log('toggle | prevUserData:', prevUserData)
-			if (prevUserData === null) {
-				return null
-			}
+			if (prevUserData === null) return null
+
+			// Optimistically update UI
 			return {
 				...prevUserData,
 				isPublicProfile: !prevUserData.isPublicProfile,
 			}
 		})
+
+		try {
+			const response = await axios.get('http://localhost:8080/toggle-privacy', {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			})
+		} catch (error) {
+			console.error('Error toggling privacy:', error)
+		}
 	}
 	return (
 		<div>
@@ -70,6 +80,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 									<input
 										type='checkbox'
 										className='toggle toggle-md toggle-accent'
+										checked={userData?.isPublicProfile || false}
 										onChange={handleToggleProfilePrivacy}
 									/>
 								</label>
