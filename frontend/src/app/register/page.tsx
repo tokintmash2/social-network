@@ -145,13 +145,13 @@ export default function RegisterPage() {
 								selected={startDate}
 								className='input input-sm input-bordered w-full'
 								locale='en-GB'
-								onChange={(date) => {
+								onChange={(date: Date | null) => {
 									if (date) {
-										setStartDate(date);
+										setStartDate(date)
 										setUser({
 											...user,
-											dob: date
-										});
+											dob: date,
+										})
 									}
 								}}
 							/>

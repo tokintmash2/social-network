@@ -16,6 +16,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 		firstName: string
 		lastName: string
 		dob: Date
+		isPublicProfile: boolean
 		avatar?: File // Optional
 		username?: string // Optional
 		about?: string // Optional
@@ -24,37 +25,94 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 	useEffect(() => {
 		const fetchUserData = async () => {
 			try {
-				const response = await axios.get(`http://localhost:8080/users/${userId}`)
+				const response = await axios.get(`http://localhost:8080/users/${userId}`, {
+					withCredentials: true,
+				})
 				console.log('response', response.data)
-				setUserData(response.data)
+				setUserData({
+					email: response.data.profile.Email,
+					firstName: response.data.profile.FirstName,
+					lastName: response.data.profile.LastName,
+					dob: response.data.profile.DOB,
+					avatar: response.data.profile.Avatar,
+					username: response.data.profile.Username,
+					about: response.data.profile.About,
+					isPublicProfile: response.data.profile.IsPublic,
+				})
 			} catch (error) {
 				console.error('Error fetching user data:', error)
 			}
 		}
-
 		fetchUserData()
 	}, [userId])
+
+	const handleToggleProfilePrivacy = () => {
+		setUserData((prevUserData) => {
+			console.log('toggle | prevUserData:', prevUserData)
+			if (prevUserData === null) {
+				return null
+			}
+			return {
+				...prevUserData,
+				isPublicProfile: !prevUserData.isPublicProfile,
+			}
+		})
+	}
 	return (
 		<div>
 			{userData ? (
-				<div>
-					<h2>User Data</h2>
-					{userData.avatar && (
-						<Image
-							src={URL.createObjectURL(userData.avatar)}
-							alt='User avatar'
-							width={100}
-							height={100}
-						/>
+				<>
+					{accessType !== 'SELF' && (
+						<div className='flex flex-row justify-end'>
+							<div className='form-control'>
+								<label className='label cursor-pointer'>
+									<span className='label-text mr-4'>Public profile</span>
+									<input
+										type='checkbox'
+										className='toggle toggle-md toggle-accent'
+										onChange={handleToggleProfilePrivacy}
+									/>
+								</label>
+							</div>
+						</div>
+					)}
+
+					{userData.avatar ? (
+						<>
+							<div className='avatar online'>
+								<div className='w-24 rounded-full'>
+									<Image
+										src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+										alt='User avatar'
+										width={96}
+										height={96}
+									/>
+								</div>
+							</div>
+						</>
+					) : (
+						<>
+							<div className='avatar placeholder online'>
+								{' '}
+								{/* TODO: fetch online status. For now, hardcode */}
+								<div className='bg-neutral text-neutral-content w-24 rounded-full'>
+									<span className='text-3xl'>
+										{userData.firstName[0]}
+										{userData.lastName[0]}
+									</span>
+								</div>
+							</div>
+						</>
 					)}
 					<p>
 						Name: {userData.firstName} {userData.lastName}
 					</p>
 					{userData.username && <p>Username: {userData.username}</p>}
-					<p>Email: {userData.email}</p>
-					<p>Date of Birth: {userData.dob.toString()}</p>
-					{userData.about && <p>About: {userData.about}</p>}
-				</div>
+
+					{accessType !== 'PRIVATE' && <p>Email: {userData.email}</p>}
+
+					{accessType !== 'PRIVATE' && userData.about && <p>{userData.about}</p>}
+				</>
 			) : (
 				<p>Loading...</p>
 			)}

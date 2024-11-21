@@ -1,17 +1,15 @@
 import UserData from '../../components/UserData'
 
-export default async function UserProfile({ params }: { params: { id: string } }) {
-	const resolvedParams = await params
-	const id = resolvedParams.id || params.id
+type Params = Promise<{ id: string }>
+
+export default async function UserProfile(props: { params: Params }) {
+	const params = await props.params
+	const id = params.id
 
 	return (
-		<div>
-			<h1>Profile</h1>
-			<p className='text-4xl'>
-				Profile page of user:
-				<span className='p-2'>{id}</span>
-			</p>
-			<UserData userId={id} isOwnProfile={false} />
+		<div className='container mx-auto bg-base-100 px-4'>
+			<UserData userId={id} accessType='PUBLIC' />
+			{/* TODO: fetch accessType info. For now, hardcode */}
 		</div>
 	)
 }
