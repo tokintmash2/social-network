@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"social-network/utils"
+	"strconv"
+	"strings"
 )
 
 // Returns the user's profile data JSON
@@ -20,11 +22,16 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	sessionUUID := cookie.Value
-	userID, validSession := utils.VerifySession(sessionUUID, "ProfileHandler")
+	_, validSession := utils.VerifySession(sessionUUID, "ProfileHandler")
 	if !validSession {
 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
 		return
 	}
+
+	urlPath := request.URL.Path
+	log.Println("URL Path:", urlPath)
+	userIdStr := strings.TrimPrefix(urlPath, "/users/")
+	userID,_ := strconv.Atoi(userIdStr)
 
 	if request.Method == http.MethodGet {
 		// Fetch user profile data
