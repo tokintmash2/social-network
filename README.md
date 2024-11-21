@@ -1,4 +1,68 @@
-# Networking
+# Social Network Project
+
+A modern social networking platform built with Next.js and Go, featuring real-time interactions and comprehensive user engagement features.
+
+## Setup
+
+### Backend Setup
+
+1. Navigate to backend directory:
+
+```bash
+cd backend
+```
+
+Install Go dependencies and start the backend server:
+
+```bash
+go mod tidy
+go run main.go
+```
+
+The server will run on http://localhost:8080
+
+### Frontend Setup
+
+Navigate to frontend directory:
+
+```bash
+cd frontend
+```
+
+Install dependencies and run development server:
+
+```bash
+npm install
+npm run dev
+```
+
+The application will be available at http://localhost:3000
+
+## Core Features
+
+-   **User Authentication**: Secure registration and login system with session management
+-   **Profile Management**: Public and private profiles with customizable user information
+-   **Social Connections**: Follow system with request handling for private profiles
+-   **Posts**: Create and share posts with privacy controls (public, private, selective)
+-   **Groups**: Create and join groups with event organization capabilities
+-   **Real-time Chat**: Private messaging and group chat using WebSocket
+-   **Notifications**: Real-time notifications for social interactions
+
+## Tech Stack
+
+### Frontend
+
+-   Next.js 15.0.2
+-   TypeScript
+-   WebSocket for real-time features
+-   DaisyUI for UI components
+
+### Backend
+
+-   Go
+-   SQLite database
+-   WebSocket implementation
+-   Session-based authentication
 
 ### License
 
