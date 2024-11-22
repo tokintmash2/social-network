@@ -1,17 +1,17 @@
-import UserData from './UserData'
+'use client'
 
-export default async function UserProfile({ params }: { params: { id: string } }) {
-	const resolvedParams = await params
-	const id = resolvedParams.id || params.id
+import UserData from '../../components/UserData'
+
+import { useParams } from 'next/navigation'
+
+export default function UserProfile() {
+	const params = useParams()
+	const id = params.id as string
 
 	return (
-		<div>
-			<h1>Profile</h1>
-			<p className='text-4xl'>
-				Profile page of user:
-				<span className='p-2'>{id}</span>
-			</p>
-			<UserData userId={id} />
+		<div className='container mx-auto bg-base-100 px-4'>
+			<UserData userId={id} accessType='PUBLIC' />
+			{/* TODO: fetch accessType info. For now, hardcode */}
 		</div>
 	)
 }

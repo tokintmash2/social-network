@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { UserProvider } from './context/UserContext'
 import localFont from 'next/font/local'
 import './globals.css'
 
@@ -18,15 +19,11 @@ export const metadata: Metadata = {
 	description: 'kood/jõhvi project for JS course',
 }
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html lang='en'>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				{children}
+		<html lang='en' className='bg-base-200'>
+			<body className={`${geistSans.variable} ${geistMono.variable} bg-base-200 antialiased`}>
+				<UserProvider>{children}</UserProvider>
 			</body>
 		</html>
 	)

@@ -13,8 +13,8 @@ export default function LoginPage() {
 		email: string
 		password: string
 		username?: string
-		identifier?: string
 	}
+
 	const [user, setUser] = React.useState<User>({
 		email: '',
 		password: '',
@@ -42,8 +42,8 @@ export default function LoginPage() {
 
 			if (response.data.success) {
 				// const ws = initializeWebSocket()
-				// ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }));
-				console.log('Login successful')
+				// ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }))
+				// Set the logged-in user data in UserContext
 				router.push('/profile')
 			} else {
 				toast.error(response.data.message)
