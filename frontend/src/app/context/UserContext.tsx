@@ -1,11 +1,8 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
+import { mapUserApiResponseToUser, User } from '../utils/userMapper'
 import axios from 'axios'
-
-type User = {
-	id: string
-}
 
 type UserContextType = {
 	loggedInUser: User | null
@@ -23,8 +20,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 				const response = await axios.get('http://localhost:8080/verify-session', {
 					withCredentials: true,
 				})
+				console.log('response', response.data)
 				if (response.data.success) {
-					setLoggedInUser(response.data.user)
+					setLoggedInUser(mapUserApiResponseToUser(response.data.user))
 				}
 			} catch (error) {
 				console.log('No active session', error)

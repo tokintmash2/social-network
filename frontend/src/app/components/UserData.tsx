@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
+import { mapUserApiResponseToUser, User } from '../utils/userMapper'
 
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE'
 type UserDataProps = {
@@ -12,16 +13,7 @@ type UserDataProps = {
 }
 
 export default function UserData({ userId, accessType }: UserDataProps) {
-	const [userData, setUserData] = useState<{
-		email: string
-		firstName: string
-		lastName: string
-		dob: Date
-		isPublicProfile: boolean
-		avatar?: File // Optional
-		username?: string // Optional
-		about?: string // Optional
-	} | null>(null)
+	const [userData, setUserData] = useState<User | null>(null)
 
 	const { loggedInUser } = useLoggedInUser()
 
@@ -32,16 +24,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 					withCredentials: true,
 				})
 				console.log('response', response.data)
-				setUserData({
-					email: response.data.profile.Email,
-					firstName: response.data.profile.FirstName,
-					lastName: response.data.profile.LastName,
-					dob: response.data.profile.DOB,
-					avatar: response.data.profile.Avatar,
-					username: response.data.profile.Username,
-					about: response.data.profile.About,
-					isPublicProfile: response.data.profile.IsPublic,
-				})
+				setUserData(mapUserApiResponseToUser(response.data.profile))
 			} catch (error) {
 				console.error('Error fetching user data:', error)
 			}
@@ -54,6 +37,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 	useEffect(() => {
 		if (accessType === 'SELF' && loggedInUser) {
 			console.log("accessType == 'SELF' | loggedInUser", loggedInUser)
+			setUserData(loggedInUser)
 		} else if (accessType === 'SELF') {
 			console.log("accessType == 'SELF' | loggedInUser null")
 		}
@@ -66,7 +50,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 			// Optimistically update UI
 			return {
 				...prevUserData,
-				isPublicProfile: !prevUserData.isPublicProfile,
+				isPublicProfile: !prevUserData.isPublic,
 			}
 		})
 
@@ -86,7 +70,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 		<div>
 			{userData ? (
 				<>
-					{accessType !== 'SELF' && (
+					{accessType === 'SELF' && (
 						<div className='flex flex-row justify-end'>
 							<div className='form-control'>
 								<label className='label cursor-pointer'>
@@ -94,7 +78,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 									<input
 										type='checkbox'
 										className='toggle toggle-md toggle-accent'
-										checked={userData?.isPublicProfile || false}
+										checked={userData?.isPublic || false}
 										onChange={handleToggleProfilePrivacy}
 									/>
 								</label>
@@ -137,7 +121,9 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 
 					{accessType !== 'PRIVATE' && <p>Email: {userData.email}</p>}
 
-					{accessType !== 'PRIVATE' && userData.about && <p>{userData.about}</p>}
+					{accessType !== 'PRIVATE' && userData.aboutMe && (
+						<p>About me: {userData.aboutMe}</p>
+					)}
 				</>
 			) : (
 				<p>Loading...</p>

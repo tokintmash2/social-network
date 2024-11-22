@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { UserProvider } from './context/UserContext'
 import localFont from 'next/font/local'
 import './globals.css'
+import ClientLayout from './ClientLayout'
 
 const geistSans = localFont({
 	src: './fonts/GeistVF.woff',
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang='en' className='bg-base-200'>
 			<body className={`${geistSans.variable} ${geistMono.variable} bg-base-200 antialiased`}>
-				<UserProvider>{children}</UserProvider>
+				<ClientLayout>{children}</ClientLayout>
 			</body>
 		</html>
 	)
