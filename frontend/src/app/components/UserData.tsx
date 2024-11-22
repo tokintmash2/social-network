@@ -70,7 +70,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 		<div>
 			{userData ? (
 				<>
-					{accessType !== 'SELF' && (
+					{accessType === 'SELF' && (
 						<div className='flex flex-row justify-end'>
 							<div className='form-control'>
 								<label className='label cursor-pointer'>
@@ -121,7 +121,9 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 
 					{accessType !== 'PRIVATE' && <p>Email: {userData.email}</p>}
 
-					{accessType !== 'PRIVATE' && userData.aboutMe && <p>{userData.aboutMe}</p>}
+					{accessType !== 'PRIVATE' && userData.aboutMe && (
+						<p>About me: {userData.aboutMe}</p>
+					)}
 				</>
 			) : (
 				<p>Loading...</p>
