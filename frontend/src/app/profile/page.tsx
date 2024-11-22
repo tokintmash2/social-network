@@ -1,13 +1,13 @@
+'use client'
+
 import UserData from '../components/UserData'
-import { cookies } from 'next/headers'
+import { useLoggedInUser } from '../context/UserContext'
 
 // Show my profile page
-export default async function MyProfilePage() {
-	const cookieStore = cookies()
-	const sessionId = (await cookieStore).get('session')?.value
-	console.log('sessionId', sessionId)
-
+export default function MyProfilePage() {
 	// TODO: get my userId
+	const { loggedInUser } = useLoggedInUser()
+	console.log('loggedInUser', loggedInUser)
 
 	return (
 		<div className='container mx-auto bg-base-100'>

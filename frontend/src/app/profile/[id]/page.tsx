@@ -1,10 +1,12 @@
+'use client'
+
 import UserData from '../../components/UserData'
 
-type Params = Promise<{ id: string }>
+import { useParams } from 'next/navigation'
 
-export default async function UserProfile(props: { params: Params }) {
-	const params = await props.params
-	const id = params.id
+export default function UserProfile() {
+	const params = useParams()
+	const id = params.id as string
 
 	return (
 		<div className='container mx-auto bg-base-100 px-4'>

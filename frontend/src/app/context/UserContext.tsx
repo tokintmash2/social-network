@@ -1,28 +1,38 @@
 'use client'
 
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import axios from 'axios'
 
-type LoggedInUser = {
-	email?: string
+type User = {
 	id: string
-	firstName?: string
-	lastName?: string
-	dob?: Date | null // Date or null for dob
-	avatar?: File // Optional
-	username?: string // Optional
-	about?: string // Optional
 }
 
 type UserContextType = {
-	loggedInUser: LoggedInUser | null // The user data object that can be null when no user is logged in
-	setLoggedInUser: (loggedInUser: LoggedInUser | null) => void // A function that will update the user state. It accepts either a LoggedInUser object (when logging in) or null (when logging out). Returns nothing
+	loggedInUser: User | null
+	setLoggedInUser: (user: User | null) => void
 }
 
-// createContext: Creates a context to store the user state and the setUser function.
-// Default Value: The default value for the context is undefined. This ensures that any component trying to access the context outside of a UserProvider throws an error (handled later).
 const UserContext = createContext<UserContextType | undefined>(undefined)
+
 export function UserProvider({ children }: { children: React.ReactNode }) {
-	const [loggedInUser, setLoggedInUser] = useState<LoggedInUser | null>(null)
+	const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
+
+	useEffect(() => {
+		const fetchUser = async () => {
+			try {
+				const response = await axios.get('http://localhost:8080/verify-session', {
+					withCredentials: true,
+				})
+				if (response.data.success) {
+					setLoggedInUser(response.data.user)
+				}
+			} catch (error) {
+				console.log('No active session', error)
+			}
+		}
+
+		fetchUser()
+	}, [])
 
 	return (
 		<UserContext.Provider value={{ loggedInUser, setLoggedInUser }}>

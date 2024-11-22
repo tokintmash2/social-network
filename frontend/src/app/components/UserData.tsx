@@ -77,6 +77,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 					'Content-Type': 'application/json',
 				},
 			})
+			console.log('response', response.data)
 		} catch (error) {
 			console.error('Error toggling privacy:', error)
 		}
@@ -105,8 +106,9 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 						<>
 							<div className='avatar online'>
 								<div className='w-24 rounded-full'>
+									{/* TODO: use userData.avatar and fetch online status. For now, hardcode */}
 									<Image
-										src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
+										src='/avatar.svg'
 										alt='User avatar'
 										width={96}
 										height={96}
