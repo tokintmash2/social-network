@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
+import { useLoggedInUser } from '../context/UserContext'
 
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE'
 type UserDataProps = {
@@ -21,6 +22,8 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 		username?: string // Optional
 		about?: string // Optional
 	} | null>(null)
+
+	const { loggedInUser } = useLoggedInUser()
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -43,8 +46,18 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 				console.error('Error fetching user data:', error)
 			}
 		}
-		fetchUserData()
-	}, [userId])
+		if (accessType !== 'SELF') {
+			fetchUserData()
+		}
+	}, [userId, accessType])
+
+	useEffect(() => {
+		if (accessType === 'SELF' && loggedInUser) {
+			console.log("accessType == 'SELF' | loggedInUser", loggedInUser)
+		} else if (accessType === 'SELF') {
+			console.log("accessType == 'SELF' | loggedInUser null")
+		}
+	}, [accessType, loggedInUser])
 
 	const handleToggleProfilePrivacy = async () => {
 		setUserData((prevUserData) => {

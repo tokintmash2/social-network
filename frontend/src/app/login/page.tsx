@@ -4,17 +4,19 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
+import { useLoggedInUser } from '../context/UserContext'
 // import { initializeWebSocket } from '@/app/utils/websocket'
 
 export default function LoginPage() {
 	const router = useRouter()
+	const { setLoggedInUser } = useLoggedInUser() // Access setUser from UserContext
 
 	type User = {
 		email: string
 		password: string
 		username?: string
-		identifier?: string
 	}
+
 	const [user, setUser] = React.useState<User>({
 		email: '',
 		password: '',
@@ -41,9 +43,13 @@ export default function LoginPage() {
 			})
 
 			if (response.data.success) {
+				console.log('Backend response:', response.data)
 				// const ws = initializeWebSocket()
-				// ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }));
-				console.log('Login successful')
+				// ws.send(JSON.stringify({ type: 'auth', token: 'your-auth-token' }))
+				// Set the logged-in user data in UserContext
+				setLoggedInUser({
+					id: response.data.user.id,
+				})
 				router.push('/profile')
 			} else {
 				toast.error(response.data.message)
