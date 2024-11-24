@@ -74,7 +74,7 @@ export default function RegisterPage() {
 			formData.append('password', user.password)
 			formData.append('firstName', user.firstName)
 			formData.append('lastName', user.lastName)
-			formData.append('dob', user.dob?.toISOString() || '')
+			formData.append('dob', user.dob?.toISOString().split('T')[0] || '')
 			formData.append('username', user.username || '')
 			formData.append('about', user.about || '')
 			
