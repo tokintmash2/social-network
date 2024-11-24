@@ -51,10 +51,43 @@ export default function RegisterPage() {
 
 	const [loading, setLoading] = React.useState(false)
 
+	// const onRegister = async () => {
+	// 	try {
+	// 		setLoading(true)
+	// 		const response = await axios.post('http://localhost:8080/register', user)
+	// 		console.log('signup response', response.data)
+	// 		router.push('/login')
+	// 	} catch (error: unknown) {
+	// 		toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
+	// 	} finally {
+	// 		setLoading(false)
+	// 	}
+	// }
+
 	const onRegister = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.post('http://localhost:8080/register', user)
+			const formData = new FormData()
+			
+			// Add all text fields
+			formData.append('email', user.email)
+			formData.append('password', user.password)
+			formData.append('firstName', user.firstName)
+			formData.append('lastName', user.lastName)
+			formData.append('dob', user.dob?.toISOString() || '')
+			formData.append('username', user.username || '')
+			formData.append('about', user.about || '')
+			
+			// Add avatar if it exists
+			if (user.avatar) {
+				formData.append('avatar', user.avatar)
+			}
+	
+			const response = await axios.post('http://localhost:8080/register', formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				}
+			})
 			console.log('signup response', response.data)
 			router.push('/login')
 		} catch (error: unknown) {
@@ -63,6 +96,7 @@ export default function RegisterPage() {
 			setLoading(false)
 		}
 	}
+	
 
 	registerLocale('en-GB', enGB)
 
