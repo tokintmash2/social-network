@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"social-network/structs"
 	"social-network/utils"
 	"time"
@@ -37,7 +41,35 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	newUser.DOB = dob
 
 	// Parse the avatar
-	//  avatar, _, err := r.FormFile("avatar")
+	file, fileHeader, err := r.FormFile("avatar")
+	if err == nil && file != nil {
+		defer file.Close()
+
+		// Generate unique filename
+		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+
+		// Create uploads directory if it doesn't exist
+		uploadDir := "uploads/avatars"
+		os.MkdirAll(uploadDir, 0755)
+
+		// Create new file
+		dst, err := os.Create(filepath.Join(uploadDir, filename))
+		if err != nil {
+			http.Error(w, "Failed to save avatar", http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
+
+		// Copy uploaded file to destination
+		_, err = io.Copy(dst, file)
+		if err != nil {
+			http.Error(w, "Failed to save avatar", http.StatusInternalServerError)
+			return
+		}
+
+		// Save filename to user record
+		newUser.Avatar = filename
+	}
 
 	// json.NewDecoder(r.Body).Decode(&newUser)
 
