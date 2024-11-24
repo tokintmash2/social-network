@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func GetUserIdFromPath(urlPath, trim string) (int, error) {
+func FetchIdFromPath(urlPath, trim string) (int, error) {
 	userIdStr := strings.TrimPrefix(urlPath, trim)
 	userID, err := strconv.Atoi(userIdStr)
 	if err != nil {
