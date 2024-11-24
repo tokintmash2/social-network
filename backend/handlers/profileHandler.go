@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"social-network/utils"
-	"strconv"
-	"strings"
 )
 
 // Returns the user's profile data JSON
@@ -28,10 +26,15 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	urlPath := request.URL.Path
-	log.Println("URL Path:", urlPath)
-	userIdStr := strings.TrimPrefix(urlPath, "/users/")
-	userID,_ := strconv.Atoi(userIdStr)
+	// urlPath := request.URL.Path
+	// log.Println("URL Path:", urlPath)
+	// userIdStr := strings.TrimPrefix(urlPath, "/users/")
+	// userID, _ := strconv.Atoi(userIdStr)
+
+	userID, err := utils.GetUserIdFromPath(request.URL.Path, "/users/")
+	if err != nil {
+		log.Printf("Error parsing user ID: %v\n", err)
+	}
 
 	if request.Method == http.MethodGet {
 		// Fetch user profile data
