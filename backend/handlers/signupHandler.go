@@ -49,7 +49,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
 
 		// Create uploads directory if it doesn't exist
-		uploadDir := "uploads/avatars"
+		uploadDir := "avatars"
 		os.MkdirAll(uploadDir, 0755)
 
 		// Create new file
@@ -69,6 +69,9 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Save filename to user record
 		newUser.Avatar = filename
+	} else {
+		// If no avatar - use default
+		newUser.Avatar = "default_avatar.jpg"
 	}
 
 	// json.NewDecoder(r.Body).Decode(&newUser)
