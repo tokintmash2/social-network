@@ -69,7 +69,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Save filename to user record
 		newUser.Avatar = filename
-	}
+	} 
 
 	// json.NewDecoder(r.Body).Decode(&newUser)
 
