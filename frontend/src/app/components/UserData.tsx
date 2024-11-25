@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
 import { mapUserApiResponseToUser, User } from '../utils/userMapper'
 import { formatDate } from '../utils/dateUtils'
-import { access } from 'fs'
+import PostsContainer from '../containers/PostsContainer'
 
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
 type UserDataProps = {
@@ -161,6 +161,12 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 					{accessType !== 'PRIVATE' &&
 						accessType !== 'PRIVATE_PENDING' &&
 						userData.aboutMe && <p>About me: {userData.aboutMe}</p>}
+
+					<PostsContainer
+						userId={userData.id}
+						isOwnProfile={accessType === 'SELF'}
+						feed={false}
+					/>
 				</>
 			) : (
 				<p>Loading...</p>
