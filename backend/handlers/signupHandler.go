@@ -49,7 +49,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
 
 		// Create uploads directory if it doesn't exist
-		uploadDir := "backend/avatars"
+		uploadDir := "avatars"
 		os.MkdirAll(uploadDir, 0755)
 
 		// Create new file
