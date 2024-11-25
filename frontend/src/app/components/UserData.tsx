@@ -5,8 +5,10 @@ import axios from 'axios'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
 import { mapUserApiResponseToUser, User } from '../utils/userMapper'
+import { formatDate } from '../utils/dateUtils'
+import { access } from 'fs'
 
-type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE'
+type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
 type UserDataProps = {
 	userId: string
 	accessType: ProfileAccess
@@ -14,6 +16,10 @@ type UserDataProps = {
 
 export default function UserData({ userId, accessType }: UserDataProps) {
 	const [userData, setUserData] = useState<User | null>(null)
+	const [followData, setFollowData] = useState<{ following: number; followers: number }>({
+		following: 0,
+		followers: 0,
+	})
 
 	const { loggedInUser } = useLoggedInUser()
 
@@ -66,6 +72,21 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 			console.error('Error toggling privacy:', error)
 		}
 	}
+
+	let followButtonText = ''
+	if (accessType === 'PRIVATE' || accessType === 'PUBLIC') {
+		followButtonText = 'Follow'
+	} else if (accessType === 'PRIVATE_PENDING') {
+		followButtonText = 'Follow request pending'
+	} else {
+		followButtonText = 'Unfollow'
+	}
+
+	const handleFollow = () => {
+		// TODO.
+		console.log('handle follow')
+	}
+
 	return (
 		<div>
 			{userData ? (
@@ -83,6 +104,19 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 									/>
 								</label>
 							</div>
+						</div>
+					)}
+
+					{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+						<div className='flex justify-center'>
+							Following {followData.following} | Followers {followData.followers}
+						</div>
+					)}
+					{accessType !== 'SELF' && (
+						<div className='flex justify-end'>
+							<button className='btn btn-outline' onClick={handleFollow}>
+								{followButtonText}
+							</button>
 						</div>
 					)}
 
@@ -118,12 +152,15 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 						Name: {userData.firstName} {userData.lastName}
 					</p>
 					{userData.username && <p>Username: {userData.username}</p>}
+					{userData.dob && <p>Date of birth: {formatDate(userData.dob)}</p>}
 
-					{accessType !== 'PRIVATE' && <p>Email: {userData.email}</p>}
-
-					{accessType !== 'PRIVATE' && userData.aboutMe && (
-						<p>About me: {userData.aboutMe}</p>
+					{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+						<p>Email: {userData.email}</p>
 					)}
+
+					{accessType !== 'PRIVATE' &&
+						accessType !== 'PRIVATE_PENDING' &&
+						userData.aboutMe && <p>About me: {userData.aboutMe}</p>}
 				</>
 			) : (
 				<p>Loading...</p>

@@ -9,7 +9,7 @@ export default function UserProfile() {
 	const id = params.id as string
 
 	return (
-		<div className='container mx-auto bg-base-100 px-4'>
+		<div className='container mx-auto bg-base-100 p-4'>
 			<UserData userId={id} accessType='PUBLIC' />
 			{/* TODO: fetch accessType info. For now, hardcode */}
 		</div>
