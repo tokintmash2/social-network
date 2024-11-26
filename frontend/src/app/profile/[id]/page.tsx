@@ -10,7 +10,7 @@ export default function UserProfile() {
 
 	return (
 		<div className='container mx-auto bg-base-100 p-4'>
-			<UserData userId={id} accessType='PUBLIC' />
+			<UserData userId={parseInt(id)} accessType='PUBLIC' />
 			{/* TODO: fetch accessType info. For now, hardcode */}
 		</div>
 	)

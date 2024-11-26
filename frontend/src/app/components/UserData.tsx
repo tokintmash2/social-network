@@ -4,17 +4,15 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
-import { mapUserApiResponseToUser, User } from '../utils/userMapper'
+import { mapUserApiResponseToUser } from '../utils/userMapper'
+import { User, UserDataProps_type } from '../types'
 import { formatDate } from '../utils/dateUtils'
-import { access } from 'fs'
+import PostsContainer from '../containers/PostsContainer'
 
-type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
-type UserDataProps = {
-	userId: string
-	accessType: ProfileAccess
-}
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+const avatarUrl = `${backendUrl}/avatars/`
 
-export default function UserData({ userId, accessType }: UserDataProps) {
+export default function UserData({ userId, accessType }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData, setFollowData] = useState<{ following: number; followers: number }>({
 		following: 0,
@@ -120,13 +118,13 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 						</div>
 					)}
 
-					{userData.avatar ? (
+					{userData.avatar && userData.avatar !== 'default_avatar.jpg' ? (
 						<>
 							<div className='avatar online'>
-								<div className='w-24 rounded-full'>
+								<div className='w-24 rounded-full ring ring-gray-100 ring-offset-2'>
 									{/* TODO: use userData.avatar and fetch online status. For now, hardcode */}
 									<Image
-										src='/avatar.svg'
+										src={avatarUrl + userData.avatar}
 										alt='User avatar'
 										width={96}
 										height={96}
@@ -161,6 +159,13 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 					{accessType !== 'PRIVATE' &&
 						accessType !== 'PRIVATE_PENDING' &&
 						userData.aboutMe && <p>About me: {userData.aboutMe}</p>}
+
+					<div className='divider'></div>
+					<PostsContainer
+						userId={userData.id}
+						isOwnProfile={accessType === 'SELF'}
+						feed={false}
+					/>
 				</>
 			) : (
 				<p>Loading...</p>
