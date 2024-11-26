@@ -81,7 +81,7 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("FetchPostsHandler called")
 
-	// userID := r.Context().Value("userID").(int) // Authenticated user's ID
+	// CurrentUserID := r.Context().Value("userID").(int) // Authenticated user's ID
 
 	// Parse query parameters
 	queryParams := r.URL.Query()
@@ -90,6 +90,9 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// isFeed := queryParams.Get("feed") == "true"
 	targetUserID, _ := strconv.Atoi(targetUserIDStr) // Convert string to int
 
+	log.Println("targetUserID:", targetUserID) // testing)
+	log.Println("queryParams:", queryParams)       // testing
+
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -97,7 +100,7 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionUUID := cookie.Value
-	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "FetchPostsHandler")
+	_, validSession := utils.VerifySession(sessionUUID, "FetchPostsHandler")
 	if !validSession && privacyFilter != "private" && CurrentUserID != targetUserID {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -108,6 +111,17 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error fetching posts", http.StatusInternalServerError)
 		return
 	}
+
+	if len(posts) == 0 {
+		response := map[string]interface{}{
+			"posts": []structs.Post{},
+			"message": "No posts found",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	
 	response := map[string]interface{}{
 		"posts": posts,
 	}
@@ -161,6 +175,7 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
+		
 		response := map[string]interface{}{
 			"success": true,
 		}

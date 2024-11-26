@@ -26,7 +26,7 @@ func RunHandlers(r *http.ServeMux) {
 	r.HandleFunc("/groups", GroupsHandler)
 	r.HandleFunc("/group-members", GroupMembersHandler)
 	// r.HandleFunc("/posts", CreatePostHandler)
-	r.HandleFunc("/posts", PostsHandler)
+	r.HandleFunc("/api/posts", PostsHandler)
 	r.HandleFunc("/group-posts", CreateGroupPostHandler)
 	r.HandleFunc("/ws", HandleConnections)
 	r.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir("./avatars"))))
