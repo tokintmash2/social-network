@@ -25,8 +25,34 @@ export type PostsAction_type =
 	| { type: string; payload: boolean }
 	| { type: string; payload: string | null }
 
+// Define the props's type for PostsContainer
 export type PostsContainerProps_type = {
-	userId?: string
+	userId?: number
 	feed?: boolean
 	isOwnProfile?: boolean
+}
+
+// Define the props's type for Post component
+export type PostProps_type = {
+	post: Post_type
+	dispatch: (action: PostsAction_type) => void
+	isOwnPost: boolean
+}
+
+export type User = {
+	id: number
+	email: string
+	firstName: string
+	lastName: string
+	dob: Date
+	avatar?: string
+	username?: string
+	aboutMe?: string
+	isPublic: boolean
+}
+
+type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
+export type UserDataProps_type = {
+	userId: number
+	accessType: ProfileAccess
 }

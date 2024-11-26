@@ -4,20 +4,15 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
-import { mapUserApiResponseToUser, User } from '../utils/userMapper'
+import { mapUserApiResponseToUser } from '../utils/userMapper'
+import { User, UserDataProps_type } from '../types'
 import { formatDate } from '../utils/dateUtils'
 import PostsContainer from '../containers/PostsContainer'
-
-type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
-type UserDataProps = {
-	userId: string
-	accessType: ProfileAccess
-}
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 const avatarUrl = `${backendUrl}/avatars/`
 
-export default function UserData({ userId, accessType }: UserDataProps) {
+export default function UserData({ userId, accessType }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData, setFollowData] = useState<{ following: number; followers: number }>({
 		following: 0,

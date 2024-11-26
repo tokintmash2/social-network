@@ -3,11 +3,13 @@
 import { useEffect, useReducer } from 'react'
 import Post from '../components/Post'
 import { Post_type, PostsContainerProps_type, PostsAction_type, PostsState_type } from '../types'
+import { useLoggedInUser } from '../context/UserContext'
 
 export const ACTIONS = {
 	SET_POSTS: 'SET_POSTS',
 	SET_LOADING: 'SET_LOADING',
 	SET_ERROR: 'SET_ERROR',
+	SET_POST_PRIVACY: 'SET_POST_PRIVACY',
 }
 
 const initialState: PostsState_type = {
@@ -34,7 +36,7 @@ const dummyPosts: Post_type[] = [
 		content: 'See on esimene postitus',
 		privacy: 'PUBLIC',
 		author: {
-			id: 5,
+			id: 4,
 			firstName: 'Liina-Maria',
 			lastName: 'Bakhoff',
 		},
@@ -47,7 +49,7 @@ const dummyPosts: Post_type[] = [
 		content: 'See on teine postitus',
 		privacy: 'PUBLIC',
 		author: {
-			id: 5,
+			id: 4,
 			firstName: 'Liina-Maria',
 			lastName: 'Bakhoff',
 		},
@@ -85,6 +87,8 @@ export default function PostsContainer({
 		return <div>Error: {state.error}</div>
 	}
 
+	const { loggedInUser } = useLoggedInUser()
+
 	return (
 		<div>
 			{isOwnProfile && <h1 className='text-lg'>My posts</h1>}
@@ -92,12 +96,14 @@ export default function PostsContainer({
 				<h1 className='text-lg'>{`${state.posts[0].author.firstName}'s posts`}</h1>
 			)}
 			<div>Amount of posts: {state.posts.length}</div>
-			{state.posts.map(
-				(post: Post_type) => (
-					console.log('post', post),
-					(<Post key={post.id} post={post} dispatch={dispatch} />)
-				)
-			)}
+			{state.posts.map((post: Post_type) => (
+				<Post
+					key={post.id}
+					post={post}
+					dispatch={dispatch}
+					isOwnPost={post.author.id === loggedInUser?.id}
+				/>
+			))}
 		</div>
 	)
 }

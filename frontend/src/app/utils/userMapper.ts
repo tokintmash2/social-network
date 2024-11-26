@@ -1,3 +1,5 @@
+import { User } from '@/app/types'
+
 interface UserApiResponse {
 	ID: number
 	Email: string
@@ -10,22 +12,10 @@ interface UserApiResponse {
 	IsPublic: boolean
 }
 
-export type User = {
-	id: string
-	email: string
-	firstName: string
-	lastName: string
-	dob: Date
-	avatar?: string
-	username?: string
-	aboutMe?: string
-	isPublic: boolean
-}
-
 // Define the function
 export function mapUserApiResponseToUser(data: UserApiResponse): User {
 	return {
-		id: data.ID.toString(),
+		id: data.ID,
 		email: data.Email,
 		firstName: data.FirstName,
 		lastName: data.LastName,

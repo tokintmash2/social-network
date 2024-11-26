@@ -1,7 +1,8 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
-import { mapUserApiResponseToUser, User } from '../utils/userMapper'
+import { mapUserApiResponseToUser } from '../utils/userMapper'
+import { User } from '../types'
 import axios from 'axios'
 
 type UserContextType = {
