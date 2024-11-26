@@ -17,7 +17,9 @@ func RunHandlers(r *http.ServeMux) {
 
 	r.HandleFunc("/login", LoginHandler)
 	r.HandleFunc("/register", SignupHandler)
+	r.HandleFunc("/logout", LogoutHandler)
 	r.HandleFunc("/users/", ProfileHandler)
+	r.HandleFunc("/followers/", FollowersHandler)
 	r.HandleFunc("/verify-session", VerifySessionHandler)
 	r.HandleFunc("/toggle-privacy", TogglePrivacyHandler)
 	r.HandleFunc("/groups", GroupsHandler)
