@@ -14,6 +14,9 @@ type UserDataProps = {
 	accessType: ProfileAccess
 }
 
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+const avatarUrl = `${backendUrl}/avatars/`
+
 export default function UserData({ userId, accessType }: UserDataProps) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData, setFollowData] = useState<{ following: number; followers: number }>({
@@ -120,13 +123,13 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 						</div>
 					)}
 
-					{userData.avatar ? (
+					{userData.avatar && userData.avatar !== 'default_avatar.jpg' ? (
 						<>
 							<div className='avatar online'>
-								<div className='w-24 rounded-full'>
+								<div className='w-24 rounded-full ring ring-gray-100 ring-offset-2'>
 									{/* TODO: use userData.avatar and fetch online status. For now, hardcode */}
 									<Image
-										src='/avatar.svg'
+										src={avatarUrl + userData.avatar}
 										alt='User avatar'
 										width={96}
 										height={96}
@@ -162,6 +165,7 @@ export default function UserData({ userId, accessType }: UserDataProps) {
 						accessType !== 'PRIVATE_PENDING' &&
 						userData.aboutMe && <p>About me: {userData.aboutMe}</p>}
 
+					<div className='divider'></div>
 					<PostsContainer
 						userId={userData.id}
 						isOwnProfile={accessType === 'SELF'}

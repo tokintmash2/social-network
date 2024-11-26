@@ -1,33 +1,34 @@
-// Handle fetching posts.
-// Filter, sort, and paginate posts (if needed).
-// Maintain state related to the posts.
-// Pass the filtered posts to the Post ("dumb") component for rendering.
-
 'use client'
 
-import { useEffect, useState } from 'react'
-// import axios from 'axios'
+import { useEffect, useReducer } from 'react'
+import Post from '../components/Post'
+import { Post_type, PostsContainerProps_type, PostsAction_type, PostsState_type } from '../types'
 
-type Post = {
-	id: number
-	content: string
-	privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
-	author: {
-		id: number
-		firstName: string
-		lastName: string
+export const ACTIONS = {
+	SET_POSTS: 'SET_POSTS',
+	SET_LOADING: 'SET_LOADING',
+	SET_ERROR: 'SET_ERROR',
+}
+
+const initialState: PostsState_type = {
+	posts: [],
+	loading: false,
+	error: null,
+}
+
+function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
+	switch (action.type) {
+		case ACTIONS.SET_POSTS:
+			return { ...state, posts: action.payload as Post_type[] }
+		case ACTIONS.SET_LOADING:
+			return { ...state, loading: action.payload as boolean }
+		case ACTIONS.SET_ERROR:
+			return { ...state, error: action.payload as string | null }
+		default:
+			return state
 	}
-	createdAt: Date
-	mediaUrl?: string
 }
-
-type PostsContainerProps = {
-	userId?: string
-	feed?: boolean
-	isOwnProfile?: boolean
-}
-
-const dummyPosts: Post[] = [
+const dummyPosts: Post_type[] = [
 	{
 		id: 1,
 		content: 'See on esimene postitus',
@@ -55,47 +56,48 @@ const dummyPosts: Post[] = [
 ]
 
 export default function PostsContainer({
-	userId, // Optional userId for profile page
-	feed = false, // Whether this is the main feed or not
-	isOwnProfile = false, // Whether this is the logged-in user's profile
-}: PostsContainerProps) {
-	const [posts, setPosts] = useState<Post[]>([])
-	const [loading, setLoading] = useState<boolean>(false)
-	const [error, setError] = useState<string | null>(null)
+	userId,
+	feed = false,
+	isOwnProfile = false,
+}: PostsContainerProps_type) {
+	const [state, dispatch] = useReducer(reducer, initialState)
 
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
-				setLoading(true)
-				//const endpoint = feed ? '/api/posts/feed' : `api/${userId}/posts`
-				//const response = axios.get(endpoint)
-				//console.log('response', response)
-				//setPosts(response.data.posts)
-
-				// dummy data for front end testing:
-				setPosts(dummyPosts)
+				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
+				// Simulating an API call with dummy data
+				dispatch({ type: ACTIONS.SET_POSTS, payload: dummyPosts })
 			} catch (err) {
-				setError('Failed to fetch posts')
-				console.log(err)
+				dispatch({ type: ACTIONS.SET_ERROR, payload: 'Failed to fetch posts' })
+				console.error(err)
 			} finally {
-				setLoading(false)
+				dispatch({ type: ACTIONS.SET_LOADING, payload: false })
 			}
 		}
 		fetchPosts()
 	}, [userId, feed])
-	if (loading) {
+
+	if (state.loading) {
 		return <div>Loading...</div>
 	}
-	if (error) {
-		return <div>Error: {error}</div>
+	if (state.error) {
+		return <div>Error: {state.error}</div>
 	}
+
 	return (
 		<div>
 			{isOwnProfile && <h1 className='text-lg'>My posts</h1>}
-			{posts.length && !feed && !isOwnProfile && (
-				<h1 className='text-lg'>{`${posts[0].author.firstName}'s posts`}</h1>
+			{state.posts.length && !feed && !isOwnProfile && (
+				<h1 className='text-lg'>{`${state.posts[0].author.firstName}'s posts`}</h1>
 			)}
-			{posts.map((post) => post.content)}
+			<div>Amount of posts: {state.posts.length}</div>
+			{state.posts.map(
+				(post: Post_type) => (
+					console.log('post', post),
+					(<Post key={post.id} post={post} dispatch={dispatch} />)
+				)
+			)}
 		</div>
 	)
 }
