@@ -2,21 +2,15 @@
 
 import { useEffect, useReducer } from 'react'
 import Post from '../components/Post'
-import { Post_type, PostsContainerProps_type, PostsAction_type, PostsState_type } from '../types'
+import {
+	Post_type,
+	PostsContainerProps_type,
+	PostsAction_type,
+	PostsState_type,
+} from '../utils/types'
 import { useLoggedInUser } from '../context/UserContext'
-
-export const ACTIONS = {
-	SET_POSTS: 'SET_POSTS',
-	SET_LOADING: 'SET_LOADING',
-	SET_ERROR: 'SET_ERROR',
-	SET_POST_PRIVACY: 'SET_POST_PRIVACY',
-}
-
-const initialState: PostsState_type = {
-	posts: [],
-	loading: false,
-	error: null,
-}
+import { dummyPosts } from '../dummyData'
+import { ACTIONS } from '../utils/actions/postActions'
 
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
 	switch (action.type) {
@@ -26,43 +20,31 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return { ...state, loading: action.payload as boolean }
 		case ACTIONS.SET_ERROR:
 			return { ...state, error: action.payload as string | null }
+		case ACTIONS.SET_POST_PRIVACY:
+			return {
+				...state,
+				posts: state.posts.map((post) => {
+					if (post.id === (action.payload as any).postId) {
+						return {
+							...post,
+							privacy: (action.payload as any).privacy,
+							allowedUsers: (action.payload as any).allowedUsers || post.allowedUsers,
+						}
+					}
+					return post
+				}),
+			}
 		default:
 			return state
 	}
 }
-const dummyPosts: Post_type[] = [
-	{
-		id: 1,
-		content: 'See on esimene postitus',
-		privacy: 'PUBLIC',
-		author: {
-			id: 4,
-			firstName: 'Liina-Maria',
-			lastName: 'Bakhoff',
-		},
-		createdAt: new Date(),
-		mediaUrl:
-			'http://localhost:8080/uploads/avatars/1732523991549884000_Screenshot 2024-10-28 at 19.37.41.png',
-	},
-	{
-		id: 2,
-		content: 'See on teine postitus',
-		privacy: 'PUBLIC',
-		author: {
-			id: 4,
-			firstName: 'Liina-Maria',
-			lastName: 'Bakhoff',
-		},
-		createdAt: new Date(),
-	},
-]
 
 export default function PostsContainer({
 	userId,
 	feed = false,
 	isOwnProfile = false,
 }: PostsContainerProps_type) {
-	const [state, dispatch] = useReducer(reducer, initialState)
+	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
 
 	useEffect(() => {
 		const fetchPosts = async () => {

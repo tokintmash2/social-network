@@ -1,4 +1,4 @@
-import { User } from '@/app/types'
+import { User } from '@/app/utils/types'
 
 interface UserApiResponse {
 	ID: number
