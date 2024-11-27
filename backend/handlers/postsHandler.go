@@ -15,6 +15,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		FetchPostsHandler(w, r)
 	case "POST":
+		log.Println("Metheod is POST")
 		CreatePostHandler(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -27,6 +28,7 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 	log.Println("CreatePostHandler called")
 
 	cookie, err := request.Cookie("session")
+	log.Println("Cookie:", cookie)
 	if err != nil {
 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
 		return
@@ -41,6 +43,8 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 	if request.Method == http.MethodPost {
 		var post structs.Post
+
+		log.Println("var post:", post)
 
 		err := json.NewDecoder(request.Body).Decode(&post)
 		if err != nil {
@@ -100,7 +104,7 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionUUID := cookie.Value
-	_, validSession := utils.VerifySession(sessionUUID, "FetchPostsHandler")
+	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "FetchPostsHandler")
 	if !validSession && privacyFilter != "private" && CurrentUserID != targetUserID {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
