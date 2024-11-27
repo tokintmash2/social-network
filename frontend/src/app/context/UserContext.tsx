@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
+import { useRouter } from 'next/navigation'
 import { User } from '../types'
 import axios from 'axios'
 
@@ -13,6 +14,7 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+	const router = useRouter()
 	const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
 
 	useEffect(() => {
@@ -24,6 +26,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 				console.log('response', response.data)
 				if (response.data.success) {
 					setLoggedInUser(mapUserApiResponseToUser(response.data.user))
+				} else {
+					router.push('/login')
 				}
 			} catch (error) {
 				console.log('No active session', error)

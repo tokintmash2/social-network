@@ -68,7 +68,7 @@ export default function RegisterPage() {
 		try {
 			setLoading(true)
 			const formData = new FormData()
-			
+
 			// Add all text fields
 			formData.append('email', user.email)
 			formData.append('password', user.password)
@@ -77,26 +77,27 @@ export default function RegisterPage() {
 			formData.append('dob', user.dob?.toISOString().split('T')[0] || '')
 			formData.append('username', user.username || '')
 			formData.append('about', user.about || '')
-			
+
 			// Add avatar if it exists
 			if (user.avatar) {
 				formData.append('avatar', user.avatar)
 			}
-	
+
 			const response = await axios.post('http://localhost:8080/register', formData, {
 				headers: {
-					'Content-Type': 'multipart/form-data'
-				}
+					'Content-Type': 'multipart/form-data',
+				},
 			})
 			console.log('signup response', response.data)
-			router.push('/login')
+			if (response.data.success) {
+				router.push('/login')
+			}
 		} catch (error: unknown) {
 			toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
 		} finally {
 			setLoading(false)
 		}
 	}
-	
 
 	registerLocale('en-GB', enGB)
 

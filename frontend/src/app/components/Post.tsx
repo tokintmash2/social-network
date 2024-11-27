@@ -41,7 +41,10 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 					</div>
 				)}
 			</div>
-			<div className='post-content'>{post.content}</div>
+			<div className='post-title'>{post.title}</div>
+			<div className='post-content'>
+				{post.content} {post.mediaUrl && <img src={post.mediaUrl} alt='' />}
+			</div>
 		</div>
 	)
 }

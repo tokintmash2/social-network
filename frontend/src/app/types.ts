@@ -1,6 +1,7 @@
 // Define the Post type
 export type Post_type = {
 	id: number
+	title: string
 	content: string
 	privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
 	author: {
@@ -10,7 +11,7 @@ export type Post_type = {
 	}
 	createdAt: Date
 	mediaUrl?: string
-	allowedUsers?: number[] | null
+	allowedUsers: { id: number; firstName: string; lastName: string }[]
 }
 
 // Define the state shape for Posts

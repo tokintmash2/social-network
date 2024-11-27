@@ -33,7 +33,8 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 const dummyPosts: Post_type[] = [
 	{
 		id: 1,
-		content: 'See on esimene postitus',
+		title: 'See on esimese postituse pealkiri',
+		content: 'See on esimese postituse sisu',
 		privacy: 'PUBLIC',
 		author: {
 			id: 4,
@@ -41,12 +42,29 @@ const dummyPosts: Post_type[] = [
 			lastName: 'Bakhoff',
 		},
 		createdAt: new Date(),
-		mediaUrl:
-			'http://localhost:8080/uploads/avatars/1732523991549884000_Screenshot 2024-10-28 at 19.37.41.png',
+		mediaUrl: 'http://localhost:8080/uploads/IMG_0659.heic',
+		allowedUsers: [
+			{
+				id: 4,
+				firstName: 'Liina-Maria',
+				lastName: 'Bakhoff',
+			},
+			{
+				id: 5,
+				firstName: 'Paul',
+				lastName: 'Peters',
+			},
+			{
+				id: 1,
+				firstName: 'Robert',
+				lastName: 'Peters',
+			},
+		],
 	},
 	{
 		id: 2,
-		content: 'See on teine postitus',
+		title: 'See on esimese postituse pealkiri',
+		content: 'See on esimese postituse sisu',
 		privacy: 'PUBLIC',
 		author: {
 			id: 4,
@@ -54,6 +72,19 @@ const dummyPosts: Post_type[] = [
 			lastName: 'Bakhoff',
 		},
 		createdAt: new Date(),
+		mediaUrl: 'http://localhost:8080/avatars/default_avatar.png',
+		allowedUsers: [
+			{
+				id: 1,
+				firstName: 'Robert',
+				lastName: 'Peters',
+			},
+			{
+				id: 2,
+				firstName: 'Albert',
+				lastName: 'The Great',
+			},
+		],
 	},
 ]
 
