@@ -30,6 +30,37 @@ func ConvertToIntSlice(strSlice []string) []int {
 	return intSlice
 }
 
+func FetchPosts(userID int) ([]structs.Post, error) {
+	var posts []structs.Post
+	
+	rows, err := database.DB.Query(`
+        SELECT post_id, user_id, content, image, privacy_setting, timestamp 
+        FROM posts 
+        WHERE user_id = ?
+        ORDER BY timestamp DESC`, userID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var post structs.Post
+        err := rows.Scan(
+            &post.ID,
+            &post.UserID,
+            &post.Content,
+            &post.Image,
+            &post.Privacy,
+            &post.CreatedAt,
+        )
+        if err != nil {
+            return nil, err
+        }
+        posts = append(posts, post)
+    }
+    return posts, nil
+}
+
 func CreatePost(newPost structs.Post) error {
 
 	log.Println("Got post:", newPost)
@@ -50,26 +81,6 @@ func CreatePost(newPost structs.Post) error {
 		log.Printf("Error inserting post: %v\n", err)
 		return err
 	}
-
-	// Retrieve last inserted post ID
-	// lastPostID, _ := GetLastInsertedPostID()
-	// err = tx.QueryRow("SELECT last_insert_rowid()").Scan(&postID)
-	// if err != nil {
-	// 	log.Printf("Error getting last inserted post ID: %v\n", err)
-	// 	return err
-	// }
-
-	// Can this be replaced with group_ID?
-	// for _, categoryID := range newPost.CategoryIDs {
-	// 	_, err = tx.Exec(`
-    //         INSERT INTO post_categories (post_id, category_id)
-    //         VALUES (?, ?)
-    //     `, lastPostID, categoryID)
-	// 	if err != nil {
-	// 		log.Printf("Error associating category: %v\n", err)
-	// 		return err
-	// 	}
-	// }
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
