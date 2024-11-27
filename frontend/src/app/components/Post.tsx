@@ -1,13 +1,19 @@
-// Be a "dumb component" (purely presentational).
-// Display individual post data (e.g., author, content, media, timestamp, etc.).
-// Receive all data through props.
-import React from 'react'
+import React, { useState } from 'react'
 import ACTIONS from '../containers/PostsContainer'
 import { PostProps_type } from '../types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
+
+const followers: { id: number; firstName: string; lastName: string }[] = [
+	{ id: 1, firstName: 'John', lastName: 'Doe' },
+	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
+	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
+]
+
 export default function Post({ post, dispatch, isOwnPost = false }: PostProps_type) {
 	console.log('POST data: ', { ...post, isOwnPost: isOwnPost })
+	// Local state for allowed users
+	const [allowedUsers, setAllowedUsers] = useState<number[]>(post.allowedUsers || [])
 	return (
 		<div className='post'>
 			<div className='flex justify-end'>

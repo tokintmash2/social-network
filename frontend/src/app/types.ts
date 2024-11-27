@@ -10,6 +10,7 @@ export type Post_type = {
 	}
 	createdAt: Date
 	mediaUrl?: string
+	allowedUsers?: number[] | null
 }
 
 // Define the state shape for Posts
