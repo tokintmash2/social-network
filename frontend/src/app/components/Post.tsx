@@ -1,43 +1,91 @@
 import React, { useState } from 'react'
-import ACTIONS from '../containers/PostsContainer'
-import { PostProps_type } from '../types'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGear } from '@fortawesome/free-solid-svg-icons'
-
-const followers: { id: number; firstName: string; lastName: string }[] = [
-	{ id: 1, firstName: 'John', lastName: 'Doe' },
-	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
-	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
-]
+import { ACTIONS } from '../utils/actions/postActions'
+import { PostProps_type, Post_type } from '../utils/types'
+import { dummyFollowers } from '../dummyData'
+import Select from 'react-select'
 
 export default function Post({ post, dispatch, isOwnPost = false }: PostProps_type) {
-	console.log('POST data: ', { ...post, isOwnPost: isOwnPost })
-	// Local state for allowed users
 	const [allowedUsers, setAllowedUsers] = useState<number[]>(post.allowedUsers || [])
+	const [showAllowedUsersSelection, setShowAllowedUsersSelection] = useState(false)
+	const [followers, setFollowers] = useState<
+		{ id: number; firstName: string; lastName: string }[] | null
+	>(null)
+
+	const options = [
+		{ value: 'PUBLIC', label: 'Public' },
+		{ value: 'PRIVATE', label: 'Private' },
+		{ value: 'ALMOST_PRIVATE', label: 'Almost private' },
+	]
+
+	const getParsedFollowers = () =>
+		followers
+			? followers.map((follower) => ({
+					value: follower.id.toString(),
+					label: `${follower.firstName} ${follower.lastName}`,
+			  }))
+			: []
+
+	const fetchFollowers = () => {
+		setFollowers(dummyFollowers) // Set raw followers data
+		setShowAllowedUsersSelection(true) // Show the selector
+	}
+
+	const handlePostPrivacyChange = (e: string) => {
+		const newPrivacy = e as Post_type['privacy']
+		if (post.privacy !== newPrivacy) {
+			dispatch({
+				type: ACTIONS.SET_POST_PRIVACY,
+				payload: { postId: post.id, privacy: newPrivacy },
+			})
+			if (newPrivacy === 'ALMOST_PRIVATE') {
+				if (!followers) {
+					fetchFollowers() // Fetch followers if not already fetched
+				} else {
+					setShowAllowedUsersSelection(true) // Show selector if followers are already fetched
+				}
+			} else {
+				setShowAllowedUsersSelection(false)
+			}
+		}
+	}
+
 	return (
 		<div className='post'>
 			<div className='flex justify-end'>
 				{isOwnPost && (
 					<div className='post-actions'>
-						<div className='dropdown dropdown-end'>
-							<div tabIndex={0} role='button' className='btn btn-sm m-1'>
-								<FontAwesomeIcon icon={faGear} />
-							</div>
-							<ul
-								tabIndex={0}
-								className='dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow'
-							>
-								<li>
-									<a>Public</a>
-								</li>
-								<li>
-									<a>Private</a>
-								</li>
-								<li>
-									<a>Semi-Private</a>
-								</li>
-							</ul>
-						</div>
+						{!showAllowedUsersSelection && (
+							<Select
+								defaultValue={options.find(
+									(option) => option.value === post.privacy
+								)}
+								isMulti={false}
+								isClearable={false}
+								isSearchable={false}
+								name='privacy-setting'
+								options={options}
+								className='basic-select'
+								classNamePrefix='select'
+								onChange={(e) => e && handlePostPrivacyChange(e.value)}
+							/>
+						)}
+						{showAllowedUsersSelection && getParsedFollowers().length > 0 && (
+							<Select
+								defaultValue={getParsedFollowers().find((follower) =>
+									allowedUsers.includes(Number(follower.value))
+								)}
+								isMulti={true}
+								isClearable={false}
+								isSearchable={true}
+								name='allowed-users'
+								options={getParsedFollowers()}
+								className='basic-multi-select'
+								classNamePrefix='select'
+								//onMenuClose={() => setShowAllowedUsersSelection(false)}
+								// todo: save allowed users onBlur
+								onBlur={() => setShowAllowedUsersSelection(false)}
+							/>
+						)}
 					</div>
 				)}
 			</div>

@@ -1,3 +1,5 @@
+import { ACTIONS } from './actions/postActions'
+
 // Define the Post type
 export type Post_type = {
 	id: number
@@ -11,7 +13,7 @@ export type Post_type = {
 	}
 	createdAt: Date
 	mediaUrl?: string
-	allowedUsers: { id: number; firstName: string; lastName: string }[]
+	allowedUsers?: number[]
 }
 
 // Define the state shape for Posts
@@ -23,9 +25,26 @@ export type PostsState_type = {
 
 // Define the actions for PostsReducer
 export type PostsAction_type =
-	| { type: string; payload: Post_type[] }
-	| { type: string; payload: boolean }
-	| { type: string; payload: string | null }
+	| {
+			type: typeof ACTIONS.SET_POSTS
+			payload: Post_type[]
+	  }
+	| {
+			type: typeof ACTIONS.SET_LOADING
+			payload: boolean
+	  }
+	| {
+			type: typeof ACTIONS.SET_ERROR
+			payload: string | null
+	  }
+	| {
+			type: typeof ACTIONS.SET_POST_PRIVACY
+			payload: {
+				postId: number
+				privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
+				allowedUsers?: { id: number; firstName: string; lastName: string }[]
+			}
+	  }
 
 // Define the props's type for PostsContainer
 export type PostsContainerProps_type = {

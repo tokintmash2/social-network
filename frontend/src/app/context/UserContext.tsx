@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
 import { useRouter } from 'next/navigation'
-import { User } from '../types'
+import { User } from '../utils/types'
 import axios from 'axios'
 
 type UserContextType = {
