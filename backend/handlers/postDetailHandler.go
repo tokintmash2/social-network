@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"social-network/utils"
 	"strings"
@@ -36,6 +37,8 @@ func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
 		return
 	}
+
+	log.Println("Post ID in the handler:", postID)
 
 	post, err := utils.FetchPostDetails(postID)
 	if err != nil {

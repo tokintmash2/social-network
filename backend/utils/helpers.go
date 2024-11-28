@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -25,9 +24,7 @@ func FetchIdFromPath(path string, position int) (int, error) {
 		return 0, fmt.Errorf("invalid position: %d", position)
 	}
 
-	response,_ := strconv.Atoi(parts[position])
-	
-	log.Println("FetchIdFromPath response: ", response)
+	response, _ := strconv.Atoi(parts[position])
 
 	return response, nil
 }

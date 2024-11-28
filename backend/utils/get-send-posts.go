@@ -17,21 +17,29 @@ func GetLastInsertedPostID() (int, error) {
 }
 
 func FetchPostDetails(postID int) (*structs.PostResponse, error) {
+
+	log.Println("FetchPostDetails called with postID:", postID)
+
 	var post structs.PostResponse
 	var author structs.AuthorResponse
+
 	err := database.DB.QueryRow(`
         SELECT 
-            p.id, p.title, p.content, p.privacy_setting, p.timestamp, p.image,
+            p.post_id, p.content, p.privacy_setting, p.timestamp, p.image,
             u.id, u.first_name, u.last_name
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        WHERE p.id = ?
-    `, postID).Scan(&post.ID, &post.Title, &post.Content, &post.Privacy, &post.CreatedAt, &post.MediaURL,
+        WHERE p.post_id = ?
+    `, postID).Scan(&post.ID, &post.Content, &post.Privacy, &post.CreatedAt, &post.MediaURL,
 		&author.ID, &author.FirstName, &author.LastName)
 	if err != nil {
+		log.Println("Error with query:", err)
 		return nil, err
 	}
 	post.Author = author
+
+	log.Println("Fetched post:", post)
+
 	return &post, nil
 }
 
