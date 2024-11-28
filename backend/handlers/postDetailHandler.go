@@ -31,7 +31,7 @@ func PostDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 
-	postID, err := utils.FetchIdFromPath(r.URL.Path, 3)
+	postID, err := utils.FetchIdFromPath(r.URL.Path, 2)
 	if err != nil {
 		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
 		return

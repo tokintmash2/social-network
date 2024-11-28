@@ -26,6 +26,7 @@ func FetchIdFromPath(path string, position int) (int, error) {
 	}
 
 	response,_ := strconv.Atoi(parts[position])
+	
 	log.Println("FetchIdFromPath response: ", response)
 
 	return response, nil
