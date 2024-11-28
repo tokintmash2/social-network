@@ -4,10 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 	"social-network/utils"
-	"strconv"
+	"strings"
 )
 
 func PostDetailHandler(w http.ResponseWriter, r *http.Request) {
+
+	path := strings.Trim(r.URL.Path, "/")
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 3 {
+		http.Error(w, "Invalid URL", http.StatusBadRequest)
+		return
+	}
+
 	switch r.Method {
 	case "GET":
 		FetchPostDetailHandler(w, r)
@@ -21,10 +30,14 @@ func PostDetailHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
-	postID, _ := strconv.Atoi(r.URL.Query().Get("id"))
+
+	postID, err := utils.FetchIdFromPath(r.URL.Path, 3)
+	if err != nil {
+		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
+		return
+	}
 
 	post, err := utils.FetchPostDetails(postID)
-
 	if err != nil {
 		http.Error(w, "Error fetching post details", http.StatusInternalServerError)
 		return
