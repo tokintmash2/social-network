@@ -22,6 +22,7 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	var post structs.PostResponse
 	var author structs.AuthorResponse
+	// var followers []structs.AllowedUserResponse
 
 	err := database.DB.QueryRow(`
         SELECT 
