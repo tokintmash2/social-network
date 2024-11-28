@@ -72,20 +72,35 @@ export default function PostsContainer({
 	const { loggedInUser } = useLoggedInUser()
 
 	return (
-		<div>
-			{isOwnProfile && <h1 className='text-lg'>My posts</h1>}
-			{state.posts.length && !feed && !isOwnProfile && (
-				<h1 className='text-lg'>{`${state.posts[0].author.firstName}'s posts`}</h1>
+		<div className='mb-4'>
+			{/* Header */}
+			{isOwnProfile ? (
+				<h1 className='text-2xl font-bold text-primary mb-4'>My Posts</h1>
+			) : (
+				state.posts.length > 0 &&
+				!feed && (
+					<h1 className='text-2xl font-bold text-secondary mb-4'>
+						{`${state.posts[0].author.firstName}'s Posts`}
+					</h1>
+				)
 			)}
-			<div>Amount of posts: {state.posts.length}</div>
-			{state.posts.map((post: Post_type) => (
-				<Post
-					key={post.id}
-					post={post}
-					dispatch={dispatch}
-					isOwnPost={post.author.id === loggedInUser?.id}
-				/>
-			))}
+
+			{/* Post Count */}
+			<div className='text-sm text-gray-500 mb-4'>
+				<span className='font-semibold'>Total posts:</span> {state.posts.length}
+			</div>
+
+			{/* Posts List */}
+			<div className='space-y-4 flex flex-col'>
+				{state.posts.map((post: Post_type) => (
+					<Post
+						key={post.id}
+						post={post}
+						dispatch={dispatch}
+						isOwnPost={post.author.id === loggedInUser?.id}
+					/>
+				))}
+			</div>
 		</div>
 	)
 }

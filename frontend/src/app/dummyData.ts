@@ -25,6 +25,30 @@ export const dummyPosts: Post_type[] = [
 		createdAt: new Date(),
 		mediaUrl: 'http://localhost:8080/uploads/IMG_0659.heic',
 		allowedUsers: [1, 4, 5],
+		comments: [
+			{
+				id: 1,
+				author: {
+					id: 2,
+					firstName: 'Jane',
+					lastName: 'Smith',
+				},
+				content: 'See on esimese kommentaari sisu',
+				mediaUrl: null,
+				createdAt: new Date(),
+			},
+			{
+				id: 2,
+				author: {
+					id: 2,
+					firstName: 'Jane',
+					lastName: 'Smith',
+				},
+				content: 'See on teise kommentaari sisu',
+				mediaUrl: null,
+				createdAt: new Date(),
+			},
+		],
 	},
 	{
 		id: 2,
@@ -39,5 +63,6 @@ export const dummyPosts: Post_type[] = [
 		createdAt: new Date(),
 		mediaUrl: 'http://localhost:8080/avatars/default_avatar.png',
 		allowedUsers: [2, 3],
+		comments: [],
 	},
 ]

@@ -1,0 +1,30 @@
+import React, { useState } from 'react'
+import { CommentsContainerProps_type } from '../utils/types'
+import Comment from '../components/Comment'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+
+function CommentsContainer({ postId, comments, dispatch }: CommentsContainerProps_type) {
+	const [showComments, setShowComments] = useState(true)
+
+	const handleToggleShowComments = () => {
+		setShowComments(!showComments)
+	}
+	return (
+		<>
+			<div className='link link-hover' onClick={handleToggleShowComments}>
+				{showComments ? (
+					<FontAwesomeIcon icon={faAngleUp} />
+				) : (
+					<FontAwesomeIcon icon={faAngleDown} />
+				)}{' '}
+				{comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+			</div>
+
+			{showComments &&
+				comments.length > 0 &&
+				comments.map((comment) => <Comment key={comment.id} comment={comment} />)}
+		</>
+	)
+}
+export default CommentsContainer

@@ -3,6 +3,7 @@ import { ACTIONS } from '../utils/actions/postActions'
 import { PostProps_type, Post_type } from '../utils/types'
 import { dummyFollowers } from '../dummyData'
 import Select from 'react-select'
+import CommentsContainer from '../containers/CommentsContainer'
 
 export default function Post({ post, dispatch, isOwnPost = false }: PostProps_type) {
 	const [allowedUsers, setAllowedUsers] = useState<number[]>(post.allowedUsers || [])
@@ -26,8 +27,8 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 			: []
 
 	const fetchFollowers = () => {
-		setFollowers(dummyFollowers) // Set raw followers data
-		setShowAllowedUsersSelection(true) // Show the selector
+		setFollowers(dummyFollowers)
+		setShowAllowedUsersSelection(true)
 	}
 
 	const handlePostPrivacyChange = (e: string) => {
@@ -37,11 +38,12 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 			type: ACTIONS.SET_POST_PRIVACY,
 			payload: { postId: post.id, privacy: newPrivacy },
 		})
+
 		if (newPrivacy === 'ALMOST_PRIVATE') {
 			if (!followers) {
-				fetchFollowers() // Fetch followers if not already fetched
+				fetchFollowers()
 			} else {
-				setShowAllowedUsersSelection(true) // Show selector if followers are already fetched
+				setShowAllowedUsersSelection(true)
 			}
 		} else {
 			setShowAllowedUsersSelection(false)
@@ -62,10 +64,23 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 	}
 
 	return (
-		<div className='post'>
-			<div className='flex justify-end'>
+		<div className='post card rounded-lg shadow-sm bg-base-100 p-4 mb-4'>
+			{/* Header Section */}
+			<div className='flex justify-between items-center mb-4'>
+				<div className='flex items-center space-x-2'>
+					{/* Author Details */}
+					<div>
+						<p className='text-sm font-semibold text-primary'>
+							{post.author.firstName} {post.author.lastName}
+						</p>
+						<p className='text-xs text-gray-500'>
+							{new Date(post.createdAt).toLocaleString()}
+						</p>
+					</div>
+				</div>
 				{isOwnPost && (
 					<div className='post-actions'>
+						{/* Privacy Setting Dropdown */}
 						{!showAllowedUsersSelection && (
 							<Select
 								defaultValue={options.find(
@@ -81,6 +96,7 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 								onChange={(e) => e && handlePostPrivacyChange(e.value)}
 							/>
 						)}
+						{/* Allowed Users Selector */}
 						{showAllowedUsersSelection && getParsedFollowers().length > 0 && (
 							<Select
 								defaultValue={getParsedFollowers().find((follower) =>
@@ -102,9 +118,24 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 					</div>
 				)}
 			</div>
-			<div className='post-title'>{post.title}</div>
-			<div className='post-content'>
-				{post.content} {post.mediaUrl && <img src={post.mediaUrl} alt='' />}
+
+			{/* Post Content */}
+			<div className='post-content mb-4'>
+				<p className='text-sm text-gray-800'>{post.content}</p>
+				{post.mediaUrl && (
+					<div className='mt-4'>
+						<img
+							src={post.mediaUrl}
+							alt='Attached media'
+							className='rounded-lg border border-gray-200 max-w-full'
+						/>
+					</div>
+				)}
+			</div>
+
+			{/* Comments Section */}
+			<div className='comments-container mt-4'>
+				<CommentsContainer postId={post.id} comments={post.comments} dispatch={dispatch} />
 			</div>
 		</div>
 	)

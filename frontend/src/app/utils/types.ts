@@ -12,8 +12,19 @@ export type Post_type = {
 		lastName: string
 	}
 	createdAt: Date
-	mediaUrl?: string
+	mediaUrl?: string | null
 	allowedUsers?: number[]
+	comments: {
+		id: number
+		author: {
+			id: number
+			firstName: string
+			lastName: string
+		}
+		content: string
+		mediaUrl?: string | null
+		createdAt: Date
+	}[]
 }
 
 // Define the state shape for Posts
@@ -58,6 +69,16 @@ export type PostProps_type = {
 	post: Post_type
 	dispatch: (action: PostsAction_type) => void
 	isOwnPost: boolean
+}
+
+export type CommentsContainerProps_type = {
+	postId: number
+	comments: Post_type['comments']
+	dispatch: (action: PostsAction_type) => void
+}
+
+export type CommentProps_type = {
+	comment: Post_type['comments'][0]
 }
 
 export type User = {

@@ -86,81 +86,103 @@ export default function UserData({ userId, accessType }: UserDataProps_type) {
 	}
 
 	return (
-		<div>
+		<div className='container mx-auto'>
 			{userData ? (
 				<>
-					{accessType === 'SELF' && (
-						<div className='flex flex-row justify-end'>
-							<div className='form-control'>
-								<label className='label cursor-pointer'>
-									<span className='label-text mr-4'>Public profile</span>
-									<input
-										type='checkbox'
-										className='toggle toggle-md toggle-accent'
-										checked={userData?.isPublic || false}
-										onChange={handleToggleProfilePrivacy}
-									/>
-								</label>
-							</div>
-						</div>
-					)}
-
-					{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
-						<div className='flex justify-center'>
-							Following {followData.following} | Followers {followData.followers}
-						</div>
-					)}
-					{accessType !== 'SELF' && (
-						<div className='flex justify-end'>
-							<button className='btn btn-outline' onClick={handleFollow}>
-								{followButtonText}
-							</button>
-						</div>
-					)}
-
-					{userData.avatar && userData.avatar !== 'default_avatar.jpg' ? (
-						<>
-							<div className='avatar online'>
-								<div className='w-24 rounded-full ring ring-gray-100 ring-offset-2'>
-									{/* TODO: use userData.avatar and fetch online status. For now, hardcode */}
-									<Image
-										src={avatarUrl + userData.avatar}
-										alt='User avatar'
-										width={96}
-										height={96}
-									/>
-								</div>
-							</div>
-						</>
-					) : (
-						<>
-							<div className='avatar placeholder online'>
-								{' '}
-								{/* TODO: fetch online status. For now, hardcode */}
-								<div className='bg-neutral text-neutral-content w-24 rounded-full'>
-									<span className='text-3xl'>
+					<div className='bg-base-100 p-6 mb-6 rounded-br-lg rounded-bl-lg'>
+						<div className='profile-header flex flex-col items-center text-center mb-6'>
+							<div className='avatar mb-4'>
+								{userData.avatar && userData.avatar !== 'default_avatar.jpg' ? (
+									<div className='w-32 h-32 rounded-full ring ring-gray-200 overflow-hidden'>
+										<Image
+											src={`${avatarUrl}${userData.avatar}`}
+											alt='User avatar'
+											width={128}
+											height={128}
+										/>
+									</div>
+								) : (
+									<div className='w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-4xl text-gray-800'>
 										{userData.firstName[0]}
 										{userData.lastName[0]}
-									</span>
-								</div>
+									</div>
+								)}
 							</div>
-						</>
-					)}
-					<p>
-						Name: {userData.firstName} {userData.lastName}
-					</p>
-					{userData.username && <p>Username: {userData.username}</p>}
-					{userData.dob && <p>Date of birth: {formatDate(userData.dob)}</p>}
+							<h2 className='text-2xl font-semibold text-gray-800'>
+								{userData.firstName} {userData.lastName}
+							</h2>
+							{userData.username && (
+								<p className='text-sm text-gray-600'>@{userData.username}</p>
+							)}
+							{accessType === 'SELF' && (
+								<div className='form-control mt-4'>
+									<label className='label cursor-pointer'>
+										<span className='label-text text-sm mr-4'>
+											Public profile
+										</span>
+										<input
+											type='checkbox'
+											className='toggle toggle-md toggle-accent'
+											checked={userData?.isPublic || false}
+											onChange={handleToggleProfilePrivacy}
+										/>
+									</label>
+								</div>
+							)}
+						</div>
 
-					{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
-						<p>Email: {userData.email}</p>
-					)}
+						{/* Profile Stats */}
+						{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+							<div className='profile-stats flex justify-center mb-4'>
+								<p className='text-sm text-gray-600'>
+									Following:{' '}
+									<span className='font-semibold text-gray-800'>
+										{followData.following}
+									</span>{' '}
+									| Followers:{' '}
+									<span className='font-semibold text-gray-800'>
+										{followData.followers}
+									</span>
+								</p>
+							</div>
+						)}
 
-					{accessType !== 'PRIVATE' &&
-						accessType !== 'PRIVATE_PENDING' &&
-						userData.aboutMe && <p>About me: {userData.aboutMe}</p>}
+						{/* Follow Button */}
+						{accessType !== 'SELF' && (
+							<div className='flex justify-end mb-6'>
+								<button className='btn btn-outline btn-sm' onClick={handleFollow}>
+									{followButtonText}
+								</button>
+							</div>
+						)}
 
-					<div className='divider'></div>
+						{/* Profile Info */}
+						<div className='profile-info text-gray-700 mb-6'>
+							{userData.dob && (
+								<p className='text-sm'>
+									<span className='font-semibold'>Date of birth:</span>{' '}
+									{formatDate(userData.dob)}
+								</p>
+							)}
+							{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+								<>
+									<p className='text-sm'>
+										<span className='font-semibold'>Email:</span>{' '}
+										{userData.email}
+									</p>
+									{userData.aboutMe && (
+										<p className='text-sm'>
+											<span className='font-semibold'>About me:</span>{' '}
+											{userData.aboutMe}
+										</p>
+									)}
+								</>
+							)}
+						</div>
+					</div>
+
+					{/* Posts Container */}
+
 					<PostsContainer
 						userId={userData.id}
 						isOwnProfile={accessType === 'SELF'}
@@ -168,7 +190,7 @@ export default function UserData({ userId, accessType }: UserDataProps_type) {
 					/>
 				</>
 			) : (
-				<p>Loading...</p>
+				<p className='text-center text-gray-500'>Loading...</p>
 			)}
 		</div>
 	)

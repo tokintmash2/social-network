@@ -7,7 +7,7 @@ export default function MyProfilePage() {
 	const { loggedInUser } = useLoggedInUser()
 
 	return (
-		<div className='container mx-auto bg-base-100 p-4'>
+		<div className='container mx-auto'>
 			{loggedInUser && <UserData userId={loggedInUser.id} accessType='SELF' />}
 		</div>
 	)
