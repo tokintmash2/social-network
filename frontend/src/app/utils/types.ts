@@ -42,7 +42,7 @@ export type PostsAction_type =
 			payload: {
 				postId: number
 				privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
-				allowedUsers?: { id: number; firstName: string; lastName: string }[]
+				allowedUsers?: number[]
 			}
 	  }
 

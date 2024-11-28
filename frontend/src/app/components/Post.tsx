@@ -32,21 +32,33 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 
 	const handlePostPrivacyChange = (e: string) => {
 		const newPrivacy = e as Post_type['privacy']
-		if (post.privacy !== newPrivacy) {
-			dispatch({
-				type: ACTIONS.SET_POST_PRIVACY,
-				payload: { postId: post.id, privacy: newPrivacy },
-			})
-			if (newPrivacy === 'ALMOST_PRIVATE') {
-				if (!followers) {
-					fetchFollowers() // Fetch followers if not already fetched
-				} else {
-					setShowAllowedUsersSelection(true) // Show selector if followers are already fetched
-				}
+
+		dispatch({
+			type: ACTIONS.SET_POST_PRIVACY,
+			payload: { postId: post.id, privacy: newPrivacy },
+		})
+		if (newPrivacy === 'ALMOST_PRIVATE') {
+			if (!followers) {
+				fetchFollowers() // Fetch followers if not already fetched
 			} else {
-				setShowAllowedUsersSelection(false)
+				setShowAllowedUsersSelection(true) // Show selector if followers are already fetched
 			}
+		} else {
+			setShowAllowedUsersSelection(false)
 		}
+	}
+
+	const handleSaveAllowedUsers = () => {
+		setShowAllowedUsersSelection(false)
+		dispatch({
+			type: ACTIONS.SET_POST_PRIVACY,
+			payload: { postId: post.id, privacy: post.privacy, allowedUsers },
+		})
+	}
+
+	const handleChangeAllowedUsers = (newValues: { value: string; label: string }[]) => {
+		const newAllowedUsers = newValues.map((value) => Number(value.value))
+		setAllowedUsers(newAllowedUsers)
 	}
 
 	return (
@@ -81,9 +93,10 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 								options={getParsedFollowers()}
 								className='basic-multi-select'
 								classNamePrefix='select'
-								//onMenuClose={() => setShowAllowedUsersSelection(false)}
-								// todo: save allowed users onBlur
-								onBlur={() => setShowAllowedUsersSelection(false)}
+								onChange={(newValues) =>
+									newValues && handleChangeAllowedUsers(Array.from(newValues))
+								}
+								onBlur={() => handleSaveAllowedUsers()}
 							/>
 						)}
 					</div>
