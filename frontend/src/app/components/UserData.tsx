@@ -102,9 +102,13 @@ export default function UserData({ userId, accessType }: UserDataProps_type) {
 										/>
 									</div>
 								) : (
-									<div className='w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-4xl text-gray-800'>
-										{userData.firstName[0]}
-										{userData.lastName[0]}
+									<div className='avatar placeholder'>
+										<div className='bg-neutral text-neutral-content w-24 rounded-full'>
+											<span className='text-3xl uppercase'>
+												{userData.firstName[0]}
+												{userData.lastName[0]}
+											</span>
+										</div>
 									</div>
 								)}
 							</div>
