@@ -14,12 +14,12 @@ func FollowersHandler(writer http.ResponseWriter, request *http.Request) {
 		FollowedID int `json:"followed_id"`
 	}
 
-	// urlPath := request.URL.Path
+	path := request.URL.Path
 	// log.Println("URL Path:", urlPath)
 	// userIdStr := strings.TrimPrefix(urlPath, "/followers/")
 	// follower.FollowedID, _ = strconv.Atoi(userIdStr)
 
-	follower.FollowedID, _ = utils.FetchIdFromPath(request.URL.Path, "/followers/")
+	follower.FollowedID, _ = utils.FetchIdFromPath(path, 1)
 
 	log.Println("ID:", follower.FollowedID)
 

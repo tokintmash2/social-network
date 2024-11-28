@@ -4,7 +4,6 @@ import (
 	"log"
 	"social-network/database"
 	"social-network/structs"
-	"strconv"
 )
 
 // getLastInsertedPostID retrieves the ID of the last inserted post
@@ -17,54 +16,122 @@ func GetLastInsertedPostID() (int, error) {
 	return postID, nil
 }
 
-// convertToIntSlice converts a string slice to an integer slice
-func ConvertToIntSlice(strSlice []string) []int {
-	intSlice := make([]int, len(strSlice))
-	for i, str := range strSlice {
-		num, err := strconv.Atoi(str)
-		if err != nil {
-			continue
-		}
-		intSlice[i] = num
+func FetchPostDetails(postID int) (*structs.PostResponse, error) {
+
+	log.Println("FetchPostDetails called with postID:", postID)
+
+	var post structs.PostResponse
+	var author structs.AuthorResponse
+	// var followers []structs.AllowedUserResponse
+
+	err := database.DB.QueryRow(`
+        SELECT 
+            p.post_id, p.content, p.privacy_setting, p.timestamp, p.image,
+            u.id, u.first_name, u.last_name
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.post_id = ?
+    `, postID).Scan(&post.ID, &post.Content, &post.Privacy, &post.CreatedAt, &post.MediaURL,
+		&author.ID, &author.FirstName, &author.LastName)
+	if err != nil {
+		log.Println("Error with query:", err)
+		return nil, err
 	}
-	return intSlice
+	post.Author = author
+
+	// Fetch allowed users for the post
+	post.AllowedUsers, err = FetchAllowedUsers(postID)
+	if err != nil {
+		log.Println("Error fetching allowed users:", err)
+		return nil, err
+	}
+
+	log.Println("Fetched post:", post)
+
+	return &post, nil
 }
 
 func FetchPosts(userID int) ([]structs.Post, error) {
 	var posts []structs.Post
-	
+
 	rows, err := database.DB.Query(`
         SELECT post_id, user_id, content, image, privacy_setting, timestamp 
         FROM posts 
         WHERE user_id = ?
         ORDER BY timestamp DESC`, userID)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        var post structs.Post
-        err := rows.Scan(
-            &post.ID,
-            &post.UserID,
-            &post.Content,
-            &post.Image,
-            &post.Privacy,
-            &post.CreatedAt,
-        )
-        if err != nil {
-            return nil, err
-        }
-        posts = append(posts, post)
-    }
-    return posts, nil
+	for rows.Next() {
+		var post structs.Post
+		err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Content,
+			&post.Image,
+			&post.Privacy,
+			&post.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
 }
+
+func FetchAllowedUsers(postID int) ([]int, error) {
+	rows, err := database.DB.Query(`
+        SELECT u.id
+        FROM post_access pa
+        JOIN users u ON pa.follower_id = u.id
+        WHERE pa.post_id = ?
+    `, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var allowedUsers []int
+	for rows.Next() {
+		var user int
+		if err := rows.Scan(&user); err != nil {
+			return nil, err
+		}
+		allowedUsers = append(allowedUsers, user)
+	}
+	return allowedUsers, nil
+}
+
+// func FetchAllowedUsers(postID int) ([]structs.AllowedUserResponse, error) {
+//     rows, err := database.DB.Query(`
+//         SELECT u.id, u.first_name, u.last_name
+//         FROM post_access pa
+//         JOIN users u ON pa.follower_id = u.id
+//         WHERE pa.post_id = ?
+//     `, postID)
+//     if err != nil {
+//         return nil, err
+//     }
+//     defer rows.Close()
+
+//     var allowedUsers []structs.AllowedUserResponse
+//     for rows.Next() {
+//         var user structs.AllowedUserResponse
+//         if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName); err != nil {
+//             return nil, err
+//         }
+//         allowedUsers = append(allowedUsers, user)
+//     }
+//     return allowedUsers, nil
+// }
 
 func CreatePost(newPost structs.Post) error {
 
 	log.Println("Got post:", newPost)
-	
+
 	tx, err := database.DB.Begin()
 	if err != nil {
 		return err
@@ -92,7 +159,7 @@ func CreatePost(newPost structs.Post) error {
 func CreateGroupPost(newPost structs.Post) error {
 
 	log.Println("Got group post:", newPost)
-	
+
 	tx, err := database.DB.Begin()
 	if err != nil {
 		return err
