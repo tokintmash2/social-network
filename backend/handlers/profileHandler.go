@@ -31,7 +31,7 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 	// userIdStr := strings.TrimPrefix(urlPath, "/users/")
 	// userID, _ := strconv.Atoi(userIdStr)
 
-	userID, err := utils.FetchIdFromPath(request.URL.Path, "/users/")
+	userID, err := utils.FetchIdFromPath(request.URL.Path, 1)
 	if err != nil {
 		log.Printf("Error parsing user ID: %v\n", err)
 	}
