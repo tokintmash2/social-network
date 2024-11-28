@@ -82,28 +82,51 @@ func FetchPosts(userID int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-func FetchAllowedUsers(postID int) ([]structs.AllowedUserResponse, error) {
-    rows, err := database.DB.Query(`
-        SELECT u.id, u.first_name, u.last_name
+func FetchAllowedUsers(postID int) ([]int, error) {
+	rows, err := database.DB.Query(`
+        SELECT u.id
         FROM post_access pa
         JOIN users u ON pa.follower_id = u.id
         WHERE pa.post_id = ?
     `, postID)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    var allowedUsers []structs.AllowedUserResponse
-    for rows.Next() {
-        var user structs.AllowedUserResponse
-        if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName); err != nil {
-            return nil, err
-        }
-        allowedUsers = append(allowedUsers, user)
-    }
-    return allowedUsers, nil
+	var allowedUsers []int
+	for rows.Next() {
+		var user int
+		if err := rows.Scan(&user); err != nil {
+			return nil, err
+		}
+		allowedUsers = append(allowedUsers, user)
+	}
+	return allowedUsers, nil
 }
+
+// func FetchAllowedUsers(postID int) ([]structs.AllowedUserResponse, error) {
+//     rows, err := database.DB.Query(`
+//         SELECT u.id, u.first_name, u.last_name
+//         FROM post_access pa
+//         JOIN users u ON pa.follower_id = u.id
+//         WHERE pa.post_id = ?
+//     `, postID)
+//     if err != nil {
+//         return nil, err
+//     }
+//     defer rows.Close()
+
+//     var allowedUsers []structs.AllowedUserResponse
+//     for rows.Next() {
+//         var user structs.AllowedUserResponse
+//         if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName); err != nil {
+//             return nil, err
+//         }
+//         allowedUsers = append(allowedUsers, user)
+//     }
+//     return allowedUsers, nil
+// }
 
 func CreatePost(newPost structs.Post) error {
 

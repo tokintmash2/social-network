@@ -65,8 +65,19 @@ type PostResponse struct {
     Author       AuthorResponse         `json:"author"`
     CreatedAt    string                 `json:"createdAt"`
     MediaURL     *string                `json:"mediaUrl,omitempty"` // Optional
-    AllowedUsers []AllowedUserResponse  `json:"allowedUsers,omitempty"`
+    AllowedUsers []int  `json:"allowedUsers,omitempty"`
 }
+
+// type PostResponse struct {
+//     ID           int                    `json:"id"`
+//     Title        string                 `json:"title"`
+//     Content      string                 `json:"content"`
+//     Privacy      string                 `json:"privacy"`
+//     Author       AuthorResponse         `json:"author"`
+//     CreatedAt    string                 `json:"createdAt"`
+//     MediaURL     *string                `json:"mediaUrl,omitempty"` // Optional
+//     AllowedUsers []AllowedUserResponse  `json:"allowedUsers,omitempty"`
+// }
 
 type AuthorResponse struct {
     ID        int    `json:"id"`
