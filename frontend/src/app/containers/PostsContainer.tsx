@@ -11,6 +11,8 @@ import {
 import { useLoggedInUser } from '../context/UserContext'
 import { dummyPosts } from '../dummyData'
 import { ACTIONS } from '../utils/actions/postActions'
+import axios from 'axios'
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
 	switch (action.type) {
@@ -50,6 +52,10 @@ export default function PostsContainer({
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
+				const response = axios.get(`${backendUrl}/api/posts/${userId}`, {
+					withCredentials: true,
+				})
+				console.log('response', response)
 				// Simulating an API call with dummy data
 				dispatch({ type: ACTIONS.SET_POSTS, payload: dummyPosts })
 			} catch (err) {
