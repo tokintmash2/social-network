@@ -5,4 +5,6 @@ INSERT INTO posts (user_id, content, privacy_setting) VALUES (1, "Test post cont
 INSERT INTO posts (user_id, content, privacy_setting) VALUES (2, "Test post content for User 2", "private");
 INSERT INTO posts (user_id, content, privacy_setting) VALUES (3, "Test post content for User 3", "custom");
 
+INSERT INTO comments (user_id, post_id, content, created_at) VALUES (1, 1, "Test comment content for User 1", "1990-03-01 00:00:00+00:00");
+
 INSERT INTO post_access (post_id, follower_id) VALUES (3, 2);

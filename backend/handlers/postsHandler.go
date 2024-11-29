@@ -118,7 +118,7 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(posts) == 0 {
 		response := map[string]interface{}{
-			"posts": []structs.Post{},
+			"posts": []structs.PostResponse{},
 			"message": "No posts found",
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -126,12 +126,14 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	response := map[string]interface{}{
-		"posts": posts,
-	}
+	// response := map[string]interface{}{
+	// 	"posts": posts,
+	// }
+
+	// response := []*structs.PostResponse{posts}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(posts)
 	return
 }
 
