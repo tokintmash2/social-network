@@ -51,8 +51,11 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 	return &post, nil
 }
 
-func FetchPosts(userID int) ([]structs.Post, error) {
-	var posts []structs.Post
+func FetchPosts(userID int) ([]structs.PostResponse, error) {
+
+	log.Println("FetchPosts called with userID:", userID)
+	
+	var posts []structs.PostResponse
 
 	rows, err := database.DB.Query(`
         SELECT post_id, user_id, content, image, privacy_setting, timestamp 
@@ -65,12 +68,13 @@ func FetchPosts(userID int) ([]structs.Post, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var post structs.Post
+		// var post structs.Post
+		var post structs.PostResponse
 		err := rows.Scan(
 			&post.ID,
-			&post.UserID,
+			&post.Author.ID,
 			&post.Content,
-			&post.Image,
+			&post.MediaURL,
 			&post.Privacy,
 			&post.CreatedAt,
 		)
