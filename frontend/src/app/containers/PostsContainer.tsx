@@ -52,10 +52,11 @@ export default function PostsContainer({
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
-				const response = axios.get(`${backendUrl}/api/posts/${userId}`, {
+				const response = await axios.get(`${backendUrl}/api/posts/${userId}`, {
 					withCredentials: true,
 				})
-				console.log('response', response)
+				console.log('response', response.data)
+
 				// Simulating an API call with dummy data
 				dispatch({ type: ACTIONS.SET_POSTS, payload: dummyPosts })
 			} catch (err) {
