@@ -57,15 +57,25 @@ type Post struct { // Need review
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Comment struct {
+	ID        int       `json:"id"`
+	PostID    int       `json:"post_id"`
+	UserID    int       `json:"user_id"`
+	Content   string    `json:"content"`
+	Image     string    `json:"mediaUrl"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type PostResponse struct {
-    ID           int                    `json:"id"`
-    Title        string                 `json:"title"`
-    Content      string                 `json:"content"`
-    Privacy      string                 `json:"privacy"`
-    Author       AuthorResponse         `json:"author"`
-    CreatedAt    string                 `json:"createdAt"`
-    MediaURL     *string                `json:"mediaUrl,omitempty"` // Optional
-    AllowedUsers []int  `json:"allowedUsers,omitempty"`
+	ID           int            `json:"id"`
+	Title        string         `json:"title"`
+	Content      string         `json:"content"`
+	Privacy      string         `json:"privacy"`
+	Author       AuthorResponse `json:"author"`
+	CreatedAt    string         `json:"createdAt"`
+	MediaURL     *string        `json:"mediaUrl,omitempty"` // Optional
+	AllowedUsers []int          `json:"allowedUsers,omitempty"`
+	Comments     []Comment      `json:"comments"`
 }
 
 // type PostResponse struct {
@@ -80,13 +90,13 @@ type PostResponse struct {
 // }
 
 type AuthorResponse struct {
-    ID        int    `json:"id"`
-    FirstName string `json:"firstName"`
-    LastName  string `json:"lastName"`
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type AllowedUserResponse struct {
-    ID        int    `json:"id"`
-    FirstName string `json:"firstName"`
-    LastName  string `json:"lastName"`
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }

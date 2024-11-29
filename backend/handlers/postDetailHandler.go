@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"social-network/utils"
+	"social-network/structs"
 	"strings"
 )
 
@@ -46,9 +47,11 @@ func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]interface{}{
-		"post": post,
-	}
+	// response := map[string]interface{}{
+	// 	"post": post,
+	// }
+
+	response := []*structs.PostResponse{post}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
