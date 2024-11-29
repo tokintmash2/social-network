@@ -54,7 +54,7 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 func FetchPosts(userID int) ([]structs.PostResponse, error) {
 
 	log.Println("FetchPosts called with userID:", userID)
-	
+
 	var posts []structs.PostResponse
 
 	rows, err := database.DB.Query(`
@@ -81,6 +81,13 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 		if err != nil {
 			return nil, err
 		}
+		allowedUsers, err := FetchAllowedUsers(post.ID)
+		if err != nil {
+			log.Println("Error fetching allowed users for posts:", err)
+			return nil, err
+		}
+		post.AllowedUsers = allowedUsers
+		
 		posts = append(posts, post)
 	}
 	return posts, nil
