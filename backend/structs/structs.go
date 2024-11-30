@@ -66,6 +66,15 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type CommentResponse struct {
+	ID             int            `json:"id"`
+	PostID         int            `json:"post_id"`
+	UserID         int            `json:"user_id"`
+	Content        string         `json:"content"`
+	CreatedAt      time.Time      `json:"created_at"`
+	AuthorResponse AuthorResponse `json:"author"`
+}
+
 type PostResponse struct {
 	ID           int            `json:"id"`
 	Title        string         `json:"title"`

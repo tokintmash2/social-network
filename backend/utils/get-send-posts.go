@@ -26,8 +26,13 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	err := database.DB.QueryRow(`
         SELECT 
-            p.post_id, p.content, p.privacy_setting, p.timestamp, p.image,
-            u.id, u.first_name, u.last_name
+            p.post_id,
+			p.content,
+			p.privacy_setting,
+			p.timestamp, p.image,
+            u.id,
+			u.first_name,
+			u.last_name
         FROM posts p
         JOIN users u ON p.user_id = u.id
         WHERE p.post_id = ?

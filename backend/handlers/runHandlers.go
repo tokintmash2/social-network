@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ func RunHandlers(r *http.ServeMux) {
 	// 	panic("Could not resolve avatar directory path")
 	// }
 
-	fmt.Println("Setting up file server for avatars at backend/avatars")
+	// fmt.Println("Setting up file server for avatars at backend/avatars")
 	// r.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir(avatarPath))))
 
 	r.HandleFunc("/login", LoginHandler)
