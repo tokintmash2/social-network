@@ -23,7 +23,7 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 			? followers.map((follower) => ({
 					value: follower.id.toString(),
 					label: `${follower.firstName} ${follower.lastName}`,
-			  }))
+				}))
 			: []
 
 	const fetchFollowers = () => {
@@ -51,7 +51,7 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 	}
 
 	const handleSaveAllowedUsers = () => {
-		setShowAllowedUsersSelection(false)
+		// setShowAllowedUsersSelection(false)
 		dispatch({
 			type: ACTIONS.SET_POST_PRIVACY,
 			payload: { postId: post.id, privacy: post.privacy, allowedUsers },
@@ -79,41 +79,48 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 					</div>
 				</div>
 				{isOwnPost && (
-					<div className='post-actions'>
+					<div className='post-actions flex flex-col items-end max-w-80'>
 						{/* Privacy Setting Dropdown */}
-						{!showAllowedUsersSelection && (
-							<Select
-								defaultValue={options.find(
-									(option) => option.value === post.privacy
-								)}
-								isMulti={false}
-								isClearable={false}
-								isSearchable={false}
-								name='privacy-setting'
-								options={options}
-								className='basic-select'
-								classNamePrefix='select'
-								onChange={(e) => e && handlePostPrivacyChange(e.value)}
-							/>
-						)}
+
+						<Select
+							defaultValue={options.find(
+								(option) => option.value === post.privacy.toUpperCase(),
+							)}
+							isMulti={false}
+							isClearable={false}
+							isSearchable={false}
+							name='privacy-setting'
+							options={options}
+							menuPosition='fixed'
+							className='basic-select w-48'
+							classNamePrefix='select'
+							onChange={(e) => e && handlePostPrivacyChange(e.value)}
+						/>
+
 						{/* Allowed Users Selector */}
 						{showAllowedUsersSelection && getParsedFollowers().length > 0 && (
-							<Select
-								defaultValue={getParsedFollowers().find((follower) =>
-									allowedUsers.includes(Number(follower.value))
-								)}
-								isMulti={true}
-								isClearable={false}
-								isSearchable={true}
-								name='allowed-users'
-								options={getParsedFollowers()}
-								className='basic-multi-select'
-								classNamePrefix='select'
-								onChange={(newValues) =>
-									newValues && handleChangeAllowedUsers(Array.from(newValues))
-								}
-								onBlur={() => handleSaveAllowedUsers()}
-							/>
+							<>
+								<div className='mt-2 mb-1'>Specify who can see the post</div>
+								<Select
+									defaultValue={getParsedFollowers().find((follower) =>
+										allowedUsers.includes(Number(follower.value)),
+									)}
+									isMulti={true}
+									isClearable={false}
+									isSearchable={true}
+									menuPlacement='auto'
+									menuPosition='fixed'
+									name='allowed-users'
+									options={getParsedFollowers()}
+									className='basic-multi-select'
+									classNamePrefix='select'
+									onChange={(newValues) =>
+										newValues && handleChangeAllowedUsers(Array.from(newValues))
+									}
+									onBlur={() => handleSaveAllowedUsers()}
+									placeholder='Select'
+								/>
+							</>
 						)}
 					</div>
 				)}

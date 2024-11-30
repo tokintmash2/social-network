@@ -1,9 +1,4 @@
-import {
-	Post_type,
-	PostsContainerProps_type,
-	PostsAction_type,
-	PostsState_type,
-} from './utils/types'
+import { Post_type } from './utils/types'
 
 export const dummyFollowers: { id: number; firstName: string; lastName: string }[] = [
 	{ id: 1, firstName: 'John', lastName: 'Doe' },

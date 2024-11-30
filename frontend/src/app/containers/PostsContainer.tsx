@@ -9,7 +9,6 @@ import {
 	PostsState_type,
 } from '../utils/types'
 import { useLoggedInUser } from '../context/UserContext'
-import { dummyPosts } from '../dummyData'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -17,25 +16,43 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
 	switch (action.type) {
 		case ACTIONS.SET_POSTS:
-			return { ...state, posts: action.payload as Post_type[] }
-		case ACTIONS.SET_LOADING:
-			return { ...state, loading: action.payload as boolean }
-		case ACTIONS.SET_ERROR:
-			return { ...state, error: action.payload as string | null }
-		case ACTIONS.SET_POST_PRIVACY:
-			return {
-				...state,
-				posts: state.posts.map((post) => {
-					if (post.id === (action.payload as any).postId) {
-						return {
-							...post,
-							privacy: (action.payload as any).privacy,
-							allowedUsers: (action.payload as any).allowedUsers || post.allowedUsers,
-						}
-					}
-					return post
-				}),
+			if (Array.isArray(action.payload)) {
+				console.log('action.payload', action.payload)
+				return { ...state, posts: action.payload }
 			}
+			throw new Error('Invalid payload for SET_POSTS')
+
+		case ACTIONS.SET_LOADING:
+			if (typeof action.payload === 'boolean') {
+				return { ...state, loading: action.payload }
+			}
+			throw new Error('Invalid payload for SET_LOADING')
+
+		case ACTIONS.SET_ERROR:
+			if (typeof action.payload === 'string' || action.payload === null) {
+				return { ...state, error: action.payload }
+			}
+			throw new Error('Invalid payload for SET_ERROR')
+
+		case ACTIONS.SET_POST_PRIVACY:
+			if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'postId' in action.payload &&
+				'privacy' in action.payload
+			) {
+				const { postId, privacy, allowedUsers } = action.payload
+				return {
+					...state,
+					posts: state.posts.map((post) =>
+						post.id === postId
+							? { ...post, privacy, allowedUsers: allowedUsers ?? post.allowedUsers }
+							: post,
+					),
+				}
+			}
+			throw new Error('Invalid payload for SET_POST_PRIVACY')
+
 		default:
 			return state
 	}
@@ -46,6 +63,7 @@ export default function PostsContainer({
 	feed = false,
 	isOwnProfile = false,
 }: PostsContainerProps_type) {
+	const { loggedInUser } = useLoggedInUser()
 	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
 
 	useEffect(() => {
@@ -56,9 +74,7 @@ export default function PostsContainer({
 					withCredentials: true,
 				})
 				console.log('response', response.data)
-
-				// Simulating an API call with dummy data
-				dispatch({ type: ACTIONS.SET_POSTS, payload: dummyPosts })
+				dispatch({ type: ACTIONS.SET_POSTS, payload: response.data })
 			} catch (err) {
 				dispatch({ type: ACTIONS.SET_ERROR, payload: 'Failed to fetch posts' })
 				console.error(err)
@@ -75,8 +91,6 @@ export default function PostsContainer({
 	if (state.error) {
 		return <div>Error: {state.error}</div>
 	}
-
-	const { loggedInUser } = useLoggedInUser()
 
 	return (
 		<div className='mb-4'>

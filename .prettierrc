@@ -4,5 +4,13 @@
 	"useTabs": true,
 	"printWidth": 100,
 	"singleQuote": true,
-	"jsxSingleQuote": true
+	"jsxSingleQuote": true,
+  "overrides": [
+    {
+      "files": "*.sql",
+      "options": {
+        "printWidth": 0
+      }
+    }
+  ]
 }

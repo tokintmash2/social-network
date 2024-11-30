@@ -54,7 +54,7 @@ export default function UserData({ userId, accessType }: UserDataProps_type) {
 			// Optimistically update UI
 			return {
 				...prevUserData,
-				isPublicProfile: !prevUserData.isPublic,
+				isPublic: !prevUserData.isPublic,
 			}
 		})
 

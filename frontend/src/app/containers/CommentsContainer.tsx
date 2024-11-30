@@ -6,7 +6,7 @@ import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import CreateComment from '../components/CreateComment'
 
 function CommentsContainer({ postId, comments, dispatch }: CommentsContainerProps_type) {
-	const [showComments, setShowComments] = useState(true)
+	const [showComments, setShowComments] = useState(false)
 
 	const handleToggleShowComments = () => {
 		setShowComments(!showComments)
@@ -20,11 +20,12 @@ function CommentsContainer({ postId, comments, dispatch }: CommentsContainerProp
 				) : (
 					<FontAwesomeIcon icon={faAngleDown} />
 				)}{' '}
-				{comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+				{comments?.length} {!comments && '0'}{' '}
+				{comments?.length === 1 ? 'comment' : 'comments'}
 			</div>
 
 			{showComments &&
-				comments.length > 0 &&
+				comments?.length > 0 &&
 				comments.map((comment) => <Comment key={comment.id} comment={comment} />)}
 		</>
 	)
