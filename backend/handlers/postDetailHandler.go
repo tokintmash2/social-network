@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"social-network/utils"
 	"social-network/structs"
+	"social-network/utils"
 	"strings"
 )
 
@@ -42,14 +42,13 @@ func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Post ID in the handler:", postID)
 
 	post, err := utils.FetchPostDetails(postID)
+	comments, err := utils.FetchComments(postID)
 	if err != nil {
 		http.Error(w, "Error fetching post details", http.StatusInternalServerError)
 		return
 	}
 
-	// response := map[string]interface{}{
-	// 	"post": post,
-	// }
+	post.Comments = comments
 
 	response := []*structs.PostResponse{post}
 
