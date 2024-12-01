@@ -176,6 +176,7 @@ func CreatePost(newPost structs.Post) error {
 
 	return nil
 }
+
 func CreateGroupPost(newPost structs.Post) error {
 
 	log.Println("Got group post:", newPost)

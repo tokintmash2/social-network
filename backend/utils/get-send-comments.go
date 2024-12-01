@@ -6,6 +6,32 @@ import (
 	"social-network/structs"
 )
 
+func CreateComment(newComment structs.Comment) error {
+	log.Println("Got comment:", newComment)
+
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+	INSERT INTO comments (post_id, user_id, content, media_url, created_at)
+	VALUES (?, ?, ?, ?, ?)
+	`, newComment.PostID, newComment.UserID, newComment.Content, newComment.Image, newComment.CreatedAt)
+	if err != nil {
+		log.Printf("Error inserting comment: %v\n", err)
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+        log.Printf("Error committing transaction: %v\n", err)
+        return err
+    }
+	
+	return nil
+}
+
 func FetchComments(postID int) ([]structs.CommentResponse, error) {
 
 	log.Println("FetchComments called with postID:", postID)

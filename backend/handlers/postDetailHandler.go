@@ -22,10 +22,8 @@ func PostDetailHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		FetchPostDetailHandler(w, r)
-	// case "PUT":
-	// 	UpdatePostHandler(w, r)
-	// case "DELETE":
-	// 	DeletePostHandler(w, r)
+	case "POST":
+        CreateCommentHandler(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
