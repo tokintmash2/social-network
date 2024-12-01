@@ -66,16 +66,26 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type CommentResponse struct {
+	ID             int            `json:"id"`
+	PostID         int            `json:"post_id"`
+	UserID         int            `json:"user_id"`
+	Content        string         `json:"content"`
+	Image          *string         `json:"media_url,omitempty"`
+	CreatedAt      time.Time      `json:"created_at"`
+	AuthorResponse AuthorResponse `json:"author"`
+}
+
 type PostResponse struct {
-	ID           int            `json:"id"`
-	Title        string         `json:"title"`
-	Content      string         `json:"content"`
-	Privacy      string         `json:"privacy"`
-	Author       AuthorResponse `json:"author"`
-	CreatedAt    string         `json:"createdAt"`
-	MediaURL     *string        `json:"mediaUrl,omitempty"` // Optional
-	AllowedUsers []int          `json:"allowedUsers,omitempty"`
-	Comments     []Comment      `json:"comments"`
+	ID           int               `json:"id"`
+	Title        string            `json:"title"`
+	Content      string            `json:"content"`
+	Privacy      string            `json:"privacy"`
+	Author       AuthorResponse    `json:"author"`
+	CreatedAt    string            `json:"createdAt"`
+	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
+	AllowedUsers []int             `json:"allowedUsers,omitempty"`
+	Comments     []CommentResponse `json:"comments"`
 }
 
 // type PostResponse struct {
