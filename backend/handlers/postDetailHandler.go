@@ -42,13 +42,13 @@ func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Post ID in the handler:", postID)
 
 	post, err := utils.FetchPostDetails(postID)
-	comments, err := utils.FetchComments(postID)
+	// comments, err := utils.FetchComments(postID)
 	if err != nil {
 		http.Error(w, "Error fetching post details", http.StatusInternalServerError)
 		return
 	}
 
-	post.Comments = comments
+	// post.Comments = comments
 
 	response := []*structs.PostResponse{post}
 

@@ -46,6 +46,7 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	// Fetch allowed users for the post
 	post.AllowedUsers, err = FetchAllowedUsers(postID)
+	post.Comments, err = FetchComments(postID)
 	if err != nil {
 		log.Println("Error fetching allowed users:", err)
 		return nil, err
@@ -86,13 +87,15 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		allowedUsers, err := FetchAllowedUsers(post.ID)
+		post.AllowedUsers, err = FetchAllowedUsers(post.ID)
+		post.Comments, err = FetchComments(post.ID)
 		if err != nil {
 			log.Println("Error fetching allowed users for posts:", err)
 			return nil, err
 		}
-		post.AllowedUsers = allowedUsers
-		
+		// post.AllowedUsers = allowedUsers
+		// post.Comments = comments
+
 		posts = append(posts, post)
 	}
 	return posts, nil
