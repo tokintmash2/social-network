@@ -64,7 +64,7 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 	var posts []structs.PostResponse
 
 	rows, err := database.DB.Query(`
-        SELECT post_id, user_id, content, image, privacy_setting, timestamp 
+        SELECT post_id, user_id, title, content, image, privacy_setting, timestamp 
         FROM posts 
         WHERE user_id = ?
         ORDER BY timestamp DESC`, userID)
@@ -79,6 +79,7 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 		err := rows.Scan(
 			&post.ID,
 			&post.Author.ID,
+			&post.Title,
 			&post.Content,
 			&post.MediaURL,
 			&post.Privacy,
@@ -159,9 +160,9 @@ func CreatePost(newPost structs.Post) error {
 
 	// Insert post
 	_, err = tx.Exec(`
-        INSERT INTO posts (user_id, content, privacy_setting, image, timestamp)
-        VALUES (?, ?, ?, ?, ?)`,
-		newPost.UserID, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
+        INSERT INTO posts (user_id, title, content, privacy_setting, image, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+		newPost.UserID, newPost.Title, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
 	)
 	if err != nil {
 		log.Printf("Error inserting post: %v\n", err)

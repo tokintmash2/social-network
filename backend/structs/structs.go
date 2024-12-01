@@ -51,6 +51,7 @@ type Post struct { // Need review
 	ID        int
 	UserID    int       `json:"user_id"`
 	GroupID   int       `json:"group_id"`
+	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Privacy   string    `json:"privacy"`
 	Image     string    `json:"image"`
@@ -71,7 +72,7 @@ type CommentResponse struct {
 	PostID         int            `json:"post_id"`
 	UserID         int            `json:"user_id"`
 	Content        string         `json:"content"`
-	Image          *string         `json:"media_url,omitempty"`
+	Image          *string        `json:"media_url,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
 	AuthorResponse AuthorResponse `json:"author"`
 }
