@@ -26,6 +26,8 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+
 	if r.Method == http.MethodPost {
 
 		var newComment structs.Comment
@@ -40,6 +42,11 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Comment:", newComment)
 
 		newComment.UserID = userID
+		newComment.PostID, err = utils.FetchIdFromPath(r.URL.Path, 2)
+		if err != nil {
+			http.Error(w, "Error fetching post ID", http.StatusBadRequest)
+			return
+		}
 
 		err = utils.CreateComment(newComment)
 		if err != nil {
