@@ -56,6 +56,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 		response := map[string]interface{}{
 			"success": true,
+			"comment": newComment,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
