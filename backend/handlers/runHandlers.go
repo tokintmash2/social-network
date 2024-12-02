@@ -6,14 +6,6 @@ import (
 
 func RunHandlers(r *http.ServeMux) {
 
-	// avatarPath, err := filepath.Abs("backend/avatars")
-	// if err != nil {
-	// 	panic("Could not resolve avatar directory path")
-	// }
-
-	// fmt.Println("Setting up file server for avatars at backend/avatars")
-	// r.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir(avatarPath))))
-
 	r.HandleFunc("/login", LoginHandler)
 	r.HandleFunc("/register", SignupHandler)
 	r.HandleFunc("/logout", LogoutHandler)
