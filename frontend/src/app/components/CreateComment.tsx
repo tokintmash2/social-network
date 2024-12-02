@@ -35,9 +35,41 @@ function CreateComment({
 				},
 			)
 
-			const newComment = response.data
+			const newComment = response.data.comment
+			console.log({
+				postId,
+				comment: {
+					id: newComment.id,
+					content: newComment.content,
+					mediaUrl: newComment.mediaUrl || null,
+					createdAt: new Date(newComment.created_at),
+					author: {
+						id: newComment.user_id,
+						firstName: 'Annonymous',
+						lastName: '',
+					},
+				},
+			})
 
 			console.log('new Comment', newComment)
+
+			dispatch({
+				type: ACTIONS.ADD_COMMENT,
+				payload: {
+					postId,
+					comment: {
+						id: newComment.id,
+						content: newComment.content,
+						mediaUrl: newComment.mediaUrl || null,
+						createdAt: new Date(newComment.created_at),
+						author: {
+							id: newComment.user_id,
+							firstName: newComment.author?.first_name || 'Annonymous',
+							lastName: newComment.author?.last_name || '',
+						},
+					},
+				},
+			})
 		} catch (error) {
 			console.error('Error submitting comment:', error)
 			alert('Failed to add comment. Please try again.')
@@ -45,7 +77,6 @@ function CreateComment({
 			setLoading(false)
 		}
 	}
-
 	const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setComment({ ...comment, content: e.target.value })
 	}
@@ -63,6 +94,7 @@ function CreateComment({
 			<button
 				className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-2 right-2'
 				onClick={handleSubmitComment}
+				disabled={loading || !comment.content.trim()}
 			>
 				<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
 			</button>

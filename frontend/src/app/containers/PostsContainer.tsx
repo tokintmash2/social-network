@@ -7,18 +7,13 @@ import {
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
-	User,
 } from '../utils/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
-function reducer(
-	state: PostsState_type,
-	action: PostsAction_type,
-	loggedInUser: User,
-): PostsState_type {
+function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
 	switch (action.type) {
 		case ACTIONS.SET_POSTS:
 			if (Array.isArray(action.payload)) {
@@ -58,23 +53,37 @@ function reducer(
 			}
 			throw new Error('Invalid payload for SET_POST_PRIVACY')
 		case ACTIONS.ADD_COMMENT:
+			console.log('action.payload', action.payload)
 			if (
 				action.payload &&
 				typeof action.payload === 'object' &&
 				'postId' in action.payload &&
-				'content' in action.payload &&
-				'mediaUrl' in action.payload &&
-				typeof action.payload.content === 'string'
+				'comment' in action.payload &&
+				typeof action.payload.comment === 'object' &&
+				'id' in action.payload.comment &&
+				'content' in action.payload.comment &&
+				'mediaUrl' in action.payload.comment &&
+				'author' in action.payload.comment &&
+				typeof action.payload.comment.author === 'object' &&
+				'id' in action.payload.comment.author &&
+				typeof action.payload.comment.author.id === 'number' &&
+				'firstName' in action.payload.comment.author &&
+				typeof action.payload.comment.author.firstName === 'string' &&
+				'lastName' in action.payload.comment.author &&
+				typeof action.payload.comment.author.lastName === 'string'
 			) {
-				const { postId, content, mediaUrl } = action.payload
-				const comment: Post_type['comments'][0] = {
-					id: Date.now(),
+				const { postId, comment } = action.payload
+				const { content, mediaUrl, author } = comment
+				const { firstName, lastName } = author
+
+				const newComment: Post_type['comments'][0] = {
+					id: comment.id,
 					content,
 					mediaUrl: mediaUrl ? (typeof mediaUrl === 'string' ? mediaUrl : null) : null,
 					author: {
-						id: loggedInUser.id,
-						firstName: loggedInUser.firstName,
-						lastName: loggedInUser.lastName,
+						id: author.id,
+						firstName: firstName,
+						lastName: lastName,
 					},
 					createdAt: new Date(),
 				}
@@ -82,7 +91,7 @@ function reducer(
 					...state,
 					posts: state.posts.map((post) =>
 						post.id === postId
-							? { ...post, comments: [...post.comments, comment] }
+							? { ...post, comments: [...post.comments, newComment] }
 							: post,
 					),
 				}
@@ -98,13 +107,14 @@ export default function PostsContainer({
 	isOwnProfile = false,
 }: PostsContainerProps_type) {
 	const { loggedInUser } = useLoggedInUser()
+
 	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
 
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
-				const response = await axios.get(`${backendUrl}/api/posts/${userId}`, {
+				const response = await axios.get(`${backendUrl}/api/posts?user_id=${userId}`, {
 					withCredentials: true,
 				})
 				console.log('response', response.data)
@@ -152,7 +162,7 @@ export default function PostsContainer({
 						key={post.id}
 						post={post}
 						dispatch={dispatch}
-						isOwnPost={post.author.id === loggedInUser?.id}
+						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}
 			</div>
