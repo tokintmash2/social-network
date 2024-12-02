@@ -96,6 +96,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 					),
 				}
 			}
+
 			throw new Error('Invalid payload for ADD_COMMENT')
 		default:
 			return state
