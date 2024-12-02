@@ -29,11 +29,12 @@ Navigate to frontend directory:
 cd frontend
 ```
 
-Install dependencies and run development server:
+Install dependencies and run production server:
 
 ```bash
 npm install
-npm run dev
+npm run build
+npm start
 ```
 
 The application will be available at http://localhost:3000
