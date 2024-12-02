@@ -1,20 +1,49 @@
 import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
+import { ACTIONS } from '../utils/actions/postActions'
+import { PostsAction_type } from '../utils/types'
+import axios from 'axios'
 
-function CreateComment({ postId, dispatch }: { postId: number; dispatch: unknown }) {
+function CreateComment({
+	postId,
+	dispatch,
+}: {
+	postId: number
+	dispatch: (action: PostsAction_type) => void
+}) {
 	const [comment, setComment] = useState<{ content: string; mediaUrl: string }>({
 		content: '',
 		mediaUrl: '',
 	})
+	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+	const [loading, setLoading] = useState(false)
 
-	const handleSubmitComment = () => {
+	const handleSubmitComment = async () => {
 		console.log('submit comment', comment)
-		dispatch(
-			type: ACTIONS.ADD_COMMENT,
-			payload: {
-				postId: post.id,
-				commentContent: comment.content, comment_mediaUrl: comment.mediaUrl },)
+
+		try {
+			setLoading(true)
+			const response = await axios.post(
+				`${backendUrl}/api/posts/${postId}/comments`,
+				{
+					content: comment.content,
+					mediaUrl: comment.mediaUrl,
+				},
+				{
+					withCredentials: true,
+				},
+			)
+
+			const newComment = response.data
+
+			console.log('new Comment', newComment)
+		} catch (error) {
+			console.error('Error submitting comment:', error)
+			alert('Failed to add comment. Please try again.')
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

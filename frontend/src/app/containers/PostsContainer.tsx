@@ -7,13 +7,18 @@ import {
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
+	User,
 } from '../utils/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
-function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
+function reducer(
+	state: PostsState_type,
+	action: PostsAction_type,
+	loggedInUser: User,
+): PostsState_type {
 	switch (action.type) {
 		case ACTIONS.SET_POSTS:
 			if (Array.isArray(action.payload)) {
@@ -57,14 +62,22 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 				action.payload &&
 				typeof action.payload === 'object' &&
 				'postId' in action.payload &&
-				'comment' in action.payload
+				'content' in action.payload &&
+				'mediaUrl' in action.payload &&
+				typeof action.payload.content === 'string'
 			) {
-				const { postId } = action.payload
-				const comment = {
-					content: action.payload.comment,
-					mediaUrl: action.payload.mediaUrl || null, 
-					author: {loggedInUser.id, useLoggedInUser.firstName, loggedInUser.lastName},
-					createdAt: new Date()}
+				const { postId, content, mediaUrl } = action.payload
+				const comment: Post_type['comments'][0] = {
+					id: Date.now(),
+					content,
+					mediaUrl: mediaUrl ? (typeof mediaUrl === 'string' ? mediaUrl : null) : null,
+					author: {
+						id: loggedInUser.id,
+						firstName: loggedInUser.firstName,
+						lastName: loggedInUser.lastName,
+					},
+					createdAt: new Date(),
+				}
 				return {
 					...state,
 					posts: state.posts.map((post) =>
@@ -74,13 +87,11 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 					),
 				}
 			}
-			console.error('Invalid payload for ADD_COMMENT:', action.payload)
 			throw new Error('Invalid payload for ADD_COMMENT')
 		default:
 			return state
 	}
 }
-
 export default function PostsContainer({
 	userId,
 	feed = false,
