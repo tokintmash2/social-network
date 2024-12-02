@@ -52,7 +52,30 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 				}
 			}
 			throw new Error('Invalid payload for SET_POST_PRIVACY')
-
+		case ACTIONS.ADD_COMMENT:
+			if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'postId' in action.payload &&
+				'comment' in action.payload
+			) {
+				const { postId } = action.payload
+				const comment = {
+					content: action.payload.comment,
+					mediaUrl: action.payload.mediaUrl || null, 
+					author: {loggedInUser.id, useLoggedInUser.firstName, loggedInUser.lastName},
+					createdAt: new Date()}
+				return {
+					...state,
+					posts: state.posts.map((post) =>
+						post.id === postId
+							? { ...post, comments: [...post.comments, comment] }
+							: post,
+					),
+				}
+			}
+			console.error('Invalid payload for ADD_COMMENT:', action.payload)
+			throw new Error('Invalid payload for ADD_COMMENT')
 		default:
 			return state
 	}

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 
-function CreateComment({ postId, dispatch }: { postId: number; dispatch: any }) {
+function CreateComment({ postId, dispatch }: { postId: number; dispatch: unknown }) {
 	const [comment, setComment] = useState<{ content: string; mediaUrl: string }>({
 		content: '',
 		mediaUrl: '',
@@ -10,7 +10,11 @@ function CreateComment({ postId, dispatch }: { postId: number; dispatch: any }) 
 
 	const handleSubmitComment = () => {
 		console.log('submit comment', comment)
-		// dispatch
+		dispatch(
+			type: ACTIONS.ADD_COMMENT,
+			payload: {
+				postId: post.id,
+				commentContent: comment.content, comment_mediaUrl: comment.mediaUrl },)
 	}
 
 	const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -27,7 +31,10 @@ function CreateComment({ postId, dispatch }: { postId: number; dispatch: any }) 
 				autoCorrect='off'
 				spellCheck='false'
 			></textarea>
-			<button className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-2 right-2'>
+			<button
+				className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-2 right-2'
+				onClick={handleSubmitComment}
+			>
 				<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
 			</button>
 		</div>
