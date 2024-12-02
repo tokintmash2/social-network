@@ -89,16 +89,20 @@ type PostResponse struct {
 	Comments     []CommentResponse `json:"comments"`
 }
 
-// type PostResponse struct {
-//     ID           int                    `json:"id"`
-//     Title        string                 `json:"title"`
-//     Content      string                 `json:"content"`
-//     Privacy      string                 `json:"privacy"`
-//     Author       AuthorResponse         `json:"author"`
-//     CreatedAt    string                 `json:"createdAt"`
-//     MediaURL     *string                `json:"mediaUrl,omitempty"` // Optional
-//     AllowedUsers []AllowedUserResponse  `json:"allowedUsers,omitempty"`
-// }
+type GroupResponse struct {
+	ID          int              `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	CreatedAt   string           `json:"created_at"`
+	CreatorID   int              `json:"creator_id"`
+	Members     []MemberResponse `json:"group_members"`
+}
+
+type MemberResponse struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
 
 type AuthorResponse struct {
 	ID        int    `json:"id"`

@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+
+
 func AddGroupMember(groupID, userID, adminID int) error {
 	_, err := database.DB.Exec(`
         INSERT INTO group_memberships (group_id, user_id, role, joined_at)
@@ -71,6 +73,7 @@ func CreateGroup(group structs.Group) error {
         VALUES (?, ?, ?, ?)`,
 		group.Name, group.Description, group.CreatorID, group.CreatedAt,
 	)
+	log.Printf("Insert result: %+v", result) 
 	if err != nil {
 		log.Println("Error inserting group:", err)
 		return err
