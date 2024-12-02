@@ -14,7 +14,7 @@ const avatarUrl = `${backendUrl}/avatars/`
 
 export default function UserData({ userId, accessType }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
-	const [followData, setFollowData] = useState<{ following: number; followers: number }>({
+	const [followData] = useState<{ following: number; followers: number }>({
 		following: 0,
 		followers: 0,
 	})
