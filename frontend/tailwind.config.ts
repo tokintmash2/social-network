@@ -16,11 +16,16 @@ const config: Config = {
 			maxWidth: {
 				'128': '32rem',
 			},
+			fontFamily: {
+				krona: ['Krona One', 'sans-serif'],
+			},
 		},
+		
 	},
 	plugins: [daisyui],
 	daisyui: {
 		themes: ['light', 'dark'],
 	},
 }
+
 export default config
