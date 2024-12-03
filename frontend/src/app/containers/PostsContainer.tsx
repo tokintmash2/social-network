@@ -18,7 +18,11 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 		case ACTIONS.SET_POSTS:
 			if (Array.isArray(action.payload)) {
 				console.log('action.payload', action.payload)
-				return { ...state, posts: action.payload }
+				const normalizedPosts = action.payload.map((post) => ({
+					...post,
+					comments: post.comments || [], // Default to an empty array if comments is null or undefined
+				}))
+				return { ...state, posts: normalizedPosts }
 			}
 			throw new Error('Invalid payload for SET_POSTS')
 
@@ -91,7 +95,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 					...state,
 					posts: state.posts.map((post) =>
 						post.id === postId
-							? { ...post, comments: [...post.comments, newComment] }
+							? { ...post, comments: [...(post.comments || []), newComment] }
 							: post,
 					),
 				}

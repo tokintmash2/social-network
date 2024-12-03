@@ -142,7 +142,7 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 
 			{/* Comments Section */}
 			<div className='comments-container mt-4'>
-				<CommentsContainer comments={post.comments} />
+				<CommentsContainer postId={post.id} comments={post.comments} dispatch={dispatch} />
 			</div>
 		</div>
 	)
