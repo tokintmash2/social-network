@@ -72,9 +72,7 @@ export type PostProps_type = {
 }
 
 export type CommentsContainerProps_type = {
-	postId: number
 	comments: Post_type['comments']
-	dispatch: (action: PostsAction_type) => void
 }
 
 export type CommentProps_type = {

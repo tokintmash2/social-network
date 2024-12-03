@@ -6,16 +6,6 @@ import (
 	"social-network/structs"
 )
 
-// getLastInsertedPostID retrieves the ID of the last inserted post
-func GetLastInsertedPostID() (int, error) {
-	var postID int
-	err := database.DB.QueryRow("SELECT last_insert_rowid()").Scan(&postID)
-	if err != nil {
-		return 0, err
-	}
-	return postID, nil
-}
-
 func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	log.Println("FetchPostDetails called with postID:", postID)

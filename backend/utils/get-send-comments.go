@@ -6,7 +6,7 @@ import (
 	"social-network/structs"
 )
 
-func CreateComment(newComment structs.Comment) error {
+func CreateComment(newComment structs.CommentResponse) error {
 	log.Println("Got comment:", newComment)
 
 	tx, err := database.DB.Begin()

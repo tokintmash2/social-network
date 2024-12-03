@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"social-network/structs"
 	"social-network/utils"
+	"time"
 )
 
 func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,11 +27,9 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-
 	if r.Method == http.MethodPost {
 
-		var newComment structs.Comment
+		var newComment structs.CommentResponse
 
 		err := json.NewDecoder(r.Body).Decode(&newComment)
 
@@ -42,6 +41,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Comment:", newComment)
 
 		newComment.UserID = userID
+		newComment.CreatedAt = time.Now()
 		newComment.PostID, err = utils.FetchIdFromPath(r.URL.Path, 2)
 		if err != nil {
 			http.Error(w, "Error fetching post ID", http.StatusBadRequest)
@@ -52,6 +52,21 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Error creating comment", http.StatusInternalServerError)
 			return
+		}
+
+		newComment.ID, _ = utils.GetLastInsertedID()
+
+		userProfile, err := utils.GetUserProfile(userID) // Get author data
+		if err != nil {
+			http.Error(w, "Error fetching author data", http.StatusInternalServerError)
+			return
+		}
+
+		// Use only necessary fields from userProfile
+		newComment.AuthorResponse = structs.AuthorResponse{
+			ID:        userProfile.ID,
+			FirstName: userProfile.FirstName,
+			LastName:  userProfile.LastName,
 		}
 
 		response := map[string]interface{}{
