@@ -20,11 +20,6 @@ func AddGroupMember(groupID, userID, adminID int) error {
 		return err
 	}
 
-	// if err = tx.Commit(); err != nil {
-	// 	log.Printf("Error committing transaction: %v\n", err)
-	// 	return err
-	// }
-
 	return nil
 }
 
@@ -56,6 +51,50 @@ func IsMemberInGroup(groupID, userID int) bool {
         return false
     }
     return exists
+}
+
+func GetGroupMembers(groupID int) ([]structs.MemberResponse, error) {
+
+    var members []structs.MemberResponse
+
+    rows, err := database.DB.Query(`
+        SELECT u.id
+        FROM users u
+        INNER JOIN group_memberships gm ON u.id = gm.user_id
+        WHERE gm.group_id = ?`, groupID)
+    if err != nil {
+        log.Println("Error fetching group members:", err)
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var userID int
+        err := rows.Scan(&userID)
+        if err != nil {
+            log.Println("Error scanning group member:", err)
+            return nil, err
+        }
+
+        userProfile, err := GetUserProfile(userID)
+        if err != nil {
+            log.Println("Error fetching user profile:", err)
+            return nil, err
+        }
+
+        member := structs.MemberResponse{
+            ID:    userProfile.ID,
+            FirstName: userProfile.FirstName,
+            LastName:  userProfile.LastName,
+        }
+        members = append(members, member)
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Println("Error iterating over group members:", err)
+        return nil, err
+    }
+    return members, nil
 }
 
 func CreateGroup(group structs.Group) error {
