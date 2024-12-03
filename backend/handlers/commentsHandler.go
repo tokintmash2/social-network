@@ -54,6 +54,8 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		newComment.ID,_ = utils.GetLastInsertedID() 
+
 		response := map[string]interface{}{
 			"success": true,
 		}

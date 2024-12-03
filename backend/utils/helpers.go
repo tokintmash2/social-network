@@ -2,18 +2,20 @@ package utils
 
 import (
 	"fmt"
+	"social-network/database"
 	"strconv"
 	"strings"
 )
 
-// func FetchIdFromPath(urlPath, trim string) (int, error) {
-// 	userIdStr := strings.TrimPrefix(urlPath, trim)
-// 	userID, err := strconv.Atoi(userIdStr)
-// 	if err != nil {
-// 		return 0, err
-// 	}
-// 	return userID, nil
-// }
+// Returns the last inserted ID from the database
+func GetLastInsertedID() (int, error) {
+	var ID int
+	err := database.DB.QueryRow("SELECT last_insert_rowid()").Scan(&ID)
+	if err != nil {
+		return 0, err
+	}
+	return ID, nil
+}
 
 func FetchIdFromPath(path string, position int) (int, error) {
 	// Trim leading/trailing slashes and split the path
