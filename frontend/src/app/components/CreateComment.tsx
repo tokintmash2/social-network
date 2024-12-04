@@ -53,11 +53,12 @@ function CreateComment({
 		try {
 			setLoading(true)
 			setSuccess(null)
+			const formattedContent = comment.content.replace(/\n/g, '<br />') // Convert new lines to <br>
 
 			const response = await axios.post(
 				`${backendUrl}/api/posts/${postId}/comments`,
 				{
-					content: comment.content,
+					content: formattedContent,
 					mediaUrl: comment.mediaUrl,
 				},
 				{

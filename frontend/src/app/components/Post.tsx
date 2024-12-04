@@ -4,8 +4,10 @@ import { PostProps_type, Post_type } from '../utils/types'
 import { dummyFollowers } from '../dummyData'
 import Select from 'react-select'
 import CommentsContainer from '../containers/CommentsContainer'
+import DOMPurify from 'dompurify'
 
 export default function Post({ post, dispatch, isOwnPost = false }: PostProps_type) {
+	const sanitizedContent = DOMPurify.sanitize(post.content)
 	const [allowedUsers, setAllowedUsers] = useState<number[]>(post.allowedUsers || [])
 	const [showAllowedUsersSelection, setShowAllowedUsersSelection] = useState(false)
 	const [followers, setFollowers] = useState<
@@ -68,6 +70,7 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 			{/* Header Section */}
 			<div className='flex justify-between items-center mb-4'>
 				<div className='flex items-center space-x-2'>
+					<h2 className='font-bold'>{post.title}</h2>
 					{/* Author Details */}
 					<div>
 						<p className='text-sm font-semibold text-primary'>
@@ -128,7 +131,11 @@ export default function Post({ post, dispatch, isOwnPost = false }: PostProps_ty
 
 			{/* Post Content */}
 			<div className='post-content mb-4'>
-				<p className='text-sm text-gray-800'>{post.content}</p>
+				<p
+					className='text-sm text-gray-800'
+					dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+				/>
+
 				{post.mediaUrl && (
 					<div className='mt-4'>
 						<img

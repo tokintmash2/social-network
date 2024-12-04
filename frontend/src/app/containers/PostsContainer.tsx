@@ -23,6 +23,14 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 					comments: post.comments || [], // Default to an empty array if comments is null or undefined
 				}))
 				return { ...state, posts: normalizedPosts }
+			} else if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'posts' in action.payload &&
+				Array.isArray(action.payload.posts) &&
+				!action.payload.posts.length
+			) {
+				return { ...state, posts: [] }
 			}
 			throw new Error('Invalid payload for SET_POSTS')
 
