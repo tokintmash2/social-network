@@ -4,61 +4,132 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"social-network/database"
 	"social-network/structs"
 	"social-network/utils"
+	"strconv"
 	"time"
 )
 
-func GroupsHandler(writer http.ResponseWriter, request *http.Request) {
+func GroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GroupsHandler called")
 
-	// var userID int
+	switch r.Method {
+	case "GET":
+		FetchAllGroupsHandler(w, r)
+	case "POST":
+		CreateGroupHandler(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
 
-	cookie, err := request.Cookie("session")
+func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("FetchAllGroups called")
+
+	queryParams := r.URL.Query()
+	targetUserIDStr := queryParams.Get("user_id")
+	userID, _ := strconv.Atoi(targetUserIDStr)
+
+	var groups []structs.GroupResponse
+
+	cookie, err := r.Cookie("session")
 	if err != nil {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
 	sessionUUID := cookie.Value
-	userID, validSession := utils.VerifySession(sessionUUID, "GroupsHandler")
+	_, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
 	if !validSession {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	if request.Method == http.MethodPost {
-		var group structs.Group
-
-		err := json.NewDecoder(request.Body).Decode(&group)
-		if err != nil {
-			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
-			return
-		}
-		if group.Name == "" || group.Description == "" {
-			http.Error(writer, "Group name or description cannot be empty", http.StatusBadRequest)
-			return
-		}
-
-		log.Println("Group:", group) // testing
-
-		group.CreatorID = userID
-		group.CreatedAt = time.Now()
-
-		err = utils.CreateGroup(group)
-		if err != nil {
-			log.Printf("Error creating group: %v\n", err)
-			http.Error(writer, "Error creating group", http.StatusInternalServerError)
-			return
-		}
-
-		response := map[string]interface{}{
-			"success": true,
-		}
-
-		writer.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(writer).Encode(response)
+	rows, err := database.DB.Query(`
+        SELECT g.* 
+        FROM groups g
+        INNER JOIN group_memberships gm ON g.group_id = gm.group_id
+        WHERE gm.user_id = ?`, userID)
+	if err != nil {
+		http.Error(w, "Error fetching groups", http.StatusInternalServerError)
 		return
 	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group structs.GroupResponse
+		err := rows.Scan(
+			&group.ID,
+			&group.Name,
+			&group.CreatorID,
+			&group.Description,
+			&group.CreatedAt)
+		if err != nil {
+			log.Printf("Database query error: %v", err)
+			http.Error(w, "Error fetching groups", http.StatusInternalServerError)
+			return
+		}
+		group.Members, err = utils.GetGroupMembers(group.ID)
+		groups = append(groups, group)
+	}
+	if err := rows.Err(); err != nil {
+		http.Error(w, "Error fetching groups", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(groups)
+	return
+}
+
+func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("CreateGroupHandler called")
+
+	var group structs.Group
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	userID, validSession := utils.VerifySession(sessionUUID, "CreateGroupsHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&group)
+	if err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+	if group.Name == "" || group.Description == "" {
+		http.Error(w, "Group name or description cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	log.Println("Group:", group) // testing
+
+	group.CreatorID = userID
+	group.CreatedAt = time.Now()
+
+	err = utils.CreateGroup(group)
+	if err != nil {
+		log.Printf("Error creating group: %v\n", err)
+		http.Error(w, "Error creating group", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Group created successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	return
+
 }
