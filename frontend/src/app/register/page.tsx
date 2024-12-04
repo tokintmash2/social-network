@@ -98,8 +98,9 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>First Name</span>
 								<input
 									type='text'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.firstName}
+									autoFocus
 									onChange={(e) => setUser({ ...user, firstName: e.target.value })}
 								/>
 							</label>
@@ -108,7 +109,7 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Last Name</span>
 								<input
 									type='text'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.lastName}
 									onChange={(e) => setUser({ ...user, lastName: e.target.value })}
 								/>
@@ -118,7 +119,7 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Email</span>
 								<input
 									type='email'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.email}
 									onChange={(e) => setUser({ ...user, email: e.target.value })}
 								/>
@@ -129,7 +130,7 @@ export default function RegisterPage() {
 								<DatePicker
 									dateFormat='dd/MM/yyyy'
 									selected={startDate}
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									locale='en-GB'
 									onChange={(date: Date | null) => {
 										if (date) {
@@ -144,7 +145,7 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Avatar/Image</span>
 								<input
 									type='file'
-									className='file-input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light file-input-bordered [&::file-selector-button]:bg-[#B9D7EA] [&::file-selector-button]:text-[#687984] [&::file-selector-button]:border-0 [&::file-selector-button]:font-light [&::file-selector-button]:shadow-[0_4px_4px_rgba(0,0,0,0.25)] [&::file-selector-button]:hover:bg-[#A3B8C5] [&::file-selector-button]:hover:text-[#FFFFFF]'
+									className='file-input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light file-input-bordered [&::file-selector-button]:bg-[#B9D7EA] [&::file-selector-button]:text-[#687984] [&::file-selector-button]:border-0 [&::file-selector-button]:font-light [&::file-selector-button]:shadow-[0_4px_4px_rgba(0,0,0,0.25)] [&::file-selector-button]:hover:bg-[#A3B8C5] [&::file-selector-button]:hover:text-[#FFFFFF] hover:bg-[#F5F5F5] transition-colors'
 									accept='image/png, image/jpeg'
 									onChange={(e) => {
 										const file = e.target.files?.[0]
@@ -167,7 +168,7 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Nickname</span>
 								<input
 									type='text'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.username}
 									onChange={(e) => setUser({ ...user, username: e.target.value })}
 								/>
@@ -176,7 +177,7 @@ export default function RegisterPage() {
 							<label className='form-control w-2/3'>
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>About Me</span>
 								<textarea
-									className='textarea h-16 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='textarea h-16 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.about}
 									onChange={(e) => setUser({ ...user, about: e.target.value })}
 								/>
@@ -186,7 +187,7 @@ export default function RegisterPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Password</span>
 								<input
 									type='password'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.password}
 									onChange={(e) => setUser({ ...user, password: e.target.value })}
 								/>

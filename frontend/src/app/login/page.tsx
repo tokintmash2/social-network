@@ -69,8 +69,9 @@ export default function LoginPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Email</span>
 								<input
 									type='email'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.email}
+									autoFocus
 									onChange={(e) =>
 										setUser({
 											...user,
@@ -84,7 +85,7 @@ export default function LoginPage() {
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Password</span>
 								<input
 									type='password'
-									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.password}
 									onChange={(e) =>
 										setUser({
