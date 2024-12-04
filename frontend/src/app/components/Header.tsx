@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from 'next/navigation';
+import NotificationSystem from './NotificationSystem';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -33,23 +34,27 @@ const Header: React.FC = () => {
           </svg>
         </a>
       </div>
+      
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           <li><a>Home</a></li>
           <li>
-            <details>
-              <summary>Groups</summary>
-              <ul className="p-2">
+            <div className="dropdown dropdown-hover">
+              <label tabIndex={0}>Groups</label>
+              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                 <li><a>My groups</a></li>
                 <li><a>My events</a></li>
                 <li><a>Find groups</a></li>
               </ul>
-            </details>
+            </div>
           </li>
-          <li><a>Notifications</a></li>
+          <li>
+            <NotificationSystem />
+          </li>
           <li><a>My profile</a></li>
         </ul>
       </div>
+
       <div className="navbar-end">
         <button 
           onClick={handleLogout}

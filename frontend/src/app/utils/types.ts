@@ -56,6 +56,23 @@ export type PostsAction_type =
 				allowedUsers?: number[]
 			}
 	  }
+	| {
+			type: typeof ACTIONS.ADD_COMMENT
+			payload: {
+				postId: number
+				comment: {
+					id: number
+					content: string
+					mediaUrl: string | null
+					createdAt: Date
+					author: {
+						id: number
+						firstName: string
+						lastName: string
+					}
+				}
+			}
+	  }
 
 // Define the props's type for PostsContainer
 export type PostsContainerProps_type = {
@@ -72,7 +89,9 @@ export type PostProps_type = {
 }
 
 export type CommentsContainerProps_type = {
+	postId: number
 	comments: Post_type['comments']
+	dispatch: (action: PostsAction_type) => void
 }
 
 export type CommentProps_type = {

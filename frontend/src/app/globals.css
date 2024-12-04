@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +6,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-krona: 'Krona One', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,5 +19,42 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+h1 {
+  font-family: var(--font-krona);
+}
+
+/* Add these styles to your existing globals.css */
+
+.notification-dropdown {
+  @apply absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  @apply p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors duration-200;
+}
+
+.notification-item.unread {
+  @apply bg-blue-50;
+}
+
+.notification-badge {
+  @apply absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
