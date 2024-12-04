@@ -59,7 +59,7 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 		log.Println("Post:", post) // testing
 
-		filename, err := utils.HandleFileUpload(request, "image", "uploads/posts")
+		filename, err := utils.HandleFileUpload(request, "image", "uploads")
 		if err != nil {
 			http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
 			return
