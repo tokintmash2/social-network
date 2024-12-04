@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import { Notification } from '../types/notifications';
 
@@ -35,7 +35,7 @@ const dummyNotifications: Notification[] = [
     timestamp: formatTimestamp(new Date(Date.now() - 7200000)),
     type: "comment",
     linkTo: "/posts/123",
-    read: true
+    read: false
   },
   {
     id: 4,
@@ -52,56 +52,7 @@ const NotificationSystem: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>(dummyNotifications);
   const [unreadCount, setUnreadCount] = useState(dummyNotifications.filter(n => !n.read).length);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [wsConnected, setWsConnected] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const wsRef = useRef<WebSocket | null>(null);
-
-  const connectWebSocket = useCallback(() => {
-    const ws = new WebSocket('ws://localhost:8080/ws');
-
-    ws.onopen = () => {
-      console.log('WebSocket Connected');
-      setWsConnected(true);
-    };
-
-    ws.onmessage = (event) => {
-      const notification = JSON.parse(event.data);
-      setNotifications(prev => [notification, ...prev]);
-      setUnreadCount(prev => prev + 1);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket Disconnected');
-      setWsConnected(false);
-      setTimeout(connectWebSocket, 5000);
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-      ws.close();
-    };
-
-    wsRef.current = ws;
-  }, []);
-
-  useEffect(() => {
-    connectWebSocket();
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [connectWebSocket]);
 
   const toggleDropdown = useCallback(() => {
     setIsDropdownOpen(prev => !prev);
@@ -132,11 +83,6 @@ const NotificationSystem: React.FC = () => {
       </label>
       {isDropdownOpen && (
         <ul className="dropdown-content menu z-50 p-2 shadow-lg bg-base-100 rounded-box w-80 mt-1 max-h-[80vh] overflow-y-auto">
-          {!wsConnected && (
-            <li className="p-2 text-sm text-yellow-600 bg-yellow-50 rounded">
-              Connecting to notification service...
-            </li>
-          )}
           {notifications.length === 0 ? (
             <li className="p-4 text-gray-500">No notifications</li>
           ) : (
@@ -144,8 +90,8 @@ const NotificationSystem: React.FC = () => {
               <li 
                 key={`notification-${notification.id}-${index}`}
                 onClick={() => handleNotificationClick(notification)}
-                className={`border-b last:border-b-0 hover:bg-base-200 transition-colors
-                  ${notification.read ? 'bg-white' : 'bg-blue-50'}`}
+                className={`border-b last:border-b-0 hover:bg-base-200 transition-colors duration-200
+                  ${notification.read ? 'bg-white' : 'bg-blue-50/80'}`}
               >
                 <a className="flex flex-col gap-1 py-3">
                   <span className="text-sm">{notification.message}</span>
