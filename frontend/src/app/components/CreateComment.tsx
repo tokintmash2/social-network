@@ -54,7 +54,10 @@ function CreateComment({
 			setLoading(true)
 			setSuccess(null)
 			const formattedContent = comment.content.replace(/\n/g, '<br />') // Convert new lines to <br>
-
+			console.log('data to be sent: ', {
+				content: formattedContent,
+				mediaUrl: comment.mediaUrl,
+			})
 			const response = await axios.post(
 				`${backendUrl}/api/posts/${postId}/comments`,
 				{
@@ -122,22 +125,56 @@ function CreateComment({
 	}
 
 	return (
-		<div className='relative'>
-			<>
-				<Toaster />
-			</>
-			<textarea
-				placeholder='Post your comment'
-				className='textarea textarea-bordered textarea-xs w-full pt-3  h-8 focus:h-20 transition ease-in-out duration-300 resize-none'
-				value={comment.content}
-				onChange={(e) => handleCommentChange(e)}
-				autoCorrect='off'
-				spellCheck='false'
-				ref={textareaRef} // Attach the ref to the textarea
-			></textarea>
+		<>
+			<div className='relative'>
+				<>
+					<Toaster />
+				</>
+				<textarea
+					placeholder='Post your comment'
+					className='textarea textarea-bordered textarea-xs w-full pt-3  h-8 focus:h-20 transition ease-in-out duration-300 resize-none'
+					value={comment.content}
+					onChange={(e) => handleCommentChange(e)}
+					autoCorrect='off'
+					spellCheck='false'
+					ref={textareaRef} // Attach the ref to the textarea
+				></textarea>
+
+				{/* Upload Image Button */}
+				<button
+					type='button'
+					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-11 w-7 h-7'
+					onClick={handleImageUploadClick}
+					disabled={loading || comment.mediaUrl !== null}
+				>
+					<FontAwesomeIcon className='text-base/6' icon={faImage} />
+				</button>
+
+				{/* Hidden File Input */}
+				<input
+					type='file'
+					accept='image/*'
+					ref={fileInputRef}
+					onChange={handleMediaUrlChange}
+					className='hidden'
+				/>
+
+				{/* Submit Comment Button */}
+				<button
+					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-2'
+					onClick={handleSubmitComment}
+					onMouseDown={(e) => e.preventDefault()} // Prevent textarea blur on first click
+					disabled={loading || !comment.content.trim()}
+				>
+					<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
+				</button>
+				{/* Error Message */}
+				{success === false && <p className='text-red-500 mt-2'>Failed to add comment.</p>}
+			</div>
+
 			{/* Image Preview */}
 			{imagePreview && (
-				<div className='relative mt-2 inline-block'>
+				<div className='relative mt-4 inline-block'>
 					<Image
 						src={imagePreview}
 						alt='Selected'
@@ -155,38 +192,7 @@ function CreateComment({
 					</button>
 				</div>
 			)}
-			{/* Upload Image Button */}
-			<button
-				type='button'
-				className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-11 w-7 h-7'
-				onClick={handleImageUploadClick}
-				disabled={loading || comment.mediaUrl !== null}
-			>
-				<FontAwesomeIcon className='text-base/6' icon={faImage} />
-			</button>
-
-			{/* Hidden File Input */}
-			<input
-				type='file'
-				accept='image/*'
-				ref={fileInputRef}
-				onChange={handleMediaUrlChange}
-				className='hidden'
-			/>
-
-			{/* Submit Comment Button */}
-
-			<button
-				className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-2'
-				onClick={handleSubmitComment}
-				onMouseDown={(e) => e.preventDefault()} // Prevent textarea blur on first click
-				disabled={loading || !comment.content.trim()}
-			>
-				<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
-			</button>
-			{/* Error Message */}
-			{success === false && <p className='text-red-500 mt-2'>Failed to add comment.</p>}
-		</div>
+		</>
 	)
 }
 export default CreateComment
