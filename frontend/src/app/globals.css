@@ -24,3 +24,37 @@ body {
 h1 {
   font-family: var(--font-krona);
 }
+
+/* Add these styles to your existing globals.css */
+
+.notification-dropdown {
+  @apply absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  @apply p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors duration-200;
+}
+
+.notification-item.unread {
+  @apply bg-blue-50;
+}
+
+.notification-badge {
+  @apply absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+

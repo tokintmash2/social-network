@@ -111,3 +111,18 @@ type AllowedUserResponse struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
+
+type Notification struct {
+    ID        int       `json:"id"`
+    UserID    int       `json:"user_id"`
+    Message   string    `json:"message"`
+    Type      string    `json:"type"`
+    LinkTo    string    `json:"linkTo"`
+    Read      bool      `json:"read"`
+    Timestamp time.Time `json:"timestamp"`
+}
+
+type NotificationResponse struct {
+    Success       bool           `json:"success"`
+    Notifications []Notification `json:"notifications"`
+}
