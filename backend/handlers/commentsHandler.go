@@ -40,13 +40,24 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("Comment:", newComment)
 
-		filename, err := utils.HandleFileUpload(r, "image", "uploads")
-		if err != nil {
-			http.Error(w, "Failed to handle file upload", http.StatusInternalServerError)
-			return
+		if r.Header.Get("Content-Type") == "multipart/form-data" {
+			filename, err := utils.HandleFileUpload(r, "image", "uploads")
+			if err != nil {
+				http.Error(w, "Failed to handle file upload", http.StatusInternalServerError)
+				return
+			}
+			newComment.Image = &filename
+		} else {
+			newComment.Image = nil
 		}
 
-		newComment.Image = &filename
+		// filename, err := utils.HandleFileUpload(r, "image", "uploads")
+		// if err != nil {
+		// 	http.Error(w, "Failed to handle file upload", http.StatusInternalServerError)
+		// 	return
+		// }
+
+		// newComment.Image = &filename
 		newComment.UserID = userID
 		newComment.CreatedAt = time.Now()
 		newComment.PostID, err = utils.FetchIdFromPath(r.URL.Path, 2)
@@ -54,8 +65,6 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error fetching post ID", http.StatusBadRequest)
 			return
 		}
-
-		
 
 		err = utils.CreateComment(newComment)
 		if err != nil {
