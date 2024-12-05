@@ -53,19 +53,28 @@ function CreateComment({
 		try {
 			setLoading(true)
 			setSuccess(null)
-			const formattedContent = comment.content.replace(/\n/g, '<br />') // Convert new lines to <br>
-			console.log('data to be sent: ', {
-				content: formattedContent,
-				mediaUrl: comment.mediaUrl,
+			const formattedContent = comment.content.replace(/\n/g, '<br />')
+
+			const formData = new FormData()
+			formData.append('content', formattedContent)
+			if (comment.mediaUrl) {
+				formData.append('image', comment.mediaUrl)
+			}
+
+			console.log('FormData contents:', Array.from(formData.entries()))
+			console.log('Request headers:', {
+				'Content-Type': 'multipart/form-data',
+				withCredentials: true,
 			})
+
 			const response = await axios.post(
 				`${backendUrl}/api/posts/${postId}/comments`,
-				{
-					content: formattedContent,
-					mediaUrl: comment.mediaUrl,
-				},
+				formData,
 				{
 					withCredentials: true,
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					},
 				},
 			)
 

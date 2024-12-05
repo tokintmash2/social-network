@@ -10,14 +10,14 @@ import (
 )
 
 func HandleFileUpload(r *http.Request, fieldName string, uploadDir string) (string, error) {
-	err := r.ParseMultipartForm(10 << 20)
-	if err != nil {
-		return "", err
-	}
+	// err := r.ParseMultipartForm(10 << 20)
+	// if err != nil {
+	// 	return "", err
+	// }
 
 	file, fileHeader, err := r.FormFile(fieldName)
-	if err != nil || file == nil {
-		return "", nil // No file uploaded, return empty filename
+	if err != nil {
+		return "", err
 	}
 	defer file.Close()
 
