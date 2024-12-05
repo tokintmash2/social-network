@@ -1,7 +1,7 @@
 'use client'
 
 import UserData from '../../components/UserData'
-
+import Header from '../../components/Header'
 import { useParams } from 'next/navigation'
 
 export default function UserProfile() {
@@ -9,9 +9,12 @@ export default function UserProfile() {
 	const id = params.id as string
 
 	return (
-		<div className='container mx-auto'>
-			<UserData userId={parseInt(id)} accessType='PUBLIC' />
-			{/* TODO: fetch accessType info. For now, hardcode */}
-		</div>
+		<>
+			<Header />
+			<div className='container mx-auto'>
+				<UserData userId={parseInt(id)} accessType='PUBLIC' />
+				{/* TODO: fetch accessType info. For now, hardcode */}
+			</div>
+		</>
 	)
 }
