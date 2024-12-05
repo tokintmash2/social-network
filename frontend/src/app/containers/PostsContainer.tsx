@@ -114,6 +114,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return state
 	}
 }
+
 export default function PostsContainer({
 	userId,
 	feed = false,
