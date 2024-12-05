@@ -2,12 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"social-network/structs"
 	"social-network/utils"
 	"time"
@@ -40,41 +36,17 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	newUser.DOB = dob
 
-	// Parse the avatar
-	file, fileHeader, err := r.FormFile("avatar")
-	if err == nil && file != nil {
-		defer file.Close()
-
-		// Generate unique filename
-		filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
-
-		// Create uploads directory if it doesn't exist
-		uploadDir := "avatars"
-		os.MkdirAll(uploadDir, 0755)
-
-		// Create new file
-		dst, err := os.Create(filepath.Join(uploadDir, filename))
-		if err != nil {
-			http.Error(w, "Failed to save avatar", http.StatusInternalServerError)
-			return
-		}
-		defer dst.Close()
-
-		// Copy uploaded file to destination
-		_, err = io.Copy(dst, file)
-		if err != nil {
-			http.Error(w, "Failed to save avatar", http.StatusInternalServerError)
-			return
-		}
-
-		// Save filename to user record
-		newUser.Avatar = filename
-	} else {
-		// If no avatar - use default
-		newUser.Avatar = "default_avatar.jpg"
+	filename, err := utils.HandleFileUpload(r, "avatar", "uploads")
+	if err != nil {
+		http.Error(w, "Failed to handle avatar upload", http.StatusInternalServerError)
+		return
 	}
 
-	// json.NewDecoder(r.Body).Decode(&newUser)
+	if filename != "" {
+		newUser.Avatar = filename
+	} else {
+		newUser.Avatar = "default_avatar.jpg"
+	}
 
 	// Create the new user
 	userID, err := utils.CreateUser(newUser)
@@ -94,28 +66,3 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": err.Error()})
 	}
 }
-
-// func SignupHandler(w http.ResponseWriter, r *http.Request) {
-
-// 	var newUser structs.User
-
-// 	json.NewDecoder(r.Body).Decode(&newUser)
-
-// 	// Create the new user
-// 	userID, err := utils.CreateUser(newUser)
-// 	// Set the newly generated user ID
-// 	newUser.ID = userID
-// 	log.Println("New user:", newUser)
-// 	if err == nil {
-// 		sessionUUID, err := utils.CreateSession(newUser.ID)
-// 		if err != nil {
-// 			http.Error(w, "Failed to create a session", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		cookie := utils.CreateSessionCookie(sessionUUID)
-// 		http.SetCookie(w, cookie)
-// 		json.NewEncoder(w).Encode(map[string]bool{"success": true})
-// 	} else {
-// 		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": err.Error()})
-// 	}
-// }

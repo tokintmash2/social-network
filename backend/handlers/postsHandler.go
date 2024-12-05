@@ -59,8 +59,15 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 		log.Println("Post:", post) // testing
 
+		filename, err := utils.HandleFileUpload(request, "image", "uploads")
+		if err != nil {
+			http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
+			return
+		}
+
 		post.UserID = userID
 		post.CreatedAt = time.Now()
+		post.Image = filename
 
 		err = utils.CreatePost(post)
 		if err != nil {
@@ -89,13 +96,13 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Parse query parameters
 	queryParams := r.URL.Query()
-	targetUserIDStr := queryParams.Get("user_id")          // Optional: Fetch posts by specific user
+	targetUserIDStr := queryParams.Get("user_id")       // Optional: Fetch posts by specific user
 	privacyFilter := queryParams.Get("privacy_setting") // Optional: Filter by privacy setting
 	// isFeed := queryParams.Get("feed") == "true"
 	targetUserID, _ := strconv.Atoi(targetUserIDStr) // Convert string to int
 
 	log.Println("targetUserID:", targetUserID) // testing)
-	log.Println("queryParams:", queryParams)       // testing
+	log.Println("queryParams:", queryParams)   // testing
 
 	cookie, err := r.Cookie("session")
 	if err != nil {
@@ -118,14 +125,14 @@ func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(posts) == 0 {
 		response := map[string]interface{}{
-			"posts": []structs.PostResponse{},
+			"posts":   []structs.PostResponse{},
 			"message": "No posts found",
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-	
+
 	// response := map[string]interface{}{
 	// 	"posts": posts,
 	// }
@@ -181,7 +188,6 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		
 		response := map[string]interface{}{
 			"success": true,
 		}

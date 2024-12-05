@@ -18,7 +18,19 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 		case ACTIONS.SET_POSTS:
 			if (Array.isArray(action.payload)) {
 				console.log('action.payload', action.payload)
-				return { ...state, posts: action.payload }
+				const normalizedPosts = action.payload.map((post) => ({
+					...post,
+					comments: post.comments || [], // Default to an empty array if comments is null or undefined
+				}))
+				return { ...state, posts: normalizedPosts }
+			} else if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'posts' in action.payload &&
+				Array.isArray(action.payload.posts) &&
+				!action.payload.posts.length
+			) {
+				return { ...state, posts: [] }
 			}
 			throw new Error('Invalid payload for SET_POSTS')
 
@@ -52,25 +64,70 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 				}
 			}
 			throw new Error('Invalid payload for SET_POST_PRIVACY')
+		case ACTIONS.ADD_COMMENT:
+			console.log('action.payload', action.payload)
+			if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'postId' in action.payload &&
+				'comment' in action.payload &&
+				typeof action.payload.comment === 'object' &&
+				'id' in action.payload.comment &&
+				'content' in action.payload.comment &&
+				'mediaUrl' in action.payload.comment &&
+				'author' in action.payload.comment &&
+				typeof action.payload.comment.author === 'object' &&
+				'id' in action.payload.comment.author &&
+				typeof action.payload.comment.author.id === 'number' &&
+				'firstName' in action.payload.comment.author &&
+				typeof action.payload.comment.author.firstName === 'string' &&
+				'lastName' in action.payload.comment.author &&
+				typeof action.payload.comment.author.lastName === 'string'
+			) {
+				const { postId, comment } = action.payload
+				const { content, mediaUrl, author } = comment
+				const { firstName, lastName } = author
 
+				const newComment: Post_type['comments'][0] = {
+					id: comment.id,
+					content,
+					mediaUrl: mediaUrl ? (typeof mediaUrl === 'string' ? mediaUrl : null) : null,
+					author: {
+						id: author.id,
+						firstName: firstName,
+						lastName: lastName,
+					},
+					createdAt: new Date(),
+				}
+				return {
+					...state,
+					posts: state.posts.map((post) =>
+						post.id === postId
+							? { ...post, comments: [...(post.comments || []), newComment] }
+							: post,
+					),
+				}
+			}
+
+			throw new Error('Invalid payload for ADD_COMMENT')
 		default:
 			return state
 	}
 }
-
 export default function PostsContainer({
 	userId,
 	feed = false,
 	isOwnProfile = false,
 }: PostsContainerProps_type) {
 	const { loggedInUser } = useLoggedInUser()
+
 	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
 
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
-				const response = await axios.get(`${backendUrl}/api/posts/${3}`, {
+				const response = await axios.get(`${backendUrl}/api/posts?user_id=${userId}`, {
 					withCredentials: true,
 				})
 				console.log('response', response.data)
@@ -118,7 +175,7 @@ export default function PostsContainer({
 						key={post.id}
 						post={post}
 						dispatch={dispatch}
-						isOwnPost={post.author.id === loggedInUser?.id}
+						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}
 			</div>
