@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 	description: 'kood/jõhvi project for JS course',
 }
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang='en' className='bg-base-200'>
 			<body className={`${geistSans.variable} ${geistMono.variable} bg-base-200 antialiased`}>

@@ -30,6 +30,7 @@ func CreateSession(userID int) (string, error) {
 	// Create a new session
 	sessionUUID := uuid.New().String()
 	expiry := time.Now().Add(24 * time.Hour) // Set the session expiry time (24 hours)
+
 	_, err = database.DB.Exec(`
         INSERT INTO sessions (user_id, session_uuid, expiry)
         VALUES (?, ?, ?)`,
@@ -38,6 +39,7 @@ func CreateSession(userID int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return sessionUUID, nil
 }
 
@@ -45,11 +47,13 @@ func CreateSession(userID int) (string, error) {
 func CreateSessionCookie(sessionUUID string) *http.Cookie {
 	expiration := time.Now().Add(24 * time.Hour)
 	cookie := &http.Cookie{
-		Name:    "session",
-		Value:   sessionUUID,
-		Path:    "/",
-		Expires: expiration,
-		// HttpOnly: true,
+		Name:     "session",
+		Value:    sessionUUID,
+		Path:     "/",
+		Expires:  expiration,
+		HttpOnly: true,  // Prevents JavaScript access
+		Secure:   false, // Set to true if using HTTPS, we can't use HTTPS yet because we serve front and backend from dirrefent
+		SameSite: http.SameSiteLaxMode,
 	}
 	return cookie
 }
