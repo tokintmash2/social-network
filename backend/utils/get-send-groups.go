@@ -7,7 +7,47 @@ import (
 	"time"
 )
 
+func FetchAllGroups(userID int) ([]structs.GroupResponse, error) {
 
+	var groups []structs.GroupResponse
+
+	rows, err := database.DB.Query(`
+        SELECT g.* 
+        FROM groups g
+        INNER JOIN group_memberships gm ON g.group_id = gm.group_id
+        WHERE gm.user_id = ?`, userID)
+	if err != nil {
+		log.Printf("Error fetching groups: %v", err)
+		// http.Error(w, "Error fetching groups", http.StatusInternalServerError)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group structs.GroupResponse
+		err := rows.Scan(
+			&group.ID,
+			&group.Name,
+			&group.CreatorID,
+			&group.Description,
+			&group.CreatedAt)
+		if err != nil {
+			log.Printf("Database query error: %v", err)
+			// http.Error(w, "Error fetching groups", http.StatusInternalServerError)
+			return nil, err
+		}
+		group.Members, err = GetGroupMembers(group.ID)
+		groups = append(groups, group)
+		if err := rows.Err(); err != nil {
+			log.Printf("Error iterating over group members: %v", err)
+			// http.Error(w, "Error fetching groups", http.StatusInternalServerError)
+			return nil, err
+		}
+	}
+
+	return groups, nil
+
+}
 
 func AddGroupMember(groupID, userID, adminID int) error {
 	_, err := database.DB.Exec(`
@@ -24,77 +64,77 @@ func AddGroupMember(groupID, userID, adminID int) error {
 }
 
 func IsGroupAdmin(groupID, userID int) bool {
-    var exists bool
-    err := database.DB.QueryRow(`
+	var exists bool
+	err := database.DB.QueryRow(`
         SELECT EXISTS (
             SELECT 1 FROM group_memberships 
             WHERE group_id = ? AND user_id = ? AND role = 'admin'
         )`, groupID, userID).Scan(&exists)
-    
-    if err != nil {
-        log.Printf("Error checking admin status: %v\n", err)
-        return false
-    }
-    return exists
+
+	if err != nil {
+		log.Printf("Error checking admin status: %v\n", err)
+		return false
+	}
+	return exists
 }
 
 func IsMemberInGroup(groupID, userID int) bool {
-    var exists bool
-    err := database.DB.QueryRow(`
+	var exists bool
+	err := database.DB.QueryRow(`
         SELECT EXISTS (
             SELECT 1 FROM group_memberships 
             WHERE group_id = ? AND user_id = ?
         )`, groupID, userID).Scan(&exists)
-    
-    if err != nil {
-        log.Printf("Error checking membership: %v\n", err)
-        return false
-    }
-    return exists
+
+	if err != nil {
+		log.Printf("Error checking membership: %v\n", err)
+		return false
+	}
+	return exists
 }
 
 func GetGroupMembers(groupID int) ([]structs.MemberResponse, error) {
 
-    var members []structs.MemberResponse
+	var members []structs.MemberResponse
 
-    rows, err := database.DB.Query(`
+	rows, err := database.DB.Query(`
         SELECT u.id
         FROM users u
         INNER JOIN group_memberships gm ON u.id = gm.user_id
         WHERE gm.group_id = ?`, groupID)
-    if err != nil {
-        log.Println("Error fetching group members:", err)
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		log.Println("Error fetching group members:", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        var userID int
-        err := rows.Scan(&userID)
-        if err != nil {
-            log.Println("Error scanning group member:", err)
-            return nil, err
-        }
+	for rows.Next() {
+		var userID int
+		err := rows.Scan(&userID)
+		if err != nil {
+			log.Println("Error scanning group member:", err)
+			return nil, err
+		}
 
-        userProfile, err := GetUserProfile(userID)
-        if err != nil {
-            log.Println("Error fetching user profile:", err)
-            return nil, err
-        }
+		userProfile, err := GetUserProfile(userID)
+		if err != nil {
+			log.Println("Error fetching user profile:", err)
+			return nil, err
+		}
 
-        member := structs.MemberResponse{
-            ID:    userProfile.ID,
-            FirstName: userProfile.FirstName,
-            LastName:  userProfile.LastName,
-        }
-        members = append(members, member)
-    }
+		member := structs.MemberResponse{
+			ID:        userProfile.ID,
+			FirstName: userProfile.FirstName,
+			LastName:  userProfile.LastName,
+		}
+		members = append(members, member)
+	}
 
-    if err := rows.Err(); err != nil {
-        log.Println("Error iterating over group members:", err)
-        return nil, err
-    }
-    return members, nil
+	if err := rows.Err(); err != nil {
+		log.Println("Error iterating over group members:", err)
+		return nil, err
+	}
+	return members, nil
 }
 
 func CreateGroup(group structs.Group) error {
@@ -112,7 +152,7 @@ func CreateGroup(group structs.Group) error {
         VALUES (?, ?, ?, ?)`,
 		group.Name, group.Description, group.CreatorID, group.CreatedAt,
 	)
-	log.Printf("Insert result: %+v", result) 
+	log.Printf("Insert result: %+v", result)
 	if err != nil {
 		log.Println("Error inserting group:", err)
 		return err
