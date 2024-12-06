@@ -84,7 +84,7 @@ func FetchComments(postID int) ([]structs.CommentResponse, error) {
 			return nil, err
 		}
 
-		log.Println("Appending comment to slice.")
+		// log.Println("Appending comment to slice.")
 		comments = append(comments, comment)
 	}
 

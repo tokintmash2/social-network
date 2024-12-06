@@ -17,10 +17,10 @@ export default function RegisterPage() {
 		password: string
 		firstName: string
 		lastName: string
-		dob: Date | null // Date or null for dob
-		avatar?: File // Optional
-		username?: string // Optional
-		about?: string // Optional
+		dob: Date | null
+		avatar?: File
+		username?: string
+		about?: string
 	}
 
 	const [user, setUser] = React.useState<User>({
@@ -30,10 +30,11 @@ export default function RegisterPage() {
 		lastName: '',
 		dob: null,
 		username: '',
-		// avatar, nickname, and about are optional, so we can omit them here
 	})
 
 	const [buttonDisabled, setButtonDisabled] = React.useState(false)
+	const [loading, setLoading] = React.useState(false)
+	const [startDate, setStartDate] = React.useState<Date | null>(null)
 
 	useEffect(() => {
 		if (
@@ -49,27 +50,11 @@ export default function RegisterPage() {
 		}
 	}, [user])
 
-	const [loading, setLoading] = React.useState(false)
-
-	// const onRegister = async () => {
-	// 	try {
-	// 		setLoading(true)
-	// 		const response = await axios.post('http://localhost:8080/register', user)
-	// 		console.log('signup response', response.data)
-	// 		router.push('/login')
-	// 	} catch (error: unknown) {
-	// 		toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
-	// 	} finally {
-	// 		setLoading(false)
-	// 	}
-	// }
-
 	const onRegister = async () => {
 		try {
 			setLoading(true)
 			const formData = new FormData()
 
-			// Add all text fields
 			formData.append('email', user.email)
 			formData.append('password', user.password)
 			formData.append('firstName', user.firstName)
@@ -78,7 +63,6 @@ export default function RegisterPage() {
 			formData.append('username', user.username || '')
 			formData.append('about', user.about || '')
 
-			// Add avatar if it exists
 			if (user.avatar) {
 				formData.append('avatar', user.avatar)
 			}
@@ -88,7 +72,6 @@ export default function RegisterPage() {
 					'Content-Type': 'multipart/form-data',
 				},
 			})
-			console.log('signup response', response.data)
 			if (response.data.success) {
 				router.push('/login')
 			}
@@ -101,206 +84,138 @@ export default function RegisterPage() {
 
 	registerLocale('en-GB', enGB)
 
-	const [startDate, setStartDate] = React.useState<Date | null>(null) // Start as null
 	return (
-		<div className='min-h-screen bg-base-200 flex items-center justify-center'>
-			<div>
-				<Toaster />
-			</div>
-			<div className='card rounded-md w-full max-w-128 my-4 bg-base-100 shadow-xl'>
-				<div className='card-body'>
-					<h2 className='card-title text-center mb-3'>Create an Account</h2>
+		<div className='min-h-screen bg-base-200 flex'>
+			<div className='w-2/5 flex items-center justify-center'>
+				<div>
+					<Toaster />
+				</div>
 
-					<form>
-						{/* Firstname */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>First name</span>
-								<span className='label-text-alt opacity-75'>Required</span>
-							</div>
-							<input
-								type='text'
-								className='input input-sm input-bordered'
-								value={user.firstName}
-								onChange={(e) =>
-									setUser({
-										...user,
-										firstName: e.target.value,
-									})
-								}
-							/>
-						</label>
+				<div className='card rounded-md w-full max-w-128 py-2'>
+					<div className='card-body'>
+						<form className='flex flex-col items-center justify-center space-y-2 w-full'>
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>First Name</span>
+								<input
+									type='text'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.firstName}
+									autoFocus
+									onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+								/>
+							</label>
 
-						{/* Lastname */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Last name</span>
-								<span className='label-text-alt opacity-75'>Required</span>
-							</div>
-							<input
-								type='text'
-								className='input input-sm input-bordered'
-								value={user.lastName}
-								onChange={(e) =>
-									setUser({
-										...user,
-										lastName: e.target.value,
-									})
-								}
-							/>
-						</label>
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Last Name</span>
+								<input
+									type='text'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.lastName}
+									onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+								/>
+							</label>
 
-						{/* Email */}
-						<label className='form-control w-full mb-2 mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Email</span>
-								<span className='label-text-alt opacity-75'>Required</span>
-							</div>
-							<input
-								type='email'
-								className='input input-sm input-bordered'
-								value={user.email}
-								onChange={(e) =>
-									setUser({
-										...user,
-										email: e.target.value,
-									})
-								}
-							/>
-						</label>
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Email</span>
+								<input
+									type='email'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.email}
+									onChange={(e) => setUser({ ...user, email: e.target.value })}
+								/>
+							</label>
 
-						{/* Date of birth */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Date of birth</span>
-								<span className='label-text-alt opacity-75'>Required</span>
-							</div>
-							<DatePicker
-								dateFormat='dd/MM/yyyy'
-								selected={startDate}
-								className='input input-sm input-bordered w-full'
-								locale='en-GB'
-								onChange={(date: Date | null) => {
-									if (date) {
-										setStartDate(date)
-										setUser({
-											...user,
-											dob: date,
-										})
-									}
-								}}
-							/>
-						</label>
-
-						{/* Avatar */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Avatar/Image</span>
-							</div>
-
-							<input
-								type='file'
-								className='file-input file-input-sm file-input-bordered'
-								accept='image/png, image/jpeg'
-								onChange={(e) => {
-									const file = e.target.files?.[0]
-									if (file) {
-										if (file.size > 2 * 1024 * 1024) {
-											// max size of 2MB
-											toast.error('File size should be less than 2MB')
-											return
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Date of Birth</span>
+								<DatePicker
+									dateFormat='dd/MM/yyyy'
+									selected={startDate}
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									locale='en-GB'
+									onChange={(date: Date | null) => {
+										if (date) {
+											setStartDate(date)
+											setUser({ ...user, dob: date })
 										}
-										if (!['image/png', 'image/jpeg'].includes(file.type)) {
-											toast.error('Only PNG and JPEG files are allowed')
-											return
+									}}
+								/>
+							</label>
+
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Avatar/Image</span>
+								<input
+									type='file'
+									className='file-input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light file-input-bordered [&::file-selector-button]:bg-[#B9D7EA] [&::file-selector-button]:text-[#687984] [&::file-selector-button]:border-0 [&::file-selector-button]:font-light [&::file-selector-button]:shadow-[0_4px_4px_rgba(0,0,0,0.25)] [&::file-selector-button]:hover:bg-[#A3B8C5] [&::file-selector-button]:hover:text-[#FFFFFF] hover:bg-[#F5F5F5] transition-colors'
+									accept='image/png, image/jpeg'
+									onChange={(e) => {
+										const file = e.target.files?.[0]
+										if (file) {
+											if (file.size > 2 * 1024 * 1024) {
+												toast.error('File size should be less than 2MB')
+												return
+											}
+											if (!['image/png', 'image/jpeg'].includes(file.type)) {
+												toast.error('Only PNG and JPEG files are allowed')
+												return
+											}
+											setUser({ ...user, avatar: file })
 										}
-									}
+									}}
+								/>
+							</label>
 
-									setUser({
-										...user,
-										avatar: file,
-									})
-								}}
-							/>
-						</label>
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Nickname</span>
+								<input
+									type='text'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.username}
+									onChange={(e) => setUser({ ...user, username: e.target.value })}
+								/>
+							</label>
 
-						{/* Nickname */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Nickname</span>
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>About Me</span>
+								<textarea
+									className='textarea h-16 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.about}
+									onChange={(e) => setUser({ ...user, about: e.target.value })}
+								/>
+							</label>
+
+							<label className='form-control w-2/3'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Password</span>
+								<input
+									type='password'
+									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
+									value={user.password}
+									onChange={(e) => setUser({ ...user, password: e.target.value })}
+								/>
+							</label>
+
+							<div className='form-control mt-2 w-2/3'>
+								<button
+									type='button'
+									className='btn h-9 btn-primary bg-[#B9D7EA] border-0 shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-2xl text-[#687984] font-light hover:bg-[#A3B8C5] hover:text-[#FFFFFF]'
+									disabled={buttonDisabled}
+									onClick={onRegister}
+								>
+									{loading ? 'Registering...' : 'Register'}
+								</button>
 							</div>
-							<input
-								type='text'
-								className='input input-sm input-bordered'
-								value={user.username}
-								onChange={(e) =>
-									setUser({
-										...user,
-										username: e.target.value,
-									})
-								}
-							/>
-						</label>
+						</form>
 
-						{/* About me */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>About me</span>
-							</div>
-							<textarea
-								className='textarea textarea-bordered h-24'
-								value={user.about}
-								spellCheck={false}
-								onChange={(e) =>
-									setUser({
-										...user,
-										about: e.target.value,
-									})
-								}
-							></textarea>
-						</label>
-
-						{/* Password */}
-						<label className='form-control w-full mb-2'>
-							<div className='label pb-1'>
-								<span className='label-text'>Password</span>
-								<span className='label-text-alt opacity-75'>Required</span>
-							</div>
-							<input
-								type='password'
-								className='input input-sm input-bordered'
-								value={user.password}
-								onChange={(e) =>
-									setUser({
-										...user,
-										password: e.target.value,
-									})
-								}
-							/>
-						</label>
-
-						{/* Submit Button */}
-						<div className='form-control mt-6'>
-							<button
-								type='submit'
-								className='btn btn-outline btn-primary'
-								disabled={buttonDisabled}
-								onClick={onRegister}
-							>
-								{loading ? 'Registering..' : 'Register'}
-							</button>
-						</div>
-					</form>
-
-					{/* Link to Login */}
-					<p className='text-center mt-4'>
-						Already have an account?{' '}
-						<Link href='/login' className='text-primary'>
-							Log in
-						</Link>
-					</p>
+						<p className='text-center mt-2 text-sm'>
+							Already have an account?{' '}
+							<Link href='/login' className='text-primary text-[#8DABC2]'>
+								Login
+							</Link>
+						</p>
+					</div>
 				</div>
 			</div>
+
+			<div className='w-3/5 bg-cover bg-center' style={{ backgroundImage: 'url(https://res.cloudinary.com/dtdneratd/image/upload/v1733229108/augustine-wong-T0BYurbDK_M-unsplash-min_obmpdc.jpg)' }}></div>
 		</div>
 	)
 }

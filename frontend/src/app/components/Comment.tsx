@@ -1,7 +1,10 @@
 import React from 'react'
 import { CommentProps_type } from '../utils/types'
+import DOMPurify from 'dompurify'
 
 function Comment({ comment }: CommentProps_type) {
+	// Sanitize the HTML content to prevent XSS attacks
+	const sanitizedContent = DOMPurify.sanitize(comment.content)
 	return (
 		<div className='comment card rounded-none shadow-sm bg-base-100 p-4 my-2'>
 			{/* Comment Header */}
@@ -19,7 +22,10 @@ function Comment({ comment }: CommentProps_type) {
 			</div>
 
 			{/* Comment Content */}
-			<p className='text-sm text-gray-800'>{comment.content}</p>
+			<p
+				className='text-sm text-gray-800'
+				dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+			/>
 
 			{/* Media Content (if available) */}
 			{comment.mediaUrl && (
