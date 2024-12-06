@@ -16,7 +16,6 @@ func RunHandlers(r *http.ServeMux) {
 	r.HandleFunc("/toggle-privacy", TogglePrivacyHandler)
 	r.HandleFunc("/api/groups", GroupsHandler)
 	r.HandleFunc("/group-members", GroupMembersHandler)
-	// r.HandleFunc("/posts", CreatePostHandler)
 	r.HandleFunc("/api/posts", PostsHandler)
 	r.HandleFunc("/api/posts/", PostDetailHandler) 
 	r.HandleFunc("/group-posts", CreateGroupPostHandler)
