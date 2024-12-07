@@ -98,6 +98,12 @@ type GroupResponse struct {
 	Members     []MemberResponse `json:"group_members"`
 }
 
+type PersonResponse struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
 type MemberResponse struct {
 	ID        int    `json:"id"`
 	FirstName string `json:"firstName"`

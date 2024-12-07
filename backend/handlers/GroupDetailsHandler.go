@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"social-network/utils"
@@ -21,7 +22,7 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID,_ := strconv.Atoi(pathParts[0])
+	groupID, _ := strconv.Atoi(pathParts[0])
 	switch pathParts[1] {
 	case "join":
 		GroupJoinHandler(w, r, groupID)
@@ -55,11 +56,30 @@ func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if r.Method != http.MethodGet {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    } 
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	group, err := utils.FetchOneGroup(groupID)
+	if err != nil {
+		log.Printf("Error fetching group details: %v", err)
+		http.Error(w, "Error fetching group details", http.StatusInternalServerError)
+		return
+	}
+
+	if group == nil {
+		http.Error(w, "Group not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(group); err != nil {
+		log.Printf("Error encoding group response: %v", err)
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+
 }
 
 func GroupJoinHandler(w http.ResponseWriter, r *http.Request, groupID int) {
