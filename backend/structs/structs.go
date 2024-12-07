@@ -74,7 +74,7 @@ type CommentResponse struct {
 	Content        string         `json:"content"`
 	Image          *string        `json:"mediaUrl,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
-	AuthorResponse AuthorResponse `json:"author"`
+	AuthorResponse PersonResponse `json:"author"`
 }
 
 type PostResponse struct {
@@ -82,7 +82,7 @@ type PostResponse struct {
 	Title        string            `json:"title"`
 	Content      string            `json:"content"`
 	Privacy      string            `json:"privacy"`
-	Author       AuthorResponse    `json:"author"`
+	Author       PersonResponse    `json:"author"`
 	CreatedAt    string            `json:"createdAt"`
 	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
 	AllowedUsers []int             `json:"allowedUsers,omitempty"`
@@ -95,7 +95,7 @@ type GroupResponse struct {
 	Description string           `json:"description"`
 	CreatedAt   string           `json:"created_at"`
 	CreatorID   int              `json:"creator_id"`
-	Members     []MemberResponse `json:"group_members"`
+	Members     []PersonResponse `json:"group_members"`
 }
 
 type PersonResponse struct {
@@ -104,23 +104,23 @@ type PersonResponse struct {
 	LastName  string `json:"lastName"`
 }
 
-type MemberResponse struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-}
+// type MemberResponse struct {
+// 	ID        int    `json:"id"`
+// 	FirstName string `json:"firstName"`
+// 	LastName  string `json:"lastName"`
+// }
 
-type AuthorResponse struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-}
+// type AuthorResponse struct {
+// 	ID        int    `json:"id"`
+// 	FirstName string `json:"firstName"`
+// 	LastName  string `json:"lastName"`
+// }
 
-type AllowedUserResponse struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-}
+// type AllowedUserResponse struct {
+// 	ID        int    `json:"id"`
+// 	FirstName string `json:"firstName"`
+// 	LastName  string `json:"lastName"`
+// }
 
 type Notification struct {
     ID        int       `json:"id"`

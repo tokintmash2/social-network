@@ -82,7 +82,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Use only necessary fields from userProfile
-		newComment.AuthorResponse = structs.AuthorResponse{
+		newComment.AuthorResponse = structs.PersonResponse{
 			ID:        userProfile.ID,
 			FirstName: userProfile.FirstName,
 			LastName:  userProfile.LastName,

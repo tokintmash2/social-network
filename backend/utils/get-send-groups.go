@@ -123,9 +123,9 @@ func IsMemberInGroup(groupID, userID int) bool {
 	return exists
 }
 
-func GetGroupMembers(groupID int) ([]structs.MemberResponse, error) {
+func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 
-	var members []structs.MemberResponse
+	var members []structs.PersonResponse
 
 	rows, err := database.DB.Query(`
         SELECT u.id
@@ -152,7 +152,7 @@ func GetGroupMembers(groupID int) ([]structs.MemberResponse, error) {
 			return nil, err
 		}
 
-		member := structs.MemberResponse{
+		member := structs.PersonResponse{
 			ID:        userProfile.ID,
 			FirstName: userProfile.FirstName,
 			LastName:  userProfile.LastName,
