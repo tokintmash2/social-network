@@ -7,6 +7,36 @@ import (
 	"time"
 )
 
+func FetchOneGroup(groupID int) (*structs.GroupResponse, error) {
+
+	group := structs.GroupResponse{}
+
+	err := database.DB.QueryRow(`
+        SELECT g.group_id, g.group_name, g.creator_id, g.description, g.created_at
+        FROM groups g
+        WHERE g.group_id = ?`, groupID).Scan(
+            &group.ID,
+            &group.Name,
+            &group.CreatorID,
+            &group.Description,
+            &group.CreatedAt)
+    
+    if err != nil {
+        log.Printf("Error fetching group: %v", err)
+        return nil, err
+    }
+
+    // Fetch group members
+    members, err := GetGroupMembers(group.ID)
+    if err != nil {
+        log.Printf("Error fetching group members: %v", err)
+        return nil, err
+    }
+    group.Members = members
+
+    return &group, nil
+}
+
 func FetchAllGroups(userID int) ([]structs.GroupResponse, error) {
 
 	var groups []structs.GroupResponse

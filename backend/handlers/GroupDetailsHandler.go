@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"social-network/utils"
 	"strconv"
 	"strings"
 )
@@ -44,6 +45,21 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 }
 
 func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("GroupDetailsHandler called")
+
+	groupID, err := utils.FetchIdFromPath(r.URL.Path, 2)
+	if err != nil {
+		log.Printf("Error fetching group ID: %v", err)
+		http.Error(w, "Error fetching group ID", http.StatusBadRequest)
+		return
+	}
+
+
+	if r.Method != http.MethodGet {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    } 
 }
 
 func GroupJoinHandler(w http.ResponseWriter, r *http.Request, groupID int) {
