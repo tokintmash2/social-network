@@ -11,7 +11,7 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 	log.Println("FetchPostDetails called with postID:", postID)
 
 	var post structs.PostResponse
-	var author structs.AuthorResponse
+	var author structs.PersonResponse
 	// var followers []structs.AllowedUserResponse
 
 	err := database.DB.QueryRow(`
