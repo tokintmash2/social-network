@@ -9,17 +9,20 @@ import (
 )
 
 // Save messages to database
-func SaveMessage(m structs.Message) {
+func SaveMessage(m structs.Message) (structs.Message, error) {
 
 	log.Println("MSG:", m)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
 		log.Println("database error:", err)
+		return structs.Message{}, err
 	}
 	defer tx.Rollback()
 
 	// Insert message
+
+	// TODO: get save message new id
 	_, err = tx.Exec(`
         INSERT INTO messages (sender_id, receiver_id, content, timestamp)
         VALUES (?, ?, ?, ?)`,
@@ -27,14 +30,20 @@ func SaveMessage(m structs.Message) {
 	)
 	if err != nil {
 		log.Printf("Error inserting message: %v\n", err)
+		return structs.Message{}, err
 	}
 
 	err = tx.Commit()
+
+	// TODO: fetch full message joined data by new id
+
 	if err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return
+		return structs.Message{}, err
 	}
 	log.Println("Message successfully saved to the database")
+
+	return m, nil
 }
 
 func GetRecentMessages(user, partner int, time time.Time) []structs.Message {
@@ -68,7 +77,7 @@ func GetRecentMessages(user, partner int, time time.Time) []structs.Message {
 
 		if err := rows.Scan(
 			&msg.Sender, &msg.Recipient, &msg.Content, &msg.CreatedAt,
-			&msg.SenderUsername, &msg.ReceiverUsername,
+			&msg.SenderUsername, &msg.RecipientUsername,
 		); err != nil {
 			log.Println("error scanning recent messages", err)
 		}

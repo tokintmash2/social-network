@@ -26,14 +26,14 @@ type Group struct {
 }
 
 type Message struct { // Needs review
-	Type             string
-	Sender           int
-	Recipient        string
-	Content          string
-	CreatedAt        time.Time
-	SenderUsername   string
-	ReceiverUsername string
-	Conversation     struct {
+	Type              string
+	Sender            int
+	Recipient         int
+	Content           string
+	CreatedAt         time.Time
+	SenderUsername    string
+	RecipientUsername string
+	Conversation      struct {
 		ID        int
 		Recipient int
 		Sender    int
