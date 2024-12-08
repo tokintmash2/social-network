@@ -93,6 +93,19 @@ func AddGroupMember(groupID, userID, adminID int) error {
 	return nil
 }
 
+func RemoveGroupMember(groupID, userID int) error {
+	_, err := database.DB.Exec(`
+        DELETE FROM group_memberships
+        WHERE group_id = ? AND user_id = ?`,
+		groupID, userID,
+	)
+	if err != nil {
+		log.Println("Error removing member:", err)
+		return err
+	}
+	return nil
+}
+
 func IsGroupAdmin(groupID, userID int) bool {
 	var exists bool
 	err := database.DB.QueryRow(`

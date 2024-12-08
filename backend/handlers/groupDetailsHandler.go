@@ -13,6 +13,20 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GroupDetailsRouter called")
 
+	cookie, err := r.Cookie("session")
+	log.Println("Cookie:", cookie)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	_, validSession := utils.VerifySession(sessionUUID, "CreatePostHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
 	pathParts := strings.Split(path, "/")
 
@@ -24,25 +38,15 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 
 	groupID, _ := strconv.Atoi(pathParts[0])
 	switch pathParts[1] {
-	case "join":
-		GroupJoinHandler(w, r, groupID)
-	case "leave":
-		GroupLeaveHandler(w, r, groupID)
 	case "posts":
 		GroupPostsHandler(w, r, groupID)
 	case "messages":
 		GroupMessagesHandler(w, r, groupID)
 	case "members":
-		if len(pathParts) == 2 {
-			// GroupMembersHandler(w, r, groupID)
-		} else if len(pathParts) == 3 {
-			memberID, _ := strconv.Atoi(pathParts[2])
-			GroupMemberManagementHandler(w, r, groupID, memberID)
-		}
+		GroupMembersHandler(w, r, groupID)
 	default:
 		http.NotFound(w, r)
 	}
-
 }
 
 func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,17 +86,8 @@ func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GroupJoinHandler(w http.ResponseWriter, r *http.Request, groupID int) {
-}
-
-func GroupLeaveHandler(w http.ResponseWriter, r *http.Request, groupID int) {
-}
-
 func GroupPostsHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 }
 
 func GroupMessagesHandler(w http.ResponseWriter, r *http.Request, groupID int) {
-}
-
-func GroupMemberManagementHandler(w http.ResponseWriter, r *http.Request, groupID int, memberID int) {
 }
