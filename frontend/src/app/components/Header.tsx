@@ -1,6 +1,6 @@
-import React from "react";
-import { useRouter } from 'next/navigation';
-import NotificationSystem from './NotificationSystem';
+'use client'
+import { useRouter } from 'next/navigation'
+import NotificationSystem from "./NotificationSystem";
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -36,31 +36,37 @@ const Header: React.FC = () => {
       </div>
       
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          <li><a>Home</a></li>
-          <li>
-            <div className="dropdown dropdown-hover">
-              <label tabIndex={0}>Groups</label>
-              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li><a>My groups</a></li>
-                <li><a>My events</a></li>
-                <li><a>Find groups</a></li>
-              </ul>
-            </div>
-          </li>
-          <li>
-            <NotificationSystem />
-          </li>
-          <li><a>My profile</a></li>
-        </ul>
+      <ul className="menu menu-horizontal px-1">
+      <li>
+  <a className=" h-12 relative inline-flex items-center h-10 cursor-pointer px-3 py-2">Home</a>
+</li>
+
+
+  <li>
+    <div className="dropdown dropdown-bottom">
+      <label tabIndex={0} className="relative inline-flex items-center h-10 cursor-pointer px-3 py-2">Groups</label>
+      <ul tabIndex={0} className="dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-52 mt-1">
+        <li><a>My groups</a></li>
+        <li><a>My events</a></li>
+        <li><a>Find groups</a></li>
+      </ul>
+    </div>
+  </li>
+  <li>
+    <NotificationSystem />
+  </li>
+  <li className="h-12"><a className="relative inline-flex items-center cursor-pointer px-3 py-2 h-full">My profile</a></li>
+</ul>
+
+
       </div>
 
       <div className="navbar-end">
         <button 
           onClick={handleLogout}
-          className="logout-btn text-gray-800 border-none font-semibold text-sm hover:text-black transition-colors ease-in-out duration-300"
+          className="btn btn-ghost"
         >
-          Log out
+          Logout
         </button>
       </div>
     </div>
