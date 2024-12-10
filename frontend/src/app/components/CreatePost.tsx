@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane, faImage, faXmark } from '@fortawesome/free-solid-svg-icons'
-import { ACTIONS } from '../utils/actions/postActions'
-import { PostsAction_type } from '../utils/types'
+//import { ACTIONS } from '../utils/actions/postActions'
+//import { PostsAction_type } from '../utils/types'
 import axios from 'axios'
 import Image from 'next/image'
 import toast, { Toaster } from 'react-hot-toast'
@@ -65,7 +65,9 @@ function CreatePost() {
 			const formattedContent = newPost.content.replace(/\n/g, '<br />')
 
 			const formData = new FormData()
+			formData.append('title', newPost.title)
 			formData.append('content', formattedContent)
+
 			if (newPost.media) {
 				formData.append('image', newPost.media)
 			}
@@ -76,19 +78,16 @@ function CreatePost() {
 				withCredentials: true,
 			})
 
-			const response = await axios.post(
-				`${backendUrl}/api/posts/${postId}/comments`,
-				formData,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
+			const response = await axios.post(`${backendUrl}/api/posts`, formData, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'multipart/form-data',
 				},
-			)
+			})
 
-			const newComment = response.data.comment
-			console.log({
+			//const post = response.data.post
+			console.log('response.data', response.data)
+			/* console.log({
 				postId,
 				comment: {
 					id: newComment.id,
@@ -124,6 +123,7 @@ function CreatePost() {
 			})
 
 			setNewPost({ content: '', media: null }) // Reset comment
+			 */
 			setImagePreview(null) // Remove preview
 			textareaRef.current?.blur() // Programmatically blur the textarea (to cause it to shrink it height)
 		} catch (error) {
@@ -132,14 +132,14 @@ function CreatePost() {
 		} finally {
 			setLoading(false)
 		}
+	}
 
-		const handleImageUploadClick = () => {
-			fileInputRef.current?.click()
-		}
+	const handleImageUploadClick = () => {
+		fileInputRef.current?.click()
 	}
 
 	return (
-		<div className='post card rounded-lg shadow-sm bg-base-100 p-4 mb-4'>
+		<div className='post rounded-lg shadow-sm bg-base-100 p-4 mb-4'>
 			<div className='flex flex-col mb-4 space-y-4 relative'>
 				<>
 					<Toaster />
@@ -149,12 +149,12 @@ function CreatePost() {
 					placeholder='Title'
 					onChange={(e) => handleTitleChange(e.target.value)}
 					value={newPost.title}
-					className='input input-bordered w-full'
+					className='input input-bordered w-full input-xs h-8'
 					ref={titleRef}
 					spellCheck='false'
 				/>
 				<textarea
-					className='textarea textarea-bordered'
+					className='textarea textarea-bordered textarea-xs w-full pt-3  h-8 focus:h-20 transition ease-in-out duration-300 resize-none'
 					placeholder='Post content'
 					value={newPost.content}
 					spellCheck='false'
@@ -166,7 +166,7 @@ function CreatePost() {
 				{/* Upload Image Button */}
 				<button
 					type='button'
-					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-11 w-7 h-7'
+					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-2 right-11 w-7 h-7'
 					onClick={handleImageUploadClick}
 					disabled={loading || newPost.media !== null}
 				>
@@ -182,10 +182,10 @@ function CreatePost() {
 					className='hidden'
 				/>
 				<button
-					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-3.5 right-2'
+					className='btn btn-circle btn-outline absolute h-8 w-8 min-h-8 bottom-2 right-2'
 					onClick={handleSubmitPost}
 					onMouseDown={(e) => e.preventDefault()} // Prevent textarea blur on first click
-					disabled={loading || !newPost.content.trim()}
+					disabled={loading || !newPost.title.trim() || !newPost.content.trim()}
 				>
 					<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
 				</button>
