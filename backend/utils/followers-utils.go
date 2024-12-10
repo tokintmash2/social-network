@@ -3,6 +3,7 @@ package utils
 import (
 	"log"
 	"social-network/database"
+	"social-network/structs"
 )
 
 func AddFollower(followerID, followedID int) error {
@@ -10,14 +11,16 @@ func AddFollower(followerID, followedID int) error {
 	log.Println("followerID: ", followerID)
 	log.Println("followingID: ", followedID)
 	_, err := database.DB.Exec(`
-        INSERT INTO followers (follower_id, followed_id)
-        VALUES (?, ?)`,
+        INSERT INTO followers (follower_id, followed_id, status)
+        VALUES (?, ?, 'pending')`,
 		followerID, followedID,
 	)
 	if err != nil {
-		log.Println("erroro adding follower: ", err)
+		log.Println("Error adding a follower: ", err)
+		return err
 	}
-	return err
+	log.Println("Added follower successfully")
+	return nil
 }
 func RemoveFollower(followerID, followedID int) error {
 	_, err := database.DB.Exec(`
@@ -27,23 +30,29 @@ func RemoveFollower(followerID, followedID int) error {
 	)
 	return err
 }
-func GetFollowers(userID int) ([]int, error) {
+func GetFollowers(userID int) ([]structs.PersonResponse, error) {
+
+	var followers []structs.PersonResponse
+
 	rows, err := database.DB.Query(`
-        SELECT follower_id FROM followers
-        WHERE followed_id = ?`,
+        SELECT u.id, u.first_name, u.last_name 
+        FROM users u
+        JOIN followers f ON u.id = f.follower_id
+        WHERE f.followed_id = ? AND f.status = 'accepted'`,
 		userID,
 	)
 	if err != nil {
-		return nil, err
+		return followers, err
 	}
 	defer rows.Close()
-	var followers []int
+
+	// 4. Populate followers slice
 	for rows.Next() {
-		var followerID int
-		if err := rows.Scan(&followerID); err != nil {
-			return nil, err
+		var follower structs.PersonResponse
+		if err := rows.Scan(&follower.ID, &follower.FirstName, &follower.LastName); err != nil {
+			return followers, err
 		}
-		followers = append(followers, followerID)
+		followers = append(followers, follower)
 	}
 	return followers, nil
 }

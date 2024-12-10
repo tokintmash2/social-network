@@ -17,6 +17,19 @@ type User struct {
 	// Gender    string
 }
 
+type UserResponse struct {
+	ID        int              `json:"id"`
+	Email     string           `json:"email"`
+	Username  string           `json:"username"`
+	FirstName string           `json:"firstName"`
+	LastName  string           `json:"lastName"`
+	DOB       string           `json:"dob"`
+	AboutMe   string           `json:"aboutMe"`
+	Avatar    string           `json:"avatar"`
+	IsPublic  bool             `json:"isPublic"`
+	Followers []PersonResponse `json:"followers"`
+}
+
 type Group struct {
 	ID          int
 	CreatorID   int       `json:"creator_id"`
@@ -47,7 +60,7 @@ type UserInfo struct { // Needs review
 	LastMessage time.Time
 }
 
-type Post struct { // Need review
+type Post struct {
 	ID        int
 	UserID    int       `json:"user_id"`
 	GroupID   int       `json:"group_id"`

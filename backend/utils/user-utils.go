@@ -63,8 +63,8 @@ func GetUsername(userID int) (string, error) {
 	return "Unknown", nil
 }
 
-func GetUserProfile(userID int) (structs.User, error) {
-	var userProfile structs.User
+func GetUserProfile(userID int) (structs.UserResponse, error) {
+	var userProfile structs.UserResponse
 	err := database.DB.QueryRow(`
         SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.dob, u.avatar, u.about_me, u.is_public
         FROM users u
@@ -73,7 +73,7 @@ func GetUserProfile(userID int) (structs.User, error) {
 	).Scan(
 		&userProfile.ID,
 		&userProfile.Username,
-		&userProfile.Email,		
+		&userProfile.Email,
 		&userProfile.FirstName,
 		&userProfile.LastName,
 		&userProfile.DOB,
@@ -82,18 +82,21 @@ func GetUserProfile(userID int) (structs.User, error) {
 		&userProfile.IsPublic,
 	)
 	if err != nil {
-		return structs.User{}, err
+		return structs.UserResponse{}, err
 	}
 
+	followers, _ := GetFollowers(userID)
+	userProfile.Followers = followers
+
 	if !userProfile.IsPublic {
-        // Return limited profile for private accounts
-        return structs.User{
-            // Username: userProfile.Username,
+		// Return limited profile for private accounts
+		return structs.UserResponse{
+			// Username: userProfile.Username,
 			FirstName: userProfile.FirstName,
-			LastName: userProfile.LastName,
-            IsPublic: userProfile.IsPublic,
-        }, nil
-    }
+			LastName:  userProfile.LastName,
+			IsPublic:  userProfile.IsPublic,
+		}, nil
+	}
 
 	return userProfile, nil
 }
