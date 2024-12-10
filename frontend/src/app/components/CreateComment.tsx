@@ -21,7 +21,6 @@ function CreateComment({
 	const [imagePreview, setImagePreview] = useState<string | null>(null)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const [loading, setLoading] = useState(false)
-	const [success, setSuccess] = useState<boolean | null>(null) // was the new comment added to db successfully?
 
 	const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -52,7 +51,7 @@ function CreateComment({
 	const handleSubmitComment = async () => {
 		try {
 			setLoading(true)
-			setSuccess(null)
+
 			const formattedContent = comment.content.replace(/\n/g, '<br />')
 
 			const formData = new FormData()
@@ -113,14 +112,13 @@ function CreateComment({
 					},
 				},
 			})
-			setSuccess(true)
+
 			setComment({ content: '', mediaUrl: null }) // Reset comment
 			setImagePreview(null) // Remove preview
 			textareaRef.current?.blur() // Programmatically blur the textarea (to cause it to shrink it height)
 		} catch (error) {
 			console.error('Error submitting comment:', error)
 			toast.error('Failed to add comment. Please try again.')
-			setSuccess(false)
 		} finally {
 			setLoading(false)
 		}
@@ -178,7 +176,6 @@ function CreateComment({
 					<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
 				</button>
 				{/* Error Message */}
-				{success === false && <p className='text-red-500 mt-2'>Failed to add comment.</p>}
 			</div>
 
 			{/* Image Preview */}

@@ -2,15 +2,18 @@
 
 import { useEffect, useReducer } from 'react'
 import Post from '../components/Post'
+import CreatePost from '../components/CreatePost'
 import {
 	Post_type,
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
+	Follower_type,
 } from '../utils/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'
+
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
@@ -114,6 +117,12 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return state
 	}
 }
+// todo: fetch only when feed or when isOwnProfile
+export const dummyFollowers: Follower_type[] = [
+	{ id: 1, firstName: 'John', lastName: 'Doe' },
+	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
+	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
+]
 
 export default function PostsContainer({
 	userId,
@@ -164,6 +173,8 @@ export default function PostsContainer({
 				)
 			)}
 
+			{(isOwnProfile || feed) && <CreatePost />}
+
 			{/* Post Count */}
 			<div className='text-sm text-gray-500 mb-4'>
 				<span className='font-semibold'>Total posts:</span> {state.posts.length}
@@ -176,6 +187,7 @@ export default function PostsContainer({
 						key={post.id}
 						post={post}
 						dispatch={dispatch}
+						followers={dummyFollowers}
 						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}

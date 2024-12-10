@@ -85,6 +85,8 @@ export type PostsContainerProps_type = {
 export type PostProps_type = {
 	post: Post_type
 	dispatch: (action: PostsAction_type) => void
+	followers?: Follower_type[]
+	allowedUsers?: Post_type['allowedUsers']
 	isOwnPost: boolean
 }
 
@@ -114,4 +116,10 @@ type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PEND
 export type UserDataProps_type = {
 	userId: number
 	accessType: ProfileAccess
+}
+
+export type Follower_type = {
+	id: number
+	firstName: string
+	lastName: string
 }
