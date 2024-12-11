@@ -92,29 +92,6 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 	return posts, nil
 }
 
-func FetchAllowedUsers(postID int) ([]int, error) {
-	rows, err := database.DB.Query(`
-        SELECT u.id
-        FROM post_access pa
-        JOIN users u ON pa.follower_id = u.id
-        WHERE pa.post_id = ?
-    `, postID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var allowedUsers []int
-	for rows.Next() {
-		var user int
-		if err := rows.Scan(&user); err != nil {
-			return nil, err
-		}
-		allowedUsers = append(allowedUsers, user)
-	}
-	return allowedUsers, nil
-}
-
 // func FetchAllowedUsers(postID int) ([]structs.AllowedUserResponse, error) {
 //     rows, err := database.DB.Query(`
 //         SELECT u.id, u.first_name, u.last_name
@@ -149,7 +126,7 @@ func CreatePost(newPost structs.Post) error {
 	defer tx.Rollback()
 
 	// Insert post
-	_, err = tx.Exec(`
+	result, err := tx.Exec(`
         INSERT INTO posts (user_id, title, content, privacy_setting, image, timestamp)
         VALUES (?, ?, ?, ?, ?, ?)`,
 		newPost.UserID, newPost.Title, newPost.Content, newPost.Privacy, newPost.Image, newPost.CreatedAt,
@@ -159,12 +136,22 @@ func CreatePost(newPost structs.Post) error {
 		return err
 	}
 
+	postID, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("Error getting post ID: %v\n", err)
+		return err
+	}
+
+	var 
+
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
 		return err
 	}
 
-	return nil
+	// return nil
+	return SetPostAccess(int(postID), newPost.UserID, newPost.Privacy, newPost.AllowedUsers)
+
 }
 
 func CreateGroupPost(newPost structs.Post) error {

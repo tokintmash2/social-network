@@ -7,6 +7,7 @@ import (
 	"social-network/structs"
 	"social-network/utils"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -44,30 +45,39 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodPost {
 		var post structs.Post
 
-		log.Println("var post:", post)
+		if strings.Contains(request.Header.Get("Content-Type"), "multipart/form-data") {
+			err := request.ParseMultipartForm(10 << 20) // 10 MB max
+			if err != nil {
+				log.Printf("Failed to parse form: %v\n", err)
+				http.Error(writer, "Failed to parse form", http.StatusBadRequest)
+				return
+			}
 
-		err := json.NewDecoder(request.Body).Decode(&post)
-		if err != nil {
-			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
+			post.Content = request.FormValue("content")
+			post.Privacy = request.FormValue("privacy")
+
+			// Handle file upload if present
+			_, _, err = request.FormFile("image")
+			if err == nil {
+				filename, err := utils.HandleFileUpload(request, "image", "uploads")
+				if err != nil {
+					http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
+					return
+				}
+				post.Image = filename
+			}
+		} else {
+			http.Error(writer, "Unsupported content type", http.StatusUnsupportedMediaType)
 			return
 		}
 
 		if post.Privacy == "" || post.Content == "" {
-			http.Error(writer, "Content, Privacy setting cannot be empty", http.StatusBadRequest)
-			return
-		}
-
-		log.Println("Post:", post) // testing
-
-		filename, err := utils.HandleFileUpload(request, "image", "uploads")
-		if err != nil {
-			http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
+			http.Error(writer, "Content and Privacy setting cannot be empty", http.StatusBadRequest)
 			return
 		}
 
 		post.UserID = userID
 		post.CreatedAt = time.Now()
-		post.Image = filename
 
 		err = utils.CreatePost(post)
 		if err != nil {
@@ -87,6 +97,71 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 	http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
 }
+
+// func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
+
+// 	log.Println("CreatePostHandler called")
+
+// 	cookie, err := request.Cookie("session")
+// 	log.Println("Cookie:", cookie)
+// 	if err != nil {
+// 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+// 		return
+// 	}
+
+// 	sessionUUID := cookie.Value
+// 	userID, validSession := utils.VerifySession(sessionUUID, "CreatePostHandler")
+// 	if !validSession {
+// 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+// 		return
+// 	}
+
+// 	if request.Method == http.MethodPost {
+// 		var post structs.Post
+
+// 		log.Println("var post:", post)
+
+// 		err := json.NewDecoder(request.Body).Decode(&post)
+// 		if err != nil {
+// 			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
+// 			return
+// 		}
+
+// 		if post.Privacy == "" || post.Content == "" {
+// 			http.Error(writer, "Content, Privacy setting cannot be empty", http.StatusBadRequest)
+// 			return
+// 		}
+
+// 		log.Println("Post:", post) // testing
+
+// 		filename, err := utils.HandleFileUpload(request, "image", "uploads")
+// 		if err != nil {
+// 			http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
+// 			return
+// 		}
+
+// 		post.UserID = userID
+// 		post.CreatedAt = time.Now()
+// 		post.Image = filename
+
+// 		err = utils.CreatePost(post)
+// 		if err != nil {
+// 			log.Printf("Error creating post: %v\n", err)
+// 			http.Error(writer, "Error creating post", http.StatusInternalServerError)
+// 			return
+// 		}
+
+// 		response := map[string]interface{}{
+// 			"success": true,
+// 		}
+
+// 		writer.Header().Set("Content-Type", "application/json")
+// 		json.NewEncoder(writer).Encode(response)
+// 		return
+// 	}
+
+// 	http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
+// }
 
 func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
