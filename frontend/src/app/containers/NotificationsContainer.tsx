@@ -21,7 +21,7 @@ const NotificationsContainer = ({ notifications, onNotificationClick }: Notifica
         ))
       )}
     </ul>
-  )
-}
+  );
+};
 
-export default NotificationsContainer
+export default NotificationsContainer;

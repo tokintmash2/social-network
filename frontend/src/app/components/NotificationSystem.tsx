@@ -1,52 +1,32 @@
-import React, { useState, useRef, useCallback } from "react";
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Notification } from '../utils/types/notifications';
-import NotificationsContainer from '../containers/NotificationsContainer';
 import { dummyNotifications } from '../dummyData';
+import NotificationsContainer from '../containers/NotificationsContainer';
 
-const NotificationSystem: React.FC = () => {
-  const router = useRouter();
+const NotificationSystem = () => {
   const [notifications, setNotifications] = useState<Notification[]>(dummyNotifications);
   const [unreadCount, setUnreadCount] = useState(dummyNotifications.filter(n => !n.read).length);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const toggleDropdown = useCallback(() => {
-    setIsDropdownOpen(prev => !prev);
-  }, []);
-
-  const handleNotificationClick = useCallback((notification: Notification) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    );
-    setUnreadCount(prev => prev - 1);
-    setIsDropdownOpen(false);
-    router.push(notification.linkTo);
-  }, [router]);
+  const handleNotificationClick = (notification: Notification) => {
+    console.log('Notification clicked:', notification);
+  };
 
   return (
-    <div className="dropdown dropdown-bottom">
-      <label 
-        tabIndex={0} 
-        className="px-4 py-2"
-        onClick={toggleDropdown}
-      >
-        <span>Notifications</span>
+    <div className="dropdown dropdown-end">
+      <div tabIndex={0} role="button" className="indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+        </svg>
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
-            {unreadCount}
-          </span>
+          <span className="badge badge-sm indicator-item">{unreadCount}</span>
         )}
-      </label>
-      {isDropdownOpen && (
-        <NotificationsContainer 
-          notifications={notifications}
-          onNotificationClick={handleNotificationClick}
-        />
-      )}
+      </div>
+      <NotificationsContainer 
+        notifications={notifications}
+        onNotificationClick={handleNotificationClick}
+      />
     </div>
   );
-  
 };
 
 export default NotificationSystem;

@@ -1,9 +1,14 @@
-'use client'
-import { useRouter } from 'next/navigation'
-import NotificationSystem from "./NotificationSystem";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import NotificationSystem from './NotificationSystem';
+import { useLoggedInUser } from '../context/UserContext';
+import Image from 'next/image';
 
-const Header: React.FC = () => {
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+
+const Header = () => {
   const router = useRouter();
+  const { loggedInUser } = useLoggedInUser();
 
   const handleLogout = async () => {
     const response = await fetch('http://localhost:8080/logout', {
@@ -21,56 +26,69 @@ const Header: React.FC = () => {
   };
 
   return (
-    <div className="navbar bg-base-100">
-      <div className="navbar-start">
-        <a className="btn btn-ghost text-xl rounded-lg p-2 transition-transform hover:bg-transparent">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="h-6 w-6"
-          >
-            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-          </svg>
-        </a>
-      </div>
-      
-      <div className="navbar-center hidden lg:flex">
-      <ul className="menu menu-horizontal px-1">
-      <li>
-  <a className=" h-12 relative inline-flex items-center h-10 cursor-pointer px-3 py-2">Home</a>
-</li>
+    <div className="navbar bg-base-100 shadow-sm border-b border-gray-200">
 
+      <div className="flex-1">
+  <Link href="/" className="btn btn-ghost">
+    <h1 className="bg-gradient-to-l from-[#687984] to-[#B9D7EA] text-transparent bg-clip-text text-2xl">
+      SPHERE
+    </h1>
+  </Link>
+</div>
 
-  <li>
-    <div className="dropdown dropdown-bottom">
-      <label tabIndex={0} className="relative inline-flex items-center h-10 cursor-pointer px-3 py-2">Groups</label>
-      <ul tabIndex={0} className="dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-52 mt-1">
-        <li><a>My groups</a></li>
-        <li><a>My events</a></li>
-        <li><a>Find groups</a></li>
-      </ul>
-    </div>
-  </li>
-  <li>
-    <NotificationSystem />
-  </li>
-  <li className="h-12"><a className="relative inline-flex items-center cursor-pointer px-3 py-2 h-full">My profile</a></li>
-</ul>
+      <div className="flex-none gap-2">
+        <div className="dropdown dropdown-end">
+          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+            <Link href="/groups" className="indicator">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </Link>
+          </div>
+          <ul tabIndex={0} className="dropdown-content menu menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
+            <li><Link href="/groups/my-groups">My groups</Link></li>
+            <li><Link href="/events/my-events">My events</Link></li>
+            <li><Link href="/groups">Find groups</Link></li>
+          </ul>
+        </div>
 
+        <div className="btn btn-ghost btn-circle">
+          <NotificationSystem />
+        </div>
 
-      </div>
+        <div className="dropdown dropdown-end">
+          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+            <div className="w-10 rounded-full">
+              {loggedInUser?.avatar && loggedInUser.avatar !== 'default_avatar.jpg' ? (
+                <Image
+                  src={`${backendUrl}/uploads/${loggedInUser.avatar}`}
+                  alt="User avatar"
+                  width={40}
+                  height={40}
+                />
+              ) : (
+                <div className="avatar placeholder">
+                  <div className="bg-neutral text-neutral-content w-10 rounded-full">
+                    <span className="text-xl uppercase">
+                      {loggedInUser?.firstName?.[0]}
+                      {loggedInUser?.lastName?.[0]}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><Link href="/profile">Profile</Link></li>
+            <li><button onClick={handleLogout}>Logout</button></li>
+          </ul>
+        </div>
 
-      <div className="navbar-end">
-        <button 
-          onClick={handleLogout}
-          className="btn btn-ghost"
-        >
-          Logout
-        </button>
       </div>
     </div>
   );
 };
 
 export default Header;
+
+

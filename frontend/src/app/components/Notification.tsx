@@ -50,4 +50,4 @@ const Notification = ({ notification, onClick }: NotificationProps) => {
   )
 }
 
-export default Notification
+export default Notification;
