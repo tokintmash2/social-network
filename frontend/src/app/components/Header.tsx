@@ -26,7 +26,7 @@ const Header = () => {
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm border-b border-gray-200">
+    <div className="navbar bg-base-100 shadow-sm border-b border-gray-200 fixed top-0 w-full z-50">
 
       <div className="flex-1">
   <Link href="/" className="btn btn-ghost">
