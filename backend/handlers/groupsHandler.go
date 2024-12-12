@@ -102,6 +102,7 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&group)
+	log.Printf("Received group data: %+v\n", group)
 	if err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
@@ -111,21 +112,32 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Group:", group) // testing
-
 	group.CreatorID = userID
 	group.CreatedAt = time.Now()
 
-	err = utils.CreateGroup(group)
+	log.Println("Group:", group)
+
+	groupId, err := utils.CreateGroup(group)
 	if err != nil {
 		log.Printf("Error creating group: %v\n", err)
 		http.Error(w, "Error creating group", http.StatusInternalServerError)
 		return
 	}
 
+	// Get the newly created group
+	createdGroup, err := utils.FetchOneGroup(int(groupId))
+	if err != nil {
+		log.Printf("Error fetching created group: %v\n", err)
+		http.Error(w, "Error fetching created group", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("Created group:", createdGroup)
+
 	response := map[string]interface{}{
 		"success": true,
 		"message": "Group created successfully",
+		"group":   createdGroup,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

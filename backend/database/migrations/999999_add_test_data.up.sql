@@ -52,3 +52,6 @@ VALUES (1, 1, 'Test comment content for User 1', '1990-03-01 00:00:00+00:00');
 
 INSERT INTO post_access (post_id, follower_id) 
 VALUES (3, 2);
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Nature photo enthusiasts', 1, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');

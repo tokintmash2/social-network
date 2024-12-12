@@ -10,31 +10,32 @@ import (
 func FetchOneGroup(groupID int) (*structs.GroupResponse, error) {
 
 	group := structs.GroupResponse{}
+	println("Fetching group with ID:", groupID)
 
 	err := database.DB.QueryRow(`
         SELECT g.group_id, g.group_name, g.creator_id, g.description, g.created_at
         FROM groups g
         WHERE g.group_id = ?`, groupID).Scan(
-            &group.ID,
-            &group.Name,
-            &group.CreatorID,
-            &group.Description,
-            &group.CreatedAt)
-    
-    if err != nil {
-        log.Printf("Error fetching group: %v", err)
-        return nil, err
-    }
+		&group.ID,
+		&group.Name,
+		&group.CreatorID,
+		&group.Description,
+		&group.CreatedAt)
 
-    // Fetch group members
-    members, err := GetGroupMembers(group.ID)
-    if err != nil {
-        log.Printf("Error fetching group members: %v", err)
-        return nil, err
-    }
-    group.Members = members
+	if err != nil {
+		log.Printf("Error fetching group: %v", err)
+		return nil, err
+	}
 
-    return &group, nil
+	// Fetch group members
+	members, err := GetGroupMembers(group.ID)
+	if err != nil {
+		log.Printf("Error fetching group members: %v", err)
+		return nil, err
+	}
+	group.Members = members
+
+	return &group, nil
 }
 
 func FetchAllGroups(userID int) ([]structs.GroupResponse, error) {
@@ -180,16 +181,17 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 	return members, nil
 }
 
-func CreateGroup(group structs.Group) error {
+func CreateGroup(group structs.Group) (int64, error) {
 	log.Println("Got group:", group)
 
+	// Start a database transaction
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
-	// Insert group
+	// Insert group into the database
 	result, err := tx.Exec(`
         INSERT INTO groups (group_name, description, creator_id, created_at)
         VALUES (?, ?, ?, ?)`,
@@ -198,17 +200,18 @@ func CreateGroup(group structs.Group) error {
 	log.Printf("Insert result: %+v", result)
 	if err != nil {
 		log.Println("Error inserting group:", err)
-		return err
+		return 0, err
 	}
 
 	// Get the newly created group ID
 	groupID, err := result.LastInsertId()
 	if err != nil {
 		log.Println("Error getting last insert ID:", err)
-		return err
+		return 0, err
 	}
+	log.Printf("New group ID: %d", groupID)
 
-	// Add creator as admin member
+	// Add the creator as an admin member of the group
 	_, err = tx.Exec(`
         INSERT INTO group_memberships (group_id, user_id, role, joined_at)
         VALUES (?, ?, 'admin', ?)`,
@@ -216,13 +219,15 @@ func CreateGroup(group structs.Group) error {
 	)
 	if err != nil {
 		log.Println("Error adding creator as admin:", err)
-		return err
+		return 0, err
 	}
 
+	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return err
+		return 0, err
 	}
 
-	return nil
+	// Return the newly created group ID
+	return groupID, nil
 }
