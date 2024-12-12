@@ -1,6 +1,13 @@
 import { Post_type } from './utils/types'
 import { Notification } from './utils/types/notifications'
 
+type Group = {
+    id: number
+    name: string
+    description: string
+    memberCount: number
+}
+
 export const formatTimestamp = (date: Date): string => {
     return date.toLocaleString('en-US', {
         year: 'numeric',
@@ -188,3 +195,15 @@ export const dummyNotifications: Notification[] = [
         read: true
     }
 ];
+
+export const myGroups: Group[] = [
+    { id: 1, name: "Tech Enthusiasts", memberCount: 150, description: "A group for tech lovers" },
+    { id: 2, name: "Book Club", memberCount: 75, description: "Weekly book discussions" },
+    { id: 3, name: "Fitness Goals", memberCount: 200, description: "Share your fitness journey" }
+]
+
+export const availableGroups: Group[] = [
+    { id: 4, name: "Photography Club", memberCount: 300, description: "Share your best shots" },
+    { id: 5, name: "Cooking Masters", memberCount: 250, description: "Recipe sharing and tips" },
+    { id: 6, name: "Travel Stories", memberCount: 400, description: "Share your adventures" }
+]

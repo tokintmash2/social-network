@@ -46,9 +46,8 @@ const Header = () => {
             </Link>
           </div>
           <ul tabIndex={0} className="dropdown-content menu menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
-            <li><Link href="/groups/my-groups">My groups</Link></li>
+            <li><Link href="/groups/">groups</Link></li>
             <li><Link href="/events/my-events">My events</Link></li>
-            <li><Link href="/groups">Find groups</Link></li>
           </ul>
         </div>
 
