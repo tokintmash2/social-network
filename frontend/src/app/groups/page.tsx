@@ -24,14 +24,14 @@ type Group_type = {
 	creator: number
 }
 
-type GroupActions_type =
+type GroupsActions_type =
 	| {
 			type: typeof ACTIONS.SET_GROUPS
 			payload: Group_type[]
 	  }
 	| { type: typeof ACTIONS.CREATE_GROUP; payload: Group_type }
 
-function reducer(state: GroupsState_type, action: GroupActions_type): GroupsState_type {
+function reducer(state: GroupsState_type, action: GroupsActions_type): GroupsState_type {
 	switch (action.type) {
 		case ACTIONS.SET_GROUPS:
 			console.log('SET_GROUPS payload', action.payload)
@@ -52,7 +52,6 @@ function reducer(state: GroupsState_type, action: GroupActions_type): GroupsStat
 			) {
 				return { ...state, groups: [...state.groups, action.payload] }
 			}
-		//return { ...state, groups: [...state.groups, action.payload] }
 		default:
 			return state
 	}
@@ -145,8 +144,8 @@ export default function GroupsList() {
 			<Header />
 
 			<div className='container mx-auto pt-24'>
-				<h1>Groups</h1>
-				<div className='flex justify-end'>
+				<div className='flex justify-between items-center mb-4'>
+					<h1>Groups</h1>
 					<button
 						className='btn bg-white'
 						onClick={() => createGroupRef.current?.showModal()}
@@ -200,7 +199,7 @@ export default function GroupsList() {
 							<label className='form-control w-full'>
 								<span className='label-text mb-2'>Description</span>
 								<textarea
-									className='textarea textarea-bordered w-full no-resize h-32'
+									className='textarea textarea-bordered text-base w-full h-32'
 									value={newGroup.description}
 									spellCheck={false}
 									onChange={(e) =>

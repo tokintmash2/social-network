@@ -14,7 +14,7 @@ export default function MyProfilePage() {
 	return (
 		<div>
 			<Header />
-			<div className='container mx-auto pt-16'>
+			<div className='container mx-auto pt-24'>
 				{loggedInUser ? (
 					<UserData userId={loggedInUser.id} accessType='SELF' />
 				) : (

@@ -117,7 +117,7 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Group:", group)
 
-	groupId, err := utils.CreateGroup(group)
+	err = utils.CreateGroup(group)
 	if err != nil {
 		log.Printf("Error creating group: %v\n", err)
 		http.Error(w, "Error creating group", http.StatusInternalServerError)
@@ -125,7 +125,7 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the newly created group
-	createdGroup, err := utils.FetchOneGroup(int(groupId))
+	createdGroup, err := utils.FetchOneGroup(group.ID)
 	if err != nil {
 		log.Printf("Error fetching created group: %v\n", err)
 		http.Error(w, "Error fetching created group", http.StatusInternalServerError)
