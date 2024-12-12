@@ -144,7 +144,7 @@ export default function GroupsList() {
 		<div>
 			<Header />
 
-			<div className='container mx-auto'>
+			<div className='container mx-auto pt-24'>
 				<h1>Groups</h1>
 				<div className='flex justify-end'>
 					<button
