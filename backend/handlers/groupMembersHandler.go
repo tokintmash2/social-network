@@ -33,6 +33,8 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 
 	message := ""
 
+	// TODO: Add PATCH method ("pending" -> "member")
+
 	if r.Method == http.MethodPost { // Add member
 
 		// Check if the requesting user is an admin
@@ -65,13 +67,13 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 				http.Error(w, "User is not a member of this group", http.StatusConflict)
 				return
 			}
-	
+
 			// Prevent admin from being removed
 			if utils.IsGroupAdmin(groupID, userIDtoProcess) {
 				http.Error(w, "Cannot remove group admin", http.StatusConflict)
 				return
 			}
-	
+
 			// Remove member
 			err = utils.RemoveGroupMember(groupID, userIDtoProcess)
 			if err != nil {

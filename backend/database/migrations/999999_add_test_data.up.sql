@@ -1,5 +1,5 @@
 INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
-VALUES ('asd@asd.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'asd', 'asd', '1990-03-01 00:00:00+00:00', 'asd', 'testuser', 'default_avatar.jpg');
+VALUES ('asd@asd.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Taylor', 'Lorenzo', '1990-03-01 00:00:00+00:00', 'taylor_l', 'I am a student of the University of Tartu.', 'default_avatar.jpg');
 INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
 VALUES ('qwe@qwe.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'qwe', 'qwe', '1990-03-01 00:00:00+00:00', 'qwe', 'testuser', 'default_avatar.jpg');
 INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
@@ -55,3 +55,15 @@ VALUES (3, 2);
 
 INSERT INTO groups (group_name, creator_id, description, created_at) 
 VALUES ('Nature photo enthusiasts', 1, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (1, 4, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (1, 1, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (1, 2, "pending", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (1, 3, "member", "2024-12-12 15:05:49.419539+02:00");

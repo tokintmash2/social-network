@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CommentsContainerProps_type } from '../utils/types'
+import { CommentsContainerProps_type } from '../utils/types/types'
 import Comment from '../components/Comment'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'

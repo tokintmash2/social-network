@@ -90,18 +90,25 @@ type PostResponse struct {
 }
 
 type GroupResponse struct {
-	ID          int              `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	CreatedAt   string           `json:"created_at"`
-	CreatorID   int              `json:"creator_id"`
-	Members     []PersonResponse `json:"group_members"`
+	ID          int                   `json:"id"`
+	Name        string                `json:"name"`
+	Description string                `json:"description"`
+	CreatedAt   string                `json:"created_at"`
+	CreatorID   int                   `json:"creator_id"`
+	Members     []GroupMemberResponse `json:"group_members"`
 }
 
 type PersonResponse struct {
 	ID        int    `json:"id"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+}
+
+type GroupMemberResponse struct {
+	ID        int    `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Role      string `json:"role"`
 }
 
 // type MemberResponse struct {
@@ -123,16 +130,16 @@ type PersonResponse struct {
 // }
 
 type Notification struct {
-    ID        int       `json:"id"`
-    UserID    int       `json:"user_id"`
-    Message   string    `json:"message"`
-    Type      string    `json:"type"`
-    LinkTo    string    `json:"linkTo"`
-    Read      bool      `json:"read"`
-    Timestamp time.Time `json:"timestamp"`
+	ID        int       `json:"id"`
+	UserID    int       `json:"user_id"`
+	Message   string    `json:"message"`
+	Type      string    `json:"type"`
+	LinkTo    string    `json:"linkTo"`
+	Read      bool      `json:"read"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type NotificationResponse struct {
-    Success       bool           `json:"success"`
-    Notifications []Notification `json:"notifications"`
+	Success       bool           `json:"success"`
+	Notifications []Notification `json:"notifications"`
 }

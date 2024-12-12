@@ -5,7 +5,7 @@ import axios from 'axios'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
-import { User, UserDataProps_type } from '../utils/types'
+import { User, UserDataProps_type } from '../utils/types/types'
 import { formatDate } from '../utils/dateUtils'
 import PostsContainer from '../containers/PostsContainer'
 
