@@ -17,16 +17,6 @@ func AddFollower(followerID, followedID int) error {
 		return fmt.Errorf("cannot follow yourself")
 	}
 
-	exists, err := checkFollowExists(followerID, followedID)
-	if err != nil {
-		log.Println("Error checking if follow exists:", err)
-		return err
-	}
-	if exists {
-		log.Println("Follow relationship already exists")
-		return nil
-	}
-
 	status, err := determineFollowStatus(followedID)
 	if err != nil {
 		log.Println("Error determining follow status:", err)
@@ -40,20 +30,6 @@ func AddFollower(followerID, followedID int) error {
 	}
 	log.Println("Added follower successfully")
 	return nil
-}
-
-func checkFollowExists(followerID, followedID int) (bool, error) {
-	var status string
-	err := database.DB.QueryRow(`
-		SELECT status 
-		FROM followers 
-		WHERE follower_id = ? AND followed_id = ?`,
-		followerID, followedID,
-	).Scan(&status)
-	if err == nil {
-		return true, nil
-	}
-	return false, err
 }
 
 func determineFollowStatus(followedID int) (string, error) {
