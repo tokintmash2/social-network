@@ -143,35 +143,39 @@ export default function GroupsList() {
 		<div>
 			<Header />
 
-			<div className='container mx-auto pt-24'>
-				<div className='flex justify-between items-center mb-4'>
+			<div className='container pt-16'>
+				<div className='flex'>
+					{/* Left sidebar with groups */}
+				<div className='w-1/3'>
+				<div className='bg-white p-6 rounded-lg shadow-sm min-h-screen overflow-y-auto'>
+				<div className='flex flex-col'>
 					<h1>Groups</h1>
 					<button
-						className='btn bg-white'
+						className='btn bg-white mb-4 mt-4 w-full'
 						onClick={() => createGroupRef.current?.showModal()}
 					>
 						<FontAwesomeIcon icon={faPlus} />
 						Add new group
 					</button>
-				</div>
-				<div className='flex space-x-4'>
 					{state.groups.map((group) => (
-						<div key={group.id} className='card bg-base-100 w-96 shadow-xl'>
+						<div
+						 key={group.id}
+						  className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
+						  onClick={() => router.push(`/groups/${group.id}`)}>
 							<div className='card-body'>
 								<h2 className='card-title'>{group.name}</h2>
 								<p>{group.description}</p>
 								<div className='card-actions justify-end'>
-									<button
-										className='btn btn-primary'
-										onClick={() => router.push(`/groups/${group.id}`)}
-									>
-										View
-									</button>
+								
 								</div>
 							</div>
 						</div>
 					))}
 				</div>
+				
+                </div>
+            </div>
+        </div>
 				<dialog id='my_modal_4' ref={createGroupRef} className='modal'>
 					<div className='modal-box w-11/12 max-w-5xl'>
 						<h3 className='font-bold text-lg'>Create new group</h3>
@@ -224,7 +228,7 @@ export default function GroupsList() {
 						</div>
 					</div>
 				</dialog>
-			</div>
+				</div>
 		</div>
 	)
 }

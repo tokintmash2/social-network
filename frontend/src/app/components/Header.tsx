@@ -37,7 +37,7 @@ const Header = () => {
 </div>
 
       <div className="flex-none gap-2">
-        <div className="dropdown dropdown-end">
+
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
             <Link href="/groups" className="indicator">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,11 +45,7 @@ const Header = () => {
               </svg>
             </Link>
           </div>
-          <ul tabIndex={0} className="dropdown-content menu menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow">
-            <li><Link href="/groups/">groups</Link></li>
-            <li><Link href="/events/my-events">My events</Link></li>
-          </ul>
-        </div>
+      
 
         <div className="btn btn-ghost btn-circle">
           <NotificationSystem />
