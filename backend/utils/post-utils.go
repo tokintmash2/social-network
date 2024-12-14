@@ -2,7 +2,29 @@ package utils
 
 import "social-network/database"
 
-func FetchAllowedUsers(postID int) ([]int, error) {
+// func FetchAllowedUsers(postID int) ([]int, error) {
+// 	rows, err := database.DB.Query(`
+//         SELECT u.id
+//         FROM post_access pa
+//         JOIN users u ON pa.follower_id = u.id
+//         WHERE pa.post_id = ?
+//     `, postID)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	var allowedUsers []int
+// 	for rows.Next() {
+// 		var user int
+// 		if err := rows.Scan(&user); err != nil {
+// 			return nil, err
+// 		}
+// 		allowedUsers = append(allowedUsers, user)
+// 	}
+// 	return allowedUsers, nil
+// }
+func FetchAllowedUsers(postID int) ([]string, error) {
 	rows, err := database.DB.Query(`
         SELECT u.id
         FROM post_access pa
@@ -14,9 +36,9 @@ func FetchAllowedUsers(postID int) ([]int, error) {
 	}
 	defer rows.Close()
 
-	var allowedUsers []int
+	var allowedUsers []string
 	for rows.Next() {
-		var user int
+		var user string
 		if err := rows.Scan(&user); err != nil {
 			return nil, err
 		}
@@ -25,7 +47,7 @@ func FetchAllowedUsers(postID int) ([]int, error) {
 	return allowedUsers, nil
 }
 
-func SetPostAccess(postID int, userID int, privacy string, allowedUsers []int) error {
+func SetPostAccess(postID int, userID int, privacy string, allowedUsers []string) error {
     tx, err := database.DB.Begin()
     if err != nil {
         return err

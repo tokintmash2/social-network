@@ -43,7 +43,7 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if request.Method == http.MethodPost {
-		var post structs.Post
+		var post structs.PostResponse
 
 		if strings.Contains(request.Header.Get("Content-Type"), "multipart/form-data") {
 			err := request.ParseMultipartForm(10 << 20) // 10 MB max
@@ -55,6 +55,9 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 			post.Content = request.FormValue("content")
 			post.Privacy = request.FormValue("privacy")
+			// allowedUsersArray := request.Form["allowed_users"]
+			post.AllowedUsers = request.Form["allowed_users"]
+			log.Println("Allowed users arrive like this:", post.AllowedUsers)
 
 			// Handle file upload if present
 			_, _, err = request.FormFile("image")
@@ -64,7 +67,7 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 					http.Error(writer, "Failed to handle file upload", http.StatusInternalServerError)
 					return
 				}
-				post.Image = filename
+				post.MediaURL = &filename
 			}
 		} else {
 			http.Error(writer, "Unsupported content type", http.StatusUnsupportedMediaType)
@@ -76,18 +79,19 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		post.UserID = userID
+		post.Author.ID = userID
 		post.CreatedAt = time.Now()
 
 		err = utils.CreatePost(post)
 		if err != nil {
-			log.Printf("Error creating post: %v\n", err)
+			log.Printf("Error creating post in CreatePostHandler: %v\n", err)
 			http.Error(writer, "Error creating post", http.StatusInternalServerError)
 			return
 		}
 
 		response := map[string]interface{}{
 			"success": true,
+			"post":    post,
 		}
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -237,7 +241,7 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if request.Method == http.MethodPost {
-		var post structs.Post
+		var post structs.PostResponse
 
 		err := json.NewDecoder(request.Body).Decode(&post)
 		if err != nil {
@@ -245,23 +249,23 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		if post.Privacy == "" || post.Content == "" || post.GroupID == 0 {
-			// if post.Content == "" || post.GroupID == 0 {
-			http.Error(writer, "Content, Privacy or Group ID setting cannot be empty", http.StatusBadRequest)
-			return
-		}
+		// if post.Privacy == "" || post.Content == "" || post.GroupID == 0 {
+		// 	// if post.Content == "" || post.GroupID == 0 {
+		// 	http.Error(writer, "Content, Privacy or Group ID setting cannot be empty", http.StatusBadRequest)
+		// 	return
+		// }
 
 		log.Println("Post:", post) // testing
 
-		post.UserID = userID
+		post.Author.ID = userID
 		post.CreatedAt = time.Now()
 
-		err = utils.CreateGroupPost(post)
-		if err != nil {
-			log.Printf("Error creating post: %v\n", err)
-			http.Error(writer, "Error creating post", http.StatusInternalServerError)
-			return
-		}
+		// err = utils.CreateGroupPost(post)
+		// if err != nil {
+		// 	log.Printf("Error creating post: %v\n", err)
+		// 	http.Error(writer, "Error creating post", http.StatusInternalServerError)
+		// 	return
+		// }
 
 		response := map[string]interface{}{
 			"success": true,

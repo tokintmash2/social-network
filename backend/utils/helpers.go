@@ -43,3 +43,16 @@ func ConvertToIntSlice(strSlice []string) []int {
 	}
 	return intSlice
 }
+
+func BreakArray(array []string) [][]string {
+	chunkSize := 100
+	var chunks [][]string
+	for i := 0; i < len(array); i += chunkSize {
+		end := i + chunkSize
+		if end > len(array) {
+			end = len(array)
+		}
+		chunks = append(chunks, array[i:end])
+	}
+	return chunks
+}
