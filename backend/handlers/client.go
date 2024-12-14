@@ -78,6 +78,7 @@ func (c *Client) readPump() {
 		}
 		msg := IncomingMessage{
 			socketID: c.socketID,
+			userID:   c.userID,
 			data:     message,
 		}
 		c.hub.incoming <- msg

@@ -43,6 +43,13 @@ type Hub struct {
 	unregister chan *Client
 }
 
+type MessageContext struct {
+	Action    string
+	RequestID string
+	SocketID  uuid.UUID
+	UserID    int
+}
+
 type UserOnlineMessage struct {
 	UserID int    `json:"user_id"`
 	Action string `json:"user_action"`
@@ -89,7 +96,11 @@ func (h *Hub) run(app *application) {
 				}
 			}
 		case message := <-h.incoming:
-			var input interface{}
+			var input struct {
+				Action    string          `json:"action"`
+				RequestID string          `json:"request_id"`
+				Data      json.RawMessage `json:"data"`
+			}
 
 			err := json.NewDecoder(bytes.NewReader(message.data)).Decode(&input)
 			if err != nil {
@@ -103,30 +114,31 @@ func (h *Hub) run(app *application) {
 				continue
 			}
 			app.logger.Debug("Incoming message", slog.Any("input", input))
-			data := input.(map[string]interface{})
-			action, ok := data["action"]
-			if !ok {
+
+			ctx := MessageContext{
+				Action:    input.Action,
+				RequestID: input.RequestID,
+				UserID:    message.userID,
+				SocketID:  message.socketID,
+			}
+
+			switch input.Action {
+			case "echo":
+				go app.handleEcho(ctx, input.Data)
+			case "get_conversations":
+				go app.handleGetConversations(ctx, input.Data)
+			case "user_message":
+				go app.handleUserMessage(ctx, input.Data)
+			case "online_users":
+				go app.handleGetOnlineUsers(ctx, input.Data)
+			default:
+				app.logger.Warn("Unknown action", slog.Any("action", input.Action))
 				go func() {
 					h.outgoing <- OutgoingMessage{
 						socketID: message.socketID,
-						data:     []byte(`{"error":"Missing action key!"}`),
+						data:     []byte(`{"error":"Missing or unknown action key!"}`),
 					}
 				}()
-				app.logger.Error("Client sent message without action key")
-				continue
-			}
-
-			switch action {
-			case "echo":
-				go app.handleEcho(message, input)
-			case "get_conversations":
-				go app.handleGetConversations(message, input)
-			case "user_message":
-				go app.handleUserMessage(message, input)
-			case "online_users":
-				go app.handleGetOnlineUsers(message, input)
-			default:
-				app.logger.Warn("Unknown action", slog.Any("action", action))
 			}
 		}
 	}

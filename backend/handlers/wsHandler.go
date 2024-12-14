@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
+	"log/slog"
 	"social-network/structs"
 	"social-network/utils"
 	"time"
@@ -9,60 +11,57 @@ import (
 
 type envelope map[string]any
 
-func (app *application) handleEcho(msg IncomingMessage, payload interface{}) {
+func (app *application) handleEcho(ctx MessageContext, payload json.RawMessage) {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		app.logger.Error(err.Error())
 		return
 	}
 	app.hub.outgoing <- OutgoingMessage{
-		socketID: msg.socketID,
+		socketID: ctx.SocketID,
 		data:     data,
 	}
 }
 
-func (app *application) handleGetConversations(msg IncomingMessage, payload interface{}) {
-	type Input struct {
-		Action            string
-		Recipient         int
-		EarliestTimestamp time.Time
+func (app *application) handleGetConversations(ctx MessageContext, payload json.RawMessage) {
+	var input struct {
+		Recipient         int       `json:"recipient"`
+		EarliestTimestamp time.Time `json:"earliest_timestamp"`
 	}
-	// TODO: check payload
-	input, ok := payload.(Input)
-	if !ok {
-		app.logger.Warn("Not valid payload")
+
+	err := json.NewDecoder(bytes.NewReader(payload)).Decode(&input)
+	if err != nil {
+		app.logger.Warn("Not valid payload", slog.Any("err", err.Error()))
 		return
 	}
 
 	response := utils.GetRecentMessages(
-		msg.userID,
+		ctx.UserID,
 		input.Recipient,
 		input.EarliestTimestamp,
 	)
 
 	outdata, err := json.Marshal(envelope{
-		"reponse_to": input.Action,
+		"reponse_to": ctx.Action,
 		"data":       response,
 	})
 	if err == nil {
 		app.hub.outgoing <- OutgoingMessage{
-			socketID: msg.socketID,
+			socketID: ctx.SocketID,
 			data:     outdata,
 		}
 	}
 }
-func (app *application) handleUserMessage(msg IncomingMessage, payload interface{}) {
-	type Input struct {
-		Action  string
-		Message structs.Message
-	}
-	input, ok := payload.(Input)
-	if !ok {
+func (app *application) handleUserMessage(ctx MessageContext, payload json.RawMessage) {
+	var input structs.Message
+
+	err := json.NewDecoder(bytes.NewReader(payload)).Decode(&input)
+	if err != nil {
 		app.logger.Warn("Not valid payload")
 		return
 	}
 
-	message, err := utils.SaveMessage(input.Message)
+	message, err := utils.SaveMessage(input)
 
 	if err != nil {
 		app.logger.Error(err.Error())
@@ -70,12 +69,12 @@ func (app *application) handleUserMessage(msg IncomingMessage, payload interface
 	}
 
 	outdata, err := json.Marshal(envelope{
-		"reponse_to": input.Action,
+		"reponse_to": ctx.Action,
 		"data":       message,
 	})
 	if err == nil {
 		app.hub.outgoing <- OutgoingMessage{
-			userID: msg.userID,
+			userID: ctx.UserID,
 			data:   outdata,
 		}
 		app.hub.outgoing <- OutgoingMessage{
@@ -85,27 +84,17 @@ func (app *application) handleUserMessage(msg IncomingMessage, payload interface
 	}
 }
 
-func (app *application) handleGetOnlineUsers(msg IncomingMessage, payload interface{}) {
-	type Input struct {
-		Action string
-	}
-	input, ok := payload.(Input)
-	if !ok {
-		app.logger.Warn("Not valid payload")
-		return
-	}
+func (app *application) handleGetOnlineUsers(ctx MessageContext, _ json.RawMessage) {
 
-	// TODO: for only list of user's contacts who are online,
-	// need to fetch that list before and filter here
 	response := app.hub.GetOnlineUsers()
 
 	outdata, err := json.Marshal(envelope{
-		"reponse_to": input.Action,
+		"reponse_to": ctx.Action,
 		"data":       response,
 	})
 	if err == nil {
 		app.hub.outgoing <- OutgoingMessage{
-			socketID: msg.socketID,
+			socketID: ctx.SocketID,
 			data:     outdata,
 		}
 	}

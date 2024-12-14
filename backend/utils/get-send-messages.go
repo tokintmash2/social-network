@@ -54,14 +54,14 @@ func GetRecentMessages(user, partner int, time time.Time) []structs.Message {
 
 	// Modify the SQL query to include the timestamp condition
 	rows, err := database.DB.Query(`
-    SELECT m.sender_id, m.receiver_id, m.content, m.timestamp,
+    SELECT m.sender_id, m.receiver_id, m.message, m.sent_at,
            s.username AS sender_username, r.username AS receiver_username
-    FROM messages m
+    FROM chats m
     JOIN users s ON m.sender_id = s.id
     JOIN users r ON m.receiver_id = r.id
     WHERE ((m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?))
-      AND m.timestamp < ?
-    ORDER BY m.timestamp DESC 
+      AND m.sent_at < ?
+    ORDER BY m.sent_at DESC 
     LIMIT 10;`,
 		user, partner, partner, user, time)
 
