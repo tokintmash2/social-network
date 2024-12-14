@@ -24,7 +24,7 @@ func SaveMessage(m structs.Message) (structs.Message, error) {
 
 	// TODO: get save message new id
 	_, err = tx.Exec(`
-        INSERT INTO messages (sender_id, receiver_id, content, timestamp)
+        INSERT INTO chats (sender_id, receiver_id, message, sent_at)
         VALUES (?, ?, ?, ?)`,
 		m.Sender, m.Recipient, m.Content, m.CreatedAt,
 	)
