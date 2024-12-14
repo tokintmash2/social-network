@@ -26,18 +26,18 @@ type Group struct {
 }
 
 type Message struct { // Needs review
-	Type              string
-	Sender            int
-	Recipient         int
-	Content           string
-	CreatedAt         time.Time
-	SenderUsername    string
-	RecipientUsername string
+	Type              string    `json:"type,omitempty"`
+	Sender            int       `json:"sender,omitempty"`
+	Recipient         int       `json:"recipient,omitempty"`
+	Content           string    `json:"content,omitempty"`
+	CreatedAt         time.Time `json:"created_at,omitempty"`
+	SenderUsername    string    `json:"sender_username,omitempty"`
+	RecipientUsername string    `json:"recipient_username,omitempty"`
 	Conversation      struct {
-		ID        int
-		Recipient int
-		Sender    int
-	}
+		ID        int `json:"id,omitempty"`
+		Recipient int `json:"recipient,omitempty"`
+		Sender    int `json:"sender,omitempty"`
+	} `json:"conversation,omitempty"`
 }
 
 type UserInfo struct { // Needs review

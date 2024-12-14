@@ -113,7 +113,6 @@ func (h *Hub) run(app *application) {
 				app.logger.Error(err.Error())
 				continue
 			}
-			app.logger.Debug("Incoming message", slog.Any("input", input))
 
 			ctx := MessageContext{
 				Action:    input.Action,
@@ -121,6 +120,7 @@ func (h *Hub) run(app *application) {
 				UserID:    message.userID,
 				SocketID:  message.socketID,
 			}
+			app.logger.Debug("Incoming message", slog.Any("ctx", ctx))
 
 			switch input.Action {
 			case "echo":
