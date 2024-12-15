@@ -152,6 +152,8 @@ func CreatePost(newPost structs.PostResponse) error {
 
 	log.Println("Post privacy setting:", newPost.Privacy)
 
+	// followers data should be fetched here
+
 	// if newPost.Privacy == "almost_private" {
 	// 	postID, _ := result.LastInsertId()
 	// 	for _, userIdStr := range newPost.AllowedUsers {
