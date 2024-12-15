@@ -56,9 +56,22 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 			post.Title = request.FormValue("title")
 			post.Content = request.FormValue("content")
 			post.Privacy = request.FormValue("privacy")
-			// allowedUsersArray := request.Form["allowed_users"]
-			post.AllowedUsers = request.Form["allowed_users[]"]
-			log.Println("Allowed users arrive like this:", post.AllowedUsers)
+
+			if post.Privacy == "private" {
+				post.AllowedUsers, _ = utils.GetFollowers(userID)
+			} else if post.Privacy == "almost_private" {
+				allowedUsersStr := request.Form["allowed_users[]"]
+				post.AllowedUsers = make([]int, len(allowedUsersStr))
+				for i, userStr := range allowedUsersStr {
+					userID, err := strconv.Atoi(userStr)
+					if err != nil {
+						http.Error(writer, "Invalid user ID format", http.StatusBadRequest)
+						return
+					}
+					post.AllowedUsers[i] = userID
+				}
+			}
+			// log.Println("Allowed users arrive like this:", post.AllowedUsers)
 
 			// Handle file upload if present
 			_, _, err = request.FormFile("image")
@@ -185,23 +198,10 @@ func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		// if post.Privacy == "" || post.Content == "" || post.GroupID == 0 {
-		// 	// if post.Content == "" || post.GroupID == 0 {
-		// 	http.Error(writer, "Content, Privacy or Group ID setting cannot be empty", http.StatusBadRequest)
-		// 	return
-		// }
-
 		log.Println("Post:", post) // testing
 
 		post.Author.ID = userID
 		post.CreatedAt = time.Now()
-
-		// err = utils.CreateGroupPost(post)
-		// if err != nil {
-		// 	log.Printf("Error creating post: %v\n", err)
-		// 	http.Error(writer, "Error creating post", http.StatusInternalServerError)
-		// 	return
-		// }
 
 		response := map[string]interface{}{
 			"success": true,

@@ -47,6 +47,9 @@ VALUES (2, 'Tere', 'Test post content for User 2', 'private');
 INSERT INTO posts (user_id, title, content, privacy_setting) 
 VALUES (3, 'Testering', 'Test post content for User 3', 'almost_private');
 
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (1, 2, 'accepted');
+
 INSERT INTO comments (user_id, post_id, content, created_at) 
 VALUES (1, 1, 'Test comment content for User 1', '1990-03-01 00:00:00+00:00');
 

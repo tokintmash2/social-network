@@ -77,7 +77,7 @@ type PostResponse struct {
 	Author       PersonResponse    `json:"author"`
 	CreatedAt    time.Time         `json:"createdAt"`
 	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
-	AllowedUsers []string          `json:"allowedUsers,omitempty"`
+	AllowedUsers []int          `json:"allowedUsers,omitempty"`
 	Comments     []CommentResponse `json:"comments"`
 }
 
