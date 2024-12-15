@@ -4,8 +4,6 @@ import (
 	"log"
 	"social-network/database"
 	"social-network/structs"
-	"strconv"
-	"strings"
 )
 
 func FetchPostDetails(postID int) (*structs.PostResponse, error) {
@@ -168,46 +166,6 @@ func CreatePost(newPost structs.PostResponse) error {
 	// 	}
 	// }
 
-	// if newPost.Privacy == "almost_private" {
-	// 	// Parse the array string into individual IDs
-	// 	for _, userIDStr := range newPost.AllowedUsers {
-	// 		// Remove any brackets and spaces
-	// 		userIDStr = strings.Trim(userIDStr, "[]\" ")
-	// 		// Split if it's still a comma-separated string
-	// 		userIDs := strings.Split(userIDStr, ",")
-
-	// 		for _, id := range userIDs {
-	// 			userID, _ := strconv.Atoi(strings.TrimSpace(id))
-	// 			_, err = tx.Exec(`INSERT INTO post_access (post_id, follower_id) VALUES (?, ?)`,
-	// 				postID, userID)
-	// 			if err != nil {
-	// 				log.Printf("Error inserting post access: %v\n", err)
-	// 				return err
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	if newPost.Privacy == "almost_private" {
-		// Take just the first element since we know it contains all IDs
-		userIDStr := newPost.AllowedUsers[0]
-		// Remove brackets and spaces
-		userIDStr = strings.Trim(userIDStr, "[]\" ")
-		// Split into individual IDs
-		userIDs := strings.Split(userIDStr, ",")
-		
-		for _, id := range userIDs {
-			userID, _ := strconv.Atoi(strings.TrimSpace(id))
-			_, err = tx.Exec(`INSERT INTO post_access (post_id, follower_id) VALUES (?, ?)`,
-				postID, userID)
-			if err != nil {
-				log.Printf("Error inserting post access: %v\n", err)
-				return err
-			}
-		}
-	}
-	
-
 	log.Println("About to commit transaction")
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
@@ -218,34 +176,3 @@ func CreatePost(newPost structs.PostResponse) error {
 	log.Printf("About to set post access for postID: %d", postID)
 	return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
 }
-
-// func CreateGroupPost(newPost structs.PostResponse) error {
-
-// 	log.Println("Got group post:", newPost)
-
-// 	tx, err := database.DB.Begin()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer tx.Rollback()
-
-// 	// Insert post
-
-// 	// Need to add provacy setting?
-// 	_, err = tx.Exec(`
-//         INSERT INTO group_posts (group_id, user_id, content, image, timestamp)
-//         VALUES (?, ?, ?, ?, ?)`,
-// 		newPost.GroupID, newPost.UserID, newPost.Content, newPost.Image, newPost.CreatedAt,
-// 	)
-// 	if err != nil {
-// 		log.Printf("Error inserting post: %v\n", err)
-// 		return err
-// 	}
-
-// 	if err = tx.Commit(); err != nil {
-// 		log.Printf("Error committing transaction: %v\n", err)
-// 		return err
-// 	}
-
-// 	return nil
-// }
