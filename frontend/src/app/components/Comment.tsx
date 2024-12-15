@@ -1,5 +1,5 @@
 import React from 'react'
-import { CommentProps_type } from '../utils/types'
+import { CommentProps_type } from '../utils/types/types'
 import DOMPurify from 'dompurify'
 
 function Comment({ comment }: CommentProps_type) {

@@ -8,8 +8,7 @@ import {
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
-	Follower_type,
-} from '../utils/types'
+} from '../utils/types/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'

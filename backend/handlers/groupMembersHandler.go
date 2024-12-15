@@ -7,60 +7,94 @@ import (
 	"social-network/utils"
 )
 
-func GroupMembersHandler(writer http.ResponseWriter, request *http.Request) {
+func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 
-	log.Println("GroupsHandler called")
+	log.Println("GroupMembersHandler called")
 
-	cookie, err := request.Cookie("session")
+	cookie, err := r.Cookie("session")
 	if err != nil {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
 	sessionUUID := cookie.Value
 	adminID, validSession := utils.VerifySession(sessionUUID, "GroupsHandler")
 	if !validSession {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	if request.Method == http.MethodPost {
-		var membership struct {
-			GroupID int `json:"group_id"`
-			UserID  int `json:"user_id"`
-		}
+	userIDtoProcess, err := utils.FetchIdFromPath(r.URL.Path, 4)
+	if err != nil {
+		log.Printf("Error fetching user ID: %v", err)
+		http.Error(w, "Error fetching user ID", http.StatusBadRequest)
+		return
+	}
 
-		err := json.NewDecoder(request.Body).Decode(&membership)
-		if err != nil {
-			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
-			return
-		}
-	
+	message := ""
+
+	// TODO: Add PATCH method ("pending" -> "member")
+
+	if r.Method == http.MethodPost { // Add member
+
 		// Check if the requesting user is an admin
-		if !utils.IsGroupAdmin(membership.GroupID, adminID) {
-			http.Error(writer, "Unauthorized: Only group admins can add members", http.StatusForbidden)
-			return
-		}
-	
-		// Check if user is already a member
-		if utils.IsMemberInGroup(membership.GroupID, membership.UserID) {
-			http.Error(writer, "User is already a member of this group", http.StatusConflict)
+		if !utils.IsGroupAdmin(groupID, adminID) {
+			http.Error(w, "Unauthorized: Only group admins can add members", http.StatusForbidden)
 			return
 		}
 
-		err = utils.AddGroupMember(membership.GroupID, membership.UserID, adminID)
+		// Check if user is already a member
+		if utils.IsMemberInGroup(groupID, userIDtoProcess) {
+			http.Error(w, "User is already a member of this group", http.StatusConflict)
+			return
+		}
+
+		err = utils.AddGroupMember(groupID, userIDtoProcess, adminID)
 		if err != nil {
 			log.Printf("Error creating group: %v\n", err)
-			http.Error(writer, "Error creating group", http.StatusInternalServerError)
+			http.Error(w, "Error creating group", http.StatusInternalServerError)
 			return
 		}
 
-		response := map[string]interface{}{
-			"success": true,
+		message = "Member added successfully"
+	}
+
+	if r.Method == http.MethodDelete { // Remove member/leave group
+
+		if userIDtoProcess == adminID || utils.IsGroupAdmin(groupID, adminID) {
+			// Check if user exists in group
+			if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
+				http.Error(w, "User is not a member of this group", http.StatusConflict)
+				return
+			}
+
+			// Prevent admin from being removed
+			if utils.IsGroupAdmin(groupID, userIDtoProcess) {
+				http.Error(w, "Cannot remove group admin", http.StatusConflict)
+				return
+			}
+
+			// Remove member
+			err = utils.RemoveGroupMember(groupID, userIDtoProcess)
+			if err != nil {
+				log.Printf("Error removing member: %v\n", err)
+				http.Error(w, "Error removing member", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			http.Error(w, "Unauthorized: Only group admins can remove other members", http.StatusForbidden)
+			return
 		}
 
-		writer.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(writer).Encode(response)
-		return
+		message = "Member removed successfully"
 	}
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": message,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	return
 }

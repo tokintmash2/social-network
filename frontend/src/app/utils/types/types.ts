@@ -1,4 +1,4 @@
-import { ACTIONS } from './actions/postActions'
+import { ACTIONS } from '../actions/postActions'
 
 // Define the Post type
 export type Post_type = {

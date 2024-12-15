@@ -11,7 +11,7 @@ export default function UserProfile() {
 	return (
 		<>
 			<Header />
-			<div className='container mx-auto'>
+			<div className='container mx-auto pt-16'>
 				<UserData userId={parseInt(id)} accessType='PUBLIC' />
 				{/* TODO: fetch accessType info. For now, hardcode */}
 			</div>

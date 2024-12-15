@@ -4,7 +4,7 @@ CREATE TABLE posts (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     image TEXT,  -- Path to an optional image associated with the post
-    privacy_setting TEXT CHECK (privacy_setting IN ('public', 'private', 'custom')),
+    privacy_setting TEXT CHECK (privacy_setting IN ('public', 'private', 'almost_private')),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

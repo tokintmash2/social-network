@@ -3,6 +3,7 @@ module social-network
 go 1.23.1
 
 require (
+	github.com/gofrs/uuid/v5 v5.3.0
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3

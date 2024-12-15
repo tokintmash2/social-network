@@ -5,6 +5,7 @@ export async function middleware(request: NextRequest) {
 	const path = request.nextUrl.pathname
 	const isPublicPath = path === '/login' || path === '/register'
 	const token = request.cookies.get('session')?.value || ''
+	let tokenIsValid = false
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 	if (token && !isPublicPath) {
@@ -19,21 +20,22 @@ export async function middleware(request: NextRequest) {
 				request.cookies.delete('session')
 				return NextResponse.redirect(new URL('/login', request.nextUrl))
 			}
+			tokenIsValid = true
 		} catch (error) {
 			console.log(error)
 			return NextResponse.redirect(new URL('/login', request.nextUrl))
 		}
 	}
 
-	if (isPublicPath && token) {
+	if (isPublicPath && token && tokenIsValid) {
 		return NextResponse.redirect(new URL('/', request.nextUrl))
 	}
 
-	if (!isPublicPath && !token) {
+	if (!isPublicPath && (!token || !tokenIsValid)) {
 		return NextResponse.redirect(new URL('/login', request.nextUrl))
 	}
 }
 
 export const config = {
-	matcher: ['/login', '/register', '/profile/:path*', '/'],
+	matcher: ['/login', '/register', '/profile/:path*', '/groups/:path*', '/'],
 }
