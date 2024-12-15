@@ -45,7 +45,7 @@ VALUES (1, 'Hällõu', 'Test post content for User 1', 'public');
 INSERT INTO posts (user_id, title, content, privacy_setting) 
 VALUES (2, 'Tere', 'Test post content for User 2', 'private');
 INSERT INTO posts (user_id, title, content, privacy_setting) 
-VALUES (3, 'Testering', 'Test post content for User 3', 'custom');
+VALUES (3, 'Testering', 'Test post content for User 3', 'almost_private');
 
 INSERT INTO comments (user_id, post_id, content, created_at) 
 VALUES (1, 1, 'Test comment content for User 1', '1990-03-01 00:00:00+00:00');

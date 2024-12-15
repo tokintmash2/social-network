@@ -58,6 +58,29 @@ type Post struct { // Need review
 	CreatedAt time.Time `json:"created_at"`
 }
 
+//	type PostResponse struct {
+//		ID           int               `json:"id"`
+//		Title        string            `json:"title"`
+//		Content      string            `json:"content"`
+//		Privacy      string            `json:"privacy"`
+//		Author       PersonResponse    `json:"author"`
+//		CreatedAt    time.Time            `json:"createdAt"`
+//		MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
+//		AllowedUsers []int             `json:"allowedUsers,omitempty"`
+//		Comments     []CommentResponse `json:"comments"`
+//	}
+type PostResponse struct {
+	ID           int               `json:"id"`
+	Title        string            `json:"title"`
+	Content      string            `json:"content"`
+	Privacy      string            `json:"privacy"`
+	Author       PersonResponse    `json:"author"`
+	CreatedAt    time.Time         `json:"createdAt"`
+	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
+	AllowedUsers []string          `json:"allowedUsers,omitempty"`
+	Comments     []CommentResponse `json:"comments"`
+}
+
 type Comment struct {
 	ID        int       `json:"id"`
 	PostID    int       `json:"post_id"`
@@ -75,18 +98,6 @@ type CommentResponse struct {
 	Image          *string        `json:"mediaUrl,omitempty"`
 	CreatedAt      time.Time      `json:"created_at"`
 	AuthorResponse PersonResponse `json:"author"`
-}
-
-type PostResponse struct {
-	ID           int               `json:"id"`
-	Title        string            `json:"title"`
-	Content      string            `json:"content"`
-	Privacy      string            `json:"privacy"`
-	Author       PersonResponse    `json:"author"`
-	CreatedAt    string            `json:"createdAt"`
-	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
-	AllowedUsers []int             `json:"allowedUsers,omitempty"`
-	Comments     []CommentResponse `json:"comments"`
 }
 
 type GroupResponse struct {
