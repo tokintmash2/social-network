@@ -13,22 +13,31 @@ func AddFollower(followerID, followedID int) error {
 	log.Println("followingID: ", followedID)
 
 	if followerID == followedID {
-		log.Println("Error: Cannot follow yourself")
 		return fmt.Errorf("cannot follow yourself")
 	}
 
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+	defer tx.Rollback()
+
 	status, err := determineFollowStatus(followedID)
 	if err != nil {
-		log.Println("Error determining follow status:", err)
 		return err
 	}
 
 	err = createFollowRelationship(followerID, followedID, status)
 	if err != nil {
-		log.Println("Error adding a follower: ", err)
 		return err
 	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
 	log.Println("Added follower successfully")
+
 	return nil
 }
 
