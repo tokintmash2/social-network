@@ -65,10 +65,24 @@ func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := utils.FetchOneGroup(groupID)
+	group, err := utils.FetchGroupDetails(groupID)
 	if err != nil {
 		log.Printf("Error fetching group details: %v", err)
 		http.Error(w, "Error fetching group details", http.StatusInternalServerError)
+		return
+	}
+
+	group.Members, err = utils.GetGroupMembers(groupID)
+	if err != nil {
+		log.Printf("Error fetching group members: %v", err)
+		http.Error(w, "Error fetching group members", http.StatusInternalServerError)
+		return
+	}
+
+	group.GroupPosts, err = utils.GetGroupPosts(groupID)
+	if err != nil {
+		log.Printf("Error fetching group posts: %v", err)
+		http.Error(w, "Error fetching group posts", http.StatusInternalServerError)
 		return
 	}
 
@@ -83,7 +97,6 @@ func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error encoding response", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func GroupPostsHandler(w http.ResponseWriter, r *http.Request, groupID int) {
