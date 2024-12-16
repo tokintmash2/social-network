@@ -154,7 +154,7 @@ func CreateGroupPost(newPost structs.PostResponse) error {
 	// Insert post
 	log.Println("Starting post insertion")
 	result, err := tx.Exec(`
-        INSERT INTO posts (group_id, user_id, title, content, image, timestamp)
+        INSERT INTO group_posts (group_id, user_id, title, content, image, timestamp)
         VALUES (?, ?, ?, ?, ?, ?)`,
 		newPost.GroupID, newPost.Author.ID, newPost.Title, newPost.Content, newPost.MediaURL, newPost.CreatedAt,
 	)
@@ -183,7 +183,8 @@ func CreateGroupPost(newPost structs.PostResponse) error {
 		return err
 	}
 
-	// return nil
-	log.Printf("About to set post access for postID: %d", postID)
-	return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
+	return nil
+	
+	// log.Printf("About to set post access for postID: %d", postID)
+	// return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
 }

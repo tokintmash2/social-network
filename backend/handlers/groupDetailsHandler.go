@@ -23,7 +23,7 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionUUID := cookie.Value
-	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "CreatePostHandler")
+	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
 	if !validSession {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -32,6 +32,7 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
 	pathParts := strings.Split(path, "/")
 
+	// GET
 	if r.Method == http.MethodGet {
 		if len(pathParts) < 2 {
 			// Handle /api/groups/:id
@@ -39,11 +40,13 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
+	
+	// POST
 	if r.Method == http.MethodPost {
 		groupID, _ := strconv.Atoi(pathParts[0])
 		switch pathParts[1] {
 		case "posts":
+			// /api/groups/:id/posts/
 			GroupPostsHandler(w, r, CurrentUserID, groupID)
 		case "messages":
 			GroupMessagesHandler(w, r, groupID)
@@ -109,6 +112,9 @@ func GroupPostsHandler(w http.ResponseWriter, r *http.Request, userID, groupID i
 
 	log.Println("CreatePostHandler called")
 
+	log.Println("User ID:", userID)
+	log.Println("Group ID:", groupID)
+
 	var post structs.PostResponse
 
 	if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
@@ -154,10 +160,10 @@ func GroupPostsHandler(w http.ResponseWriter, r *http.Request, userID, groupID i
 		return
 	}
 
-	if post.Privacy == "" || post.Content == "" {
-		http.Error(w, "Content and Privacy setting cannot be empty", http.StatusBadRequest)
-		return
-	}
+	// if post.Privacy == "" || post.Content == "" {
+	// 	http.Error(w, "Content and Privacy setting cannot be empty", http.StatusBadRequest)
+	// 	return
+	// }
 
 	post.Author.ID = userID
 	post.CreatedAt = time.Now()
