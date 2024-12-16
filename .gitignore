@@ -122,3 +122,4 @@ test_avatar.JPEG
 backend/uploads/
 node_modules
 backend/test_posts.sh
+backend/test_groups.sh

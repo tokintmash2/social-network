@@ -53,16 +53,7 @@ export default function HomePage() {
                             {loggedInUser.username && (
                                 <p className="text-sm text-gray-600 mb-4">@{loggedInUser.username}</p>
                             )}
-                            <div className="flex gap-8 text-center">
-                                <div>
-                                    <p className="font-semibold">Following</p>
-                                    <p className="text-gray-600">0</p>
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Followers</p>
-                                    <p className="text-gray-600">0</p>
-                                </div>
-                            </div>
+                            
                         </div>
                     )}
                 </aside>
