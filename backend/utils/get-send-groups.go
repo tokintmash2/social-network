@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func FetchOneGroup(groupID int) (*structs.GroupResponse, error) {
+func FetchGroupDetails(groupID int) (*structs.GroupResponse, error) {
 
 	group := structs.GroupResponse{}
 
@@ -27,12 +27,12 @@ func FetchOneGroup(groupID int) (*structs.GroupResponse, error) {
 	}
 
 	// Fetch group members
-	members, err := GetGroupMembers(group.ID)
-	if err != nil {
-		log.Printf("Error fetching group members: %v", err)
-		return nil, err
-	}
-	group.Members = members
+	// members, err := GetGroupMembers(group.ID)
+	// if err != nil {
+	//     log.Printf("Error fetching group members: %v", err)
+	//     return nil, err
+	// }
+	// group.Members = members
 
 	return &group, nil
 }
@@ -210,12 +210,44 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 	return members, nil
 }
 
-func CreateGroup(group structs.Group) (int64, error) {
+func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
+
+	var posts []structs.PostResponse
+
+	rows, err := database.DB.Query(`
+	SELECT group_post_id, user_id, content, image, timestamp
+        FROM group_posts
+        WHERE group_id = ?
+        ORDER BY timestamp DESC`, groupID)
+	if err != nil {
+		log.Println("Error fetching group members:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+        var post structs.PostResponse
+        err := rows.Scan(&post.ID, &post.Author.ID, &post.Content, &post.MediaURL, &post.CreatedAt)
+        if err != nil {
+            log.Println("Error scanning post:", err)
+            return nil, err
+        }
+        posts = append(posts, post)
+    }
+	if err := rows.Err(); err != nil {
+		log.Println("Error iterating over group members:", err)
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func CreateGroup(group structs.Group) error {
 	log.Println("Got group:", group)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer tx.Rollback()
 
@@ -228,14 +260,14 @@ func CreateGroup(group structs.Group) (int64, error) {
 	log.Printf("Insert result: %+v", result)
 	if err != nil {
 		log.Println("Error inserting group:", err)
-		return 0, err
+		return err
 	}
 
 	// Get the newly created group ID
 	groupID, err := result.LastInsertId()
 	if err != nil {
 		log.Println("Error getting last insert ID:", err)
-		return 0, err
+		return err
 	}
 
 	// Add creator as admin member
@@ -246,13 +278,13 @@ func CreateGroup(group structs.Group) (int64, error) {
 	)
 	if err != nil {
 		log.Println("Error adding creator as admin:", err)
-		return 0, err
+		return err
 	}
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return 0, err
+		return err
 	}
 
-	return groupID, nil
+	return nil
 }
