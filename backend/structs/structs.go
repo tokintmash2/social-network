@@ -26,18 +26,18 @@ type Group struct {
 }
 
 type Message struct { // Needs review
-	Type             string
-	Sender           int
-	Recipient        string
-	Content          string
-	CreatedAt        time.Time
-	SenderUsername   string
-	ReceiverUsername string
-	Conversation     struct {
-		ID        int
-		Recipient int
-		Sender    int
-	}
+	Type              string    `json:"type,omitempty"`
+	Sender            int       `json:"sender,omitempty"`
+	Recipient         int       `json:"recipient,omitempty"`
+	Content           string    `json:"content,omitempty"`
+	CreatedAt         time.Time `json:"created_at,omitempty"`
+	SenderUsername    string    `json:"sender_username,omitempty"`
+	RecipientUsername string    `json:"recipient_username,omitempty"`
+	Conversation      struct {
+		ID        int `json:"id,omitempty"`
+		Recipient int `json:"recipient,omitempty"`
+		Sender    int `json:"sender,omitempty"`
+	} `json:"conversation,omitempty"`
 }
 
 type UserInfo struct { // Needs review
@@ -56,6 +56,29 @@ type Post struct { // Need review
 	Privacy   string    `json:"privacy"`
 	Image     string    `json:"image"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+//	type PostResponse struct {
+//		ID           int               `json:"id"`
+//		Title        string            `json:"title"`
+//		Content      string            `json:"content"`
+//		Privacy      string            `json:"privacy"`
+//		Author       PersonResponse    `json:"author"`
+//		CreatedAt    time.Time            `json:"createdAt"`
+//		MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
+//		AllowedUsers []int             `json:"allowedUsers,omitempty"`
+//		Comments     []CommentResponse `json:"comments"`
+//	}
+type PostResponse struct {
+	ID           int               `json:"id"`
+	Title        string            `json:"title"`
+	Content      string            `json:"content"`
+	Privacy      string            `json:"privacy"`
+	Author       PersonResponse    `json:"author"`
+	CreatedAt    time.Time         `json:"createdAt"`
+	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
+	AllowedUsers []int          `json:"allowedUsers,omitempty"`
+	Comments     []CommentResponse `json:"comments"`
 }
 
 type Comment struct {
@@ -77,25 +100,13 @@ type CommentResponse struct {
 	AuthorResponse PersonResponse `json:"author"`
 }
 
-type PostResponse struct {
-	ID           int               `json:"id"`
-	Title        string            `json:"title"`
-	Content      string            `json:"content"`
-	Privacy      string            `json:"privacy"`
-	Author       PersonResponse    `json:"author"`
-	CreatedAt    string            `json:"createdAt"`
-	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
-	AllowedUsers []int             `json:"allowedUsers,omitempty"`
-	Comments     []CommentResponse `json:"comments"`
-}
-
 type GroupResponse struct {
 	ID          int                   `json:"id"`
 	Name        string                `json:"name"`
 	Description string                `json:"description"`
 	CreatedAt   string                `json:"created_at"`
 	CreatorID   int                   `json:"creator_id"`
-	Members     []GroupMemberResponse `json:"group_members"`
+	Members     []PersonResponse `json:"group_members"`
 }
 
 type PersonResponse struct {

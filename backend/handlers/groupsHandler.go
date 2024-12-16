@@ -26,11 +26,11 @@ func GroupsRouter(w http.ResponseWriter, r *http.Request) {
 
 func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("FetchAllGroups called")
+	// endpoints:
+	// /api/groups?user_id=1 to fetch all groups for a specific user
+	// /api/groups to fetch all groups
 
-	queryParams := r.URL.Query()
-	targetUserIDStr := queryParams.Get("user_id")
-	userID, _ := strconv.Atoi(targetUserIDStr)
+	log.Println("FetchAllGroups called")
 
 	var groups []structs.GroupResponse
 
@@ -47,38 +47,15 @@ func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groups, err = utils.FetchAllGroups(userID)
-	// rows, err := database.DB.Query(`
-	//     SELECT g.*
-	//     FROM groups g
-	//     INNER JOIN group_memberships gm ON g.group_id = gm.group_id
-	//     WHERE gm.user_id = ?`, userID)
-	// if err != nil {
-	// 	http.Error(w, "Error fetching groups", http.StatusInternalServerError)
-	// 	return
-	// }
-	// defer rows.Close()
+	queryParams := r.URL.Query()
+	targetUserIDStr := queryParams.Get("user_id")
 
-	// for rows.Next() {
-	// 	var group structs.GroupResponse
-	// 	err := rows.Scan(
-	// 		&group.ID,
-	// 		&group.Name,
-	// 		&group.CreatorID,
-	// 		&group.Description,
-	// 		&group.CreatedAt)
-	// 	if err != nil {
-	// 		log.Printf("Database query error: %v", err)
-	// 		http.Error(w, "Error fetching groups", http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	group.Members, err = utils.GetGroupMembers(group.ID)
-	// 	groups = append(groups, group)
-	// }
-	// if err := rows.Err(); err != nil {
-	// 	http.Error(w, "Error fetching groups", http.StatusInternalServerError)
-	// 	return
-	// }
+	if targetUserIDStr == "" { 
+		groups, err = utils.FetchAllGroups()
+	} else {
+		userID, _ := strconv.Atoi(targetUserIDStr)
+        groups, err = utils.FetchUserGroups(userID)
+	}
 	json.NewEncoder(w).Encode(groups)
 	return
 }
@@ -102,7 +79,6 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = json.NewDecoder(r.Body).Decode(&group)
-	log.Printf("Received group data: %+v\n", group)
 	if err != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
@@ -112,10 +88,10 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("Group:", group) // testing
+
 	group.CreatorID = userID
 	group.CreatedAt = time.Now()
-
-	log.Println("Group:", group)
 
 	err = utils.CreateGroup(group)
 	if err != nil {
@@ -124,20 +100,9 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the newly created group
-	createdGroup, err := utils.FetchOneGroup(group.ID)
-	if err != nil {
-		log.Printf("Error fetching created group: %v\n", err)
-		http.Error(w, "Error fetching created group", http.StatusInternalServerError)
-		return
-	}
-
-	log.Println("Created group:", createdGroup)
-
 	response := map[string]interface{}{
 		"success": true,
 		"message": "Group created successfully",
-		"group":   createdGroup,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
