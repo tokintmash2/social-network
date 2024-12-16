@@ -47,14 +47,14 @@ VALUES (2, 'Tere', 'Test post content for User 2', 'private');
 INSERT INTO posts (user_id, title, content, privacy_setting) 
 VALUES (3, 'Testering', 'Test post content for User 3', 'almost_private');
 
-INSERT INTO group_posts (group_id, user_id, content, timestamp) 
-VALUES (1, 2, 'Just captured this amazing sunset at Saaremaa! The orange sky reflecting off the Baltic Sea was breathtaking. What do you think?', '2024-01-15 19:30:00+02:00');
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 2, 'Beautiful Saaremaa Sunset', 'Just captured this amazing sunset at Saaremaa! The orange sky reflecting off the Baltic Sea was breathtaking. What do you think?', '2024-01-15 19:30:00+02:00');
 
-INSERT INTO group_posts (group_id, user_id, content, timestamp) 
-VALUES (1, 1, 'Found these beautiful wildflowers during my hike in Lahemaa National Park. The colors this spring are incredible!', '2024-01-14 14:15:00+02:00');
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 1, 'Spring Wildflowers in Lahemaa', 'Found these beautiful wildflowers during my hike in Lahemaa National Park. The colors this spring are incredible!', '2024-01-14 14:15:00+02:00');
 
-INSERT INTO group_posts (group_id, user_id, content, timestamp) 
-VALUES (1, 3, 'Morning fog in Tartu. The way the mist rolls over the Emajõgi river creates such a mystical atmosphere. Who else loves early morning nature photography?', '2024-01-13 08:45:00+02:00');
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 3, 'Misty Morning in Tartu', 'Morning fog in Tartu. The way the mist rolls over the Emajõgi river creates such a mystical atmosphere. Who else loves early morning nature photography?', '2024-01-13 08:45:00+02:00');
 
 
 INSERT INTO followers (follower_id, followed_id, status)

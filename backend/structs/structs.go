@@ -68,6 +68,7 @@ type PostResponse struct {
 	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
 	AllowedUsers []int             `json:"allowedUsers,omitempty"`
 	Comments     []CommentResponse `json:"comments"`
+	GroupID      int               `json:"group_id"`
 }
 
 type Comment struct {
