@@ -98,7 +98,7 @@ export default function UserData({ userId, accessType }: UserDataProps_type) {
                                     {userData.avatar && userData.avatar !== 'default_avatar.jpg' ? (
                                         <div className="w-32 h-32 rounded-full ring-4 ring-white overflow-hidden">
                                             <Image
-                                                src={`${avatarUrl}${userData.avatar}`}
+                                                src={`${backendUrl}/uploads/${userData.avatar}`}
                                                 alt="User avatar"
                                                 width={128}
                                                 height={128}
