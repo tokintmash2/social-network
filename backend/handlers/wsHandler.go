@@ -60,13 +60,7 @@ func (app *application) wsErrorResponse(ctx MessageContext, data interface{}) {
 }
 
 func (app *application) handleEcho(ctx MessageContext, payload json.RawMessage) {
-	data, err := json.Marshal(payload)
-	if err != nil {
-		app.wsErrorResponse(ctx, err)
-		app.logger.Error(err.Error())
-		return
-	}
-	app.wsResponse(ctx, data)
+	app.wsResponse(ctx, payload)
 }
 
 func (app *application) handleGetConversations(ctx MessageContext, payload json.RawMessage) {
