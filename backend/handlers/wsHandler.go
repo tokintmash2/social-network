@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-type envelope map[string]any
-
 func responseData(ctx MessageContext, data interface{}) ([]byte, error) {
 	res, err := json.Marshal(envelope{
 		"response_to": ctx.Action,

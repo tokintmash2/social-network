@@ -7,6 +7,7 @@ import (
 	"os"
 	"social-network/database"
 	"social-network/database/middleware"
+	"social-network/internal/models"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/mattn/go-sqlite3"
@@ -15,6 +16,7 @@ import (
 type application struct {
 	logger *slog.Logger
 	hub    *Hub
+	users  *models.UserModel
 }
 
 func SetupServer() {
@@ -28,18 +30,19 @@ func SetupServer() {
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &logOptions))
 
-	app := &application{
-		logger: logger,
-		hub:    newHub(),
-	}
-
-	go app.hub.run(app)
-
 	// Initialize the database and create necessary tables
 	database.ConnectToDB()
 	defer database.DB.Close()
 	// err = database.RunMigrations(database.DB)
 	database.RunMigrations(database.DB)
+
+	app := &application{
+		logger: logger,
+		hub:    newHub(),
+		users:  &models.UserModel{DB: database.DB},
+	}
+
+	go app.hub.run(app)
 
 	mux := http.NewServeMux()
 	server := &http.Server{

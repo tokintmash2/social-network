@@ -1,9 +1,13 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { User } from "../utils/types/types"
+import axios from "axios"
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
+
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export default function UsersList() {
     const [isOpen, setIsOpen] = useState(false)
@@ -12,6 +16,19 @@ export default function UsersList() {
         { id: 124, username: "testuser5", dob: new Date(), email: "", firstName: "", lastName: "", isPublic: true },
         { id: 125, username: "testuser4", dob: new Date(), email: "", firstName: "", lastName: "", isPublic: true },
     ])
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const response = await axios.get(`${backendUrl}/api/users/`, {
+                withCredentials: true,
+            })
+
+            if (response.data.users) {
+                setUsers(response.data.users)
+            }
+        }
+        fetchUsers()
+    })
 
 	return (
 		<div className="fixed right-0 top-16 w-64 h-[calc(100vh-4rem)] bg-white shadow-lg overflow-y-auto">
