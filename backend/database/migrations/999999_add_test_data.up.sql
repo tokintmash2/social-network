@@ -57,7 +57,7 @@ INSERT INTO post_access (post_id, follower_id)
 VALUES (3, 2);
 
 INSERT INTO groups (group_name, creator_id, description, created_at) 
-VALUES ('Nature photo enthusiasts', 1, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');
+VALUES ('Nature photo enthusiasts', 4, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (1, 4, "admin", "2024-12-12 15:05:49.419539+02:00");
@@ -70,3 +70,30 @@ VALUES (1, 2, "pending", "2024-12-12 15:05:49.419539+02:00");
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (1, 3, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Houseplant Enthusiasts', 4, 'Welcome to Houseplant Haven — a cozy corner for all plant lovers!<br><br>Share your favorite plant care tips, showcase your lush indoor jungles, and get advice on keeping your green friends thriving. Whether you''re a seasoned botanist or just bought your first pothos, you''ll find a home here!', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (2, 4, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (2, 1, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Farmhouse Revival', 1, 'Passionate about preserving history through the art of restoration?<br><br>Join Farmhouse Revival to connect with like-minded renovators, share your before-and-after transformations, and swap tips on tackling those stubborn barn beams or creaky floors. Together, let''s bring old farmhouses back to life, one plank at a time!', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (3, 1, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (3, 2, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Jack Russell Pack', 2, 'This group is for all proud Jack Russell Terrier parents!<br><br> From training tips to hilarious antics, this is the perfect space to connect with other JRT lovers. Share stories, photos, and advice about caring for these feisty and lovable companions', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (4, 3, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (4, 4, "member", "2024-12-12 15:05:49.419539+02:00");

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
 import { UserBasic_type } from '../utils/types/types'
+import DOMPurify from 'dompurify'
 
 const ACTIONS = {
 	SET_GROUPS: 'SET_GROUPS',
@@ -186,7 +187,12 @@ export default function GroupsList() {
 									>
 										<div className='card-body'>
 											<h2 className='card-title'>{group.name}</h2>
-											<p>{group.description}</p>
+											<p
+												dangerouslySetInnerHTML={{
+													__html: DOMPurify.sanitize(group.description),
+												}}
+											></p>
+
 											<div className='card-actions justify-end'></div>
 										</div>
 									</div>
