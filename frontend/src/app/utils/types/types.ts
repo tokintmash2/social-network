@@ -115,7 +115,7 @@ export type User = {
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
 export type UserDataProps_type = {
 	userId: number
-	accessType: ProfileAccess
+	isOwnProfile: boolean
 }
 
 export type Follower_type = {

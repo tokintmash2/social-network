@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { PostsAction_type } from '../utils/types'
+import { PostsAction_type } from '../utils/types/types'
 import Select from 'react-select'
 import { ACTIONS } from '../utils/actions/postActions'
 
