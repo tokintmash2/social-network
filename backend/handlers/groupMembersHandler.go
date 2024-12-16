@@ -59,35 +59,59 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 		message = "Member added successfully"
 	}
 
-	if r.Method == http.MethodDelete { // Remove member/leave group
+	if r.Method == http.MethodPatch {
+        // Check if the requesting user is an admin
+        if !utils.IsGroupAdmin(groupID, adminID) {
+            http.Error(w, "Unauthorized: Only group admins can approve members", http.StatusForbidden)
+            return
+        }
 
-		if userIDtoProcess == adminID || utils.IsGroupAdmin(groupID, adminID) {
-			// Check if user exists in group
-			if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
-				http.Error(w, "User is not a member of this group", http.StatusConflict)
-				return
-			}
+        // Check if user exists and is in pending state
+        if !utils.IsPendingMember(groupID, userIDtoProcess) {
+            http.Error(w, "User is not in pending state", http.StatusConflict)
+            return
+        }
 
-			// Prevent admin from being removed
-			if utils.IsGroupAdmin(groupID, userIDtoProcess) {
-				http.Error(w, "Cannot remove group admin", http.StatusConflict)
-				return
-			}
+        // Update member status from pending to member
+        err = utils.UpdateMemberStatus(groupID, userIDtoProcess, "member")
+        if err != nil {
+            log.Printf("Error updating member status: %v\n", err)
+            http.Error(w, "Error updating member status", http.StatusInternalServerError)
+            return
+        }
 
-			// Remove member
-			err = utils.RemoveGroupMember(groupID, userIDtoProcess)
-			if err != nil {
-				log.Printf("Error removing member: %v\n", err)
-				http.Error(w, "Error removing member", http.StatusInternalServerError)
-				return
-			}
-		} else {
-			http.Error(w, "Unauthorized: Only group admins can remove other members", http.StatusForbidden)
-			return
-		}
+        message = "Member approved successfully"
+    }
 
-		message = "Member removed successfully"
-	}
+	// if r.Method == http.MethodDelete { // Remove member/leave group
+
+	// 	if userIDtoProcess == adminID || utils.IsGroupAdmin(groupID, adminID) {
+	// 		// Check if user exists in group
+	// 		if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
+	// 			http.Error(w, "User is not a member of this group", http.StatusConflict)
+	// 			return
+	// 		}
+
+	// 		// Prevent admin from being removed
+	// 		if utils.IsGroupAdmin(groupID, userIDtoProcess) {
+	// 			http.Error(w, "Cannot remove group admin", http.StatusConflict)
+	// 			return
+	// 		}
+
+	// 		// Remove member
+	// 		err = utils.RemoveGroupMember(groupID, userIDtoProcess)
+	// 		if err != nil {
+	// 			log.Printf("Error removing member: %v\n", err)
+	// 			http.Error(w, "Error removing member", http.StatusInternalServerError)
+	// 			return
+	// 		}
+	// 	} else {
+	// 		http.Error(w, "Unauthorized: Only group admins can remove other members", http.StatusForbidden)
+	// 		return
+	// 	}
+
+	// 	message = "Member removed successfully"
+	// }
 
 	response := map[string]interface{}{
 		"success": true,
