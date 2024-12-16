@@ -15,26 +15,26 @@ func FetchOneGroup(groupID int) (*structs.GroupResponse, error) {
         SELECT g.group_id, g.group_name, g.creator_id, g.description, g.created_at
         FROM groups g
         WHERE g.group_id = ?`, groupID).Scan(
-            &group.ID,
-            &group.Name,
-            &group.CreatorID,
-            &group.Description,
-            &group.CreatedAt)
-    
-    if err != nil {
-        log.Printf("Error fetching group: %v", err)
-        return nil, err
-    }
+		&group.ID,
+		&group.Name,
+		&group.CreatorID,
+		&group.Description,
+		&group.CreatedAt)
 
-    // Fetch group members
-    members, err := GetGroupMembers(group.ID)
-    if err != nil {
-        log.Printf("Error fetching group members: %v", err)
-        return nil, err
-    }
-    group.Members = members
+	if err != nil {
+		log.Printf("Error fetching group: %v", err)
+		return nil, err
+	}
 
-    return &group, nil
+	// Fetch group members
+	members, err := GetGroupMembers(group.ID)
+	if err != nil {
+		log.Printf("Error fetching group members: %v", err)
+		return nil, err
+	}
+	group.Members = members
+
+	return &group, nil
 }
 
 func FetchUserGroups(userID int) ([]structs.GroupResponse, error) {
@@ -78,35 +78,35 @@ func FetchUserGroups(userID int) ([]structs.GroupResponse, error) {
 }
 
 func FetchAllGroups() ([]structs.GroupResponse, error) {
-	
+
 	var groups []structs.GroupResponse
 
-    rows, err := database.DB.Query(`
+	rows, err := database.DB.Query(`
         SELECT g.group_id, g.group_name, g.creator_id, g.description, g.created_at
         FROM groups g`)
-    if err != nil {
-        log.Printf("Error fetching all groups: %v", err)
-        return nil, err
-    }
-    defer rows.Close()
+	if err != nil {
+		log.Printf("Error fetching all groups: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        var group structs.GroupResponse
-        err := rows.Scan(
-            &group.ID,
-            &group.Name,
-            &group.CreatorID,
-            &group.Description,
-            &group.CreatedAt)
-        if err != nil {
-            log.Printf("Database query error: %v", err)
-            return nil, err
-        }
-        group.Members, err = GetGroupMembers(group.ID)
-        groups = append(groups, group)
-    }
+	for rows.Next() {
+		var group structs.GroupResponse
+		err := rows.Scan(
+			&group.ID,
+			&group.Name,
+			&group.CreatorID,
+			&group.Description,
+			&group.CreatedAt)
+		if err != nil {
+			log.Printf("Database query error: %v", err)
+			return nil, err
+		}
+		group.Members, err = GetGroupMembers(group.ID)
+		groups = append(groups, group)
+	}
 
-    return groups, nil
+	return groups, nil
 }
 
 func AddGroupMember(groupID, userID, adminID int) error {
@@ -210,12 +210,12 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 	return members, nil
 }
 
-func CreateGroup(group structs.Group) error {
+func CreateGroup(group structs.Group) (int64, error) {
 	log.Println("Got group:", group)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
@@ -228,14 +228,14 @@ func CreateGroup(group structs.Group) error {
 	log.Printf("Insert result: %+v", result)
 	if err != nil {
 		log.Println("Error inserting group:", err)
-		return err
+		return 0, err
 	}
 
 	// Get the newly created group ID
 	groupID, err := result.LastInsertId()
 	if err != nil {
 		log.Println("Error getting last insert ID:", err)
-		return err
+		return 0, err
 	}
 
 	// Add creator as admin member
@@ -246,13 +246,13 @@ func CreateGroup(group structs.Group) error {
 	)
 	if err != nil {
 		log.Println("Error adding creator as admin:", err)
-		return err
+		return 0, err
 	}
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return err
+		return 0, err
 	}
 
-	return nil
+	return groupID, nil
 }

@@ -50,11 +50,11 @@ func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	targetUserIDStr := queryParams.Get("user_id")
 
-	if targetUserIDStr == "" { 
+	if targetUserIDStr == "" {
 		groups, err = utils.FetchAllGroups()
 	} else {
 		userID, _ := strconv.Atoi(targetUserIDStr)
-        groups, err = utils.FetchUserGroups(userID)
+		groups, err = utils.FetchUserGroups(userID)
 	}
 	json.NewEncoder(w).Encode(groups)
 	return
@@ -93,20 +93,30 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	group.CreatorID = userID
 	group.CreatedAt = time.Now()
 
-	err = utils.CreateGroup(group)
+	groupID, err := utils.CreateGroup(group)
 	if err != nil {
 		log.Printf("Error creating group: %v\n", err)
 		http.Error(w, "Error creating group", http.StatusInternalServerError)
 		return
 	}
+	group.ID = int(groupID)
 
+	// Fetch the newly created group
+	newGroup, err := utils.FetchOneGroup(group.ID)
+	if err != nil {
+		log.Printf("Error fetching newly created group: %v\n", err)
+		http.Error(w, "Error fetching newly created group", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the new group details
 	response := map[string]interface{}{
 		"success": true,
 		"message": "Group created successfully",
+		"group":   newGroup,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 	return
-
 }
