@@ -4,9 +4,11 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
+import { useLoggedInUser } from '../context/UserContext'
 
 export default function LoginPage() {
 	const router = useRouter()
+	const { refetchUser } = useLoggedInUser()
 
 	type User = {
 		email: string
@@ -40,6 +42,7 @@ export default function LoginPage() {
 			})
 
 			if (response.data.success) {
+				await refetchUser()
 				router.push('/')
 			} else {
 				toast.error(response.data.message)
