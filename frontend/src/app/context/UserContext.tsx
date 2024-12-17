@@ -9,6 +9,7 @@ type UserContextType = {
 	loggedInUser: User | null
 	setLoggedInUser: (user: User | null) => void
 	loading: boolean
+	refetchUser: () => Promise<void>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -18,28 +19,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 	const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
 	const [loading, setLoading] = useState(true)
 
-	useEffect(() => {
-		const fetchUser = async () => {
-			try {
-				const response = await axios.get(`${backendUrl}/api/verify-session`, {
-					withCredentials: true,
-				})
-				console.log('response', response.data)
-
-				setLoggedInUser(mapUserApiResponseToUser(response.data.user)) // normalize the response's format
-			} catch (error) {
-				setLoggedInUser(null)
-				console.log('No active session', error)
-			} finally {
-				setLoading(false) // Set loading to false after the request completes
-			}
+	// Function to fetch user data (shared for useEffect and manual updates)
+	const refetchUser = async () => {
+		setLoading(true)
+		try {
+			const response = await axios.get(`${backendUrl}/api/verify-session`, {
+				withCredentials: true,
+			})
+			setLoggedInUser(mapUserApiResponseToUser(response.data.user))
+		} catch (error) {
+			setLoggedInUser(null)
+			console.log('No active session', error)
+		} finally {
+			setLoading(false)
 		}
+	}
 
-		fetchUser()
+	useEffect(() => {
+		refetchUser()
 	}, [])
 
 	return (
-		<UserContext.Provider value={{ loggedInUser, setLoggedInUser, loading }}>
+		<UserContext.Provider value={{ loggedInUser, setLoggedInUser, loading, refetchUser }}>
 			{children}
 		</UserContext.Provider>
 	)
