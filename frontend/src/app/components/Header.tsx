@@ -31,23 +31,23 @@ const Header = () => {
     <div className="navbar bg-base-100 shadow-sm border-b border-gray-200 fixed top-0 w-full z-50">
 
       <div className="flex-1">
-        <Link href="/" className="btn btn-ghost">
-          <h1 className="bg-gradient-to-l from-[#687984] to-[#B9D7EA] text-transparent bg-clip-text text-2xl">
-            SPHERE
-          </h1>
-        </Link>
-      </div>
+  <Link href="/" className="btn btn-ghost">
+    <h1 className="bg-gradient-to-l from-[#687984] to-[#B9D7EA] text-transparent bg-clip-text text-2xl">
+      SPHERE
+    </h1>
+  </Link>
+</div>
 
-      <div className="flex-none gap-2 max-[430px]:hidden">
+      <div className="flex-none gap-2">
 
-        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-          <Link href="/groups" className="indicator">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-          </Link>
-        </div>
-
+          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+            <Link href="/groups" className="indicator">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </Link>
+          </div>
+      
 
         <div className="btn btn-ghost btn-circle">
           <NotificationSystem />
@@ -82,7 +82,6 @@ const Header = () => {
         </div>
 
       </div>
-
     </div>
   );
 };
