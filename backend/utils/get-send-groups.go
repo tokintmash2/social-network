@@ -112,7 +112,7 @@ func FetchAllGroups() ([]structs.GroupResponse, error) {
 func AddGroupMember(groupID, userID, adminID int) error {
 	_, err := database.DB.Exec(`
         INSERT INTO group_memberships (group_id, user_id, role, joined_at)
-        VALUES (?, ?, 'member', ?)`,
+        VALUES (?, ?, 'pending', ?)`,
 		groupID, userID, time.Now(),
 	)
 	if err != nil {

@@ -41,8 +41,8 @@ func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
-	// POST
-	if r.Method == http.MethodPost {
+	// POST etc
+	if r.Method != http.MethodGet {
 		groupID, _ := strconv.Atoi(pathParts[0])
 		switch pathParts[1] {
 		case "posts":
