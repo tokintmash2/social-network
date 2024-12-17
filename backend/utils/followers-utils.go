@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"social-network/database"
-	"social-network/structs"
 )
 
 func AddFollower(followerID, followedID int) error {
@@ -71,29 +70,24 @@ func RemoveFollower(followerID, followedID int) error {
 	)
 	return err
 }
-func GetFollowers(userID int) ([]structs.PersonResponse, error) {
 
-	var followers []structs.PersonResponse
-
+func GetFollowers(userID int) ([]int, error) {
 	rows, err := database.DB.Query(`
-        SELECT u.id, u.first_name, u.last_name 
-        FROM users u
-        JOIN followers f ON u.id = f.follower_id
-        WHERE f.followed_id = ? AND f.status = 'accepted'`,
+        SELECT follower_id FROM followers
+        WHERE followed_id = ?`,
 		userID,
 	)
 	if err != nil {
-		return followers, err
+		return nil, err
 	}
 	defer rows.Close()
-
-	// 4. Populate followers slice
+	var followers []int
 	for rows.Next() {
-		var follower structs.PersonResponse
-		if err := rows.Scan(&follower.ID, &follower.FirstName, &follower.LastName); err != nil {
-			return followers, err
+		var followerID int
+		if err := rows.Scan(&followerID); err != nil {
+			return nil, err
 		}
-		followers = append(followers, follower)
+		followers = append(followers, followerID)
 	}
 	return followers, nil
 }

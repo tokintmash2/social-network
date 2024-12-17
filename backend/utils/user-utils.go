@@ -63,8 +63,8 @@ func GetUsername(userID int) (string, error) {
 	return "Unknown", nil
 }
 
-func GetUserProfile(userID int) (structs.UserResponse, error) {
-	var userProfile structs.UserResponse
+func GetUserProfile(userID int) (structs.User, error) {
+	var userProfile structs.User
 	err := database.DB.QueryRow(`
         SELECT u.id, u.username, u.email, u.first_name, u.last_name, u.dob, u.avatar, u.about_me, u.is_public
         FROM users u
@@ -82,22 +82,17 @@ func GetUserProfile(userID int) (structs.UserResponse, error) {
 		&userProfile.IsPublic,
 	)
 	if err != nil {
-		return structs.UserResponse{}, err
+		return structs.User{}, err
 	}
-
-	followers, _ := GetFollowers(userID)
-	userProfile.Followers = followers
-
 	if !userProfile.IsPublic {
 		// Return limited profile for private accounts
-		return structs.UserResponse{
+		return structs.User{
 			// Username: userProfile.Username,
 			FirstName: userProfile.FirstName,
 			LastName:  userProfile.LastName,
 			IsPublic:  userProfile.IsPublic,
 		}, nil
 	}
-
 	return userProfile, nil
 }
 
