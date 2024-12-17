@@ -132,7 +132,7 @@ export default function PostsContainer({
 	const { loggedInUser } = useLoggedInUser()
 
 	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
-
+	console.log('PostsContainer | isOwnProfile', isOwnProfile)
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
@@ -159,26 +159,28 @@ export default function PostsContainer({
 		return <div>Error: {state.error}</div>
 	}
 
+	let headerText = ''
+	if (feed) {
+		headerText = 'Latest Posts'
+	} else if (isOwnProfile) {
+		headerText = 'My Posts'
+	} else {
+		headerText = `${state.posts[0].author.firstName}'s Posts`
+	}
+
 	return (
 		<div className='mb-4'>
-			{/* Header */}
-			{isOwnProfile ? (
-				<h1 className='text-2xl font-bold text-primary mb-4'>My Posts</h1>
-			) : (
-				state.posts.length > 0 &&
-				!feed && (
-					<h1 className='text-2xl font-bold text-secondary mb-4'>
-						{`${state.posts[0].author.firstName}'s Posts`}
-					</h1>
-				)
-			)}
-
 			{(isOwnProfile || feed) && <CreatePost />}
 
+			{/* Header */}
+			<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>{headerText}</h1>
+
 			{/* Post Count */}
-			<div className='text-sm text-gray-500 mb-4'>
-				<span className='font-semibold'>Total posts:</span> {state.posts.length}
-			</div>
+			{!feed && (
+				<div className='text-sm text-gray-500 mb-4'>
+					<span className='font-semibold'>Total posts:</span> {state.posts.length}
+				</div>
+			)}
 
 			{/* Posts List */}
 			<div className='space-y-4 flex flex-col'>

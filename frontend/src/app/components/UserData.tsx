@@ -22,7 +22,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	const { loggedInUser } = useLoggedInUser()
 
 	useEffect(() => {
-		console.log('isOwnProfile', isOwnProfile)
 		const fetchUserData = async () => {
 			try {
 				const response = await axios.get(`http://localhost:8080/users/${userId}`, {
@@ -37,7 +36,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 		if (!isOwnProfile) {
 			fetchUserData()
 		}
-	}, [userId])
+	}, [userId, isOwnProfile])
 
 	useEffect(() => {
 		if (isOwnProfile && loggedInUser) {
@@ -172,7 +171,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 						</div>
 
 						{/* Profile Info Card */}
-						<div className='w-1/2 bg-white rounded-lg shadow-sm p-6 mt-8'>
+						<div className='w-full bg-white rounded-lg shadow-sm p-6 mt-8'>
 							{/* Privacy Toggle */}
 							{isOwnProfile && (
 								<div className='form-control mb-4'>
@@ -228,8 +227,12 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 						</div>
 
 						{/* Posts Container */}
-						<div className='w-1/2 mt-8'>
-							<PostsContainer userId={userData.id} isOwnProfile feed={false} />
+						<div className='mt-8'>
+							<PostsContainer
+								userId={userData.id}
+								isOwnProfile={isOwnProfile}
+								feed={false}
+							/>
 						</div>
 					</div>
 				</>
