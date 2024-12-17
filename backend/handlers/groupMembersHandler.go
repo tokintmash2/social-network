@@ -33,8 +33,6 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 
 	message := ""
 
-	// TODO: Add PATCH method ("pending" -> "member")
-
 	if r.Method == http.MethodPost { // Add member
 
 		// Check if the requesting user is an admin
