@@ -58,17 +58,6 @@ type Post struct { // Need review
 	CreatedAt time.Time `json:"created_at"`
 }
 
-//	type PostResponse struct {
-//		ID           int               `json:"id"`
-//		Title        string            `json:"title"`
-//		Content      string            `json:"content"`
-//		Privacy      string            `json:"privacy"`
-//		Author       PersonResponse    `json:"author"`
-//		CreatedAt    time.Time            `json:"createdAt"`
-//		MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
-//		AllowedUsers []int             `json:"allowedUsers,omitempty"`
-//		Comments     []CommentResponse `json:"comments"`
-//	}
 type PostResponse struct {
 	ID           int               `json:"id"`
 	Title        string            `json:"title"`
@@ -77,8 +66,9 @@ type PostResponse struct {
 	Author       PersonResponse    `json:"author"`
 	CreatedAt    time.Time         `json:"createdAt"`
 	MediaURL     *string           `json:"mediaUrl,omitempty"` // Optional
-	AllowedUsers []int          `json:"allowedUsers,omitempty"`
+	AllowedUsers []int             `json:"allowedUsers,omitempty"`
 	Comments     []CommentResponse `json:"comments"`
+	GroupID      int               `json:"group_id"`
 }
 
 type Comment struct {
@@ -101,12 +91,13 @@ type CommentResponse struct {
 }
 
 type GroupResponse struct {
-	ID          int                   `json:"id"`
-	Name        string                `json:"name"`
-	Description string                `json:"description"`
-	CreatedAt   string                `json:"created_at"`
-	CreatorID   int                   `json:"creator_id"`
+	ID          int              `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	CreatedAt   string           `json:"created_at"`
+	CreatorID   int              `json:"creator_id"`
 	Members     []PersonResponse `json:"group_members"`
+	GroupPosts  []PostResponse   `json:"group_posts"`
 }
 
 type PersonResponse struct {
@@ -121,24 +112,6 @@ type GroupMemberResponse struct {
 	LastName  string `json:"lastName"`
 	Role      string `json:"role"`
 }
-
-// type MemberResponse struct {
-// 	ID        int    `json:"id"`
-// 	FirstName string `json:"firstName"`
-// 	LastName  string `json:"lastName"`
-// }
-
-// type AuthorResponse struct {
-// 	ID        int    `json:"id"`
-// 	FirstName string `json:"firstName"`
-// 	LastName  string `json:"lastName"`
-// }
-
-// type AllowedUserResponse struct {
-// 	ID        int    `json:"id"`
-// 	FirstName string `json:"firstName"`
-// 	LastName  string `json:"lastName"`
-// }
 
 type Notification struct {
 	ID        int       `json:"id"`

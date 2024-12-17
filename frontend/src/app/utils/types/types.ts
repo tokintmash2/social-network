@@ -6,21 +6,13 @@ export type Post_type = {
 	title: string
 	content: string
 	privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
-	author: {
-		id: number
-		firstName: string
-		lastName: string
-	}
+	author: UserBasic_type
 	createdAt: Date
 	mediaUrl?: string | null
 	allowedUsers?: number[]
 	comments: {
 		id: number
-		author: {
-			id: number
-			firstName: string
-			lastName: string
-		}
+		author: UserBasic_type
 		content: string
 		mediaUrl?: string | null
 		createdAt: Date
@@ -65,11 +57,7 @@ export type PostsAction_type =
 					content: string
 					mediaUrl: string | null
 					createdAt: Date
-					author: {
-						id: number
-						firstName: string
-						lastName: string
-					}
+					author: UserBasic_type
 				}
 			}
 	  }
@@ -110,6 +98,12 @@ export type User = {
 	username?: string
 	aboutMe?: string
 	isPublic: boolean
+}
+
+export type UserBasic_type = {
+	id: number
+	firstName: string
+	lastName: string
 }
 
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'

@@ -103,6 +103,7 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"success": true,
 		"message": "Group created successfully",
+		"group":   group,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

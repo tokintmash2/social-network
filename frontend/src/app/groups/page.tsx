@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
+import { UserBasic_type } from '../utils/types/types'
+import DOMPurify from 'dompurify'
 
 const ACTIONS = {
 	SET_GROUPS: 'SET_GROUPS',
@@ -21,7 +23,7 @@ type Group_type = {
 	name: string
 	description: string
 	createdAt: string
-	creator: number
+	creatorId: number
 }
 
 type GroupsActions_type =
@@ -70,11 +72,31 @@ export default function GroupsList() {
 	useEffect(() => {
 		const fetchGroups = async () => {
 			try {
-				/*const response = await axios.get(`${backendUrl}/api/groups`, {
+				const response = await axios.get(`${backendUrl}/api/groups`, {
 					withCredentials: true,
-				})*/
+				})
+				console.log('groups', response)
+				const modifiedGroups = response.data.map(
+					(group: {
+						id: number
+						name: string
+						description: string
+						creator_id: number
+						created_at: string
+						group_members: UserBasic_type[]
+					}) => {
+						return {
+							id: group.id,
+							name: group.name,
+							description: group.description,
+							creatorId: group.creator_id,
+							createdAt: group.created_at,
+							members: group.group_members,
+						}
+					},
+				)
 				// use dummy data until the api is ready
-				const response = {
+				/* const response = {
 					data: [
 						{
 							id: 1,
@@ -91,8 +113,8 @@ export default function GroupsList() {
 							creator: 4,
 						},
 					],
-				}
-				dispatch({ type: ACTIONS.SET_GROUPS, payload: response.data })
+				} */
+				dispatch({ type: ACTIONS.SET_GROUPS, payload: modifiedGroups })
 			} catch (error) {
 				console.log('Error fetching groups', error)
 			}
@@ -128,7 +150,7 @@ export default function GroupsList() {
 					id: response.data.group.id,
 					name: response.data.group.name,
 					description: response.data.group.description,
-					creator: response.data.group.creator,
+					creatorId: response.data.group.creator,
 					createdAt: response.data.group.created_at,
 				},
 			})
@@ -146,36 +168,39 @@ export default function GroupsList() {
 			<div className='container pt-16'>
 				<div className='flex'>
 					{/* Left sidebar with groups */}
-				<div className='w-1/3'>
-				<div className='bg-white p-6 rounded-lg shadow-sm min-h-screen overflow-y-auto'>
-				<div className='flex flex-col'>
-					<h1>Groups</h1>
-					<button
-						className='btn bg-white mb-4 mt-4 w-full'
-						onClick={() => createGroupRef.current?.showModal()}
-					>
-						<FontAwesomeIcon icon={faPlus} />
-						Add new group
-					</button>
-					{state.groups.map((group) => (
-						<div
-						 key={group.id}
-						  className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
-						  onClick={() => router.push(`/groups/${group.id}`)}>
-							<div className='card-body'>
-								<h2 className='card-title'>{group.name}</h2>
-								<p>{group.description}</p>
-								<div className='card-actions justify-end'>
-								
-								</div>
+					<div className='w-1/3'>
+						<div className='bg-white p-6 rounded-lg shadow-sm min-h-screen overflow-y-auto'>
+							<div className='flex flex-col'>
+								<h1>Groups</h1>
+								<button
+									className='btn bg-white mb-4 mt-4 w-full'
+									onClick={() => createGroupRef.current?.showModal()}
+								>
+									<FontAwesomeIcon icon={faPlus} />
+									Add new group
+								</button>
+								{state.groups.map((group) => (
+									<div
+										key={group.id}
+										className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
+										onClick={() => router.push(`/groups/${group.id}`)}
+									>
+										<div className='card-body'>
+											<h2 className='card-title'>{group.name}</h2>
+											<p
+												dangerouslySetInnerHTML={{
+													__html: DOMPurify.sanitize(group.description),
+												}}
+											></p>
+
+											<div className='card-actions justify-end'></div>
+										</div>
+									</div>
+								))}
 							</div>
 						</div>
-					))}
+					</div>
 				</div>
-				
-                </div>
-            </div>
-        </div>
 				<dialog id='my_modal_4' ref={createGroupRef} className='modal'>
 					<div className='modal-box w-11/12 max-w-5xl'>
 						<h3 className='font-bold text-lg'>Create new group</h3>
@@ -228,7 +253,7 @@ export default function GroupsList() {
 						</div>
 					</div>
 				</dialog>
-				</div>
+			</div>
 		</div>
 	)
 }
