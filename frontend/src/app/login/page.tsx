@@ -40,7 +40,7 @@ export default function LoginPage() {
 			})
 
 			if (response.data.success) {
-				router.push('/profile')
+				router.push('/')
 			} else {
 				toast.error(response.data.message)
 			}
@@ -60,13 +60,15 @@ export default function LoginPage() {
 
 				<div className='card rounded-md w-full max-w-128 my-4 '>
 					<div className='card-body center'>
-						<h1 className="card-title self-center text-4xl bg-gradient-to-l from-[#687984] to-[#B9D7EA] text-transparent bg-clip-text">
+						<h1 className='card-title self-center text-4xl bg-gradient-to-l from-[#687984] to-[#B9D7EA] text-transparent bg-clip-text'>
 							SPHERE
 						</h1>
 
 						<form className='flex flex-col items-center justify-center'>
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Email</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Email
+								</span>
 								<input
 									type='email'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -82,7 +84,9 @@ export default function LoginPage() {
 							</label>
 
 							<label className='form-control w-2/3 mt-6'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Password</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Password
+								</span>
 								<input
 									type='password'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -118,7 +122,13 @@ export default function LoginPage() {
 				</div>
 			</div>
 
-			<div className='w-3/5 bg-cover bg-center' style={{ backgroundImage: 'url(https://res.cloudinary.com/dtdneratd/image/upload/v1733229108/augustine-wong-T0BYurbDK_M-unsplash-min_obmpdc.jpg)' }}></div>
+			<div
+				className='w-3/5 bg-cover bg-center'
+				style={{
+					backgroundImage:
+						'url(https://res.cloudinary.com/dtdneratd/image/upload/v1733229108/augustine-wong-T0BYurbDK_M-unsplash-min_obmpdc.jpg)',
+				}}
+			></div>
 		</div>
 	)
 }
