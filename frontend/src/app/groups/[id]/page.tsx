@@ -37,6 +37,7 @@ type GroupState_type = {
 	createdAt: Group_type['createdAt']
 	creatorId: Group_type['creatorId']
 	members: Group_type['members']
+	membershipRole: MembershipRole_type
 	loading: boolean
 }
 
@@ -47,6 +48,7 @@ const GroupState_default: GroupState_type = {
 	createdAt: '',
 	creatorId: 0,
 	members: [],
+	membershipRole: 'NOT_MEMBER',
 	loading: true,
 }
 
@@ -93,9 +95,18 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 				throw new Error('Invalid payload for SET_LOADING')
 			}
 		case ACTIONS.SET_GROUP_MEMBERSHIP_ROLE:
-			return {
-				...state,
+			if (
+				action.payload === 'NOT_MEMBER' ||
+				action.payload === 'PENDING' ||
+				action.payload === 'MEMBER' ||
+				action.payload === 'ADMIN'
+			) {
+				return {
+					...state,
+					membershipRole: action.payload,
+				}
 			}
+
 		default:
 			return state
 	}
@@ -114,7 +125,6 @@ export default function Group() {
 				const response = await axios.get(`${backendUrl}/api/groups/${id}`, {
 					withCredentials: true,
 				})
-				console.log('fetchGroup response', response.data)
 				dispatch({
 					type: ACTIONS.SET_GROUP,
 					payload: {
@@ -136,17 +146,82 @@ export default function Group() {
 	}, [id, backendUrl])
 	useEffect(() => {
 		if (loggedInUser) {
-			console.log('Me: ' + loggedInUser?.id + ' | group members: ' + state.members)
-			let iAmMember = false
-			for (let i = 0; i < state.members.length; i++) {
-				if (state.members[i].id === loggedInUser?.id) {
-					iAmMember = true
-					console.log('I AM A MEMBER', iAmMember)
-					return
-				}
+			const member = state.members.find((m) => m.id === loggedInUser.id)
+			if (member) {
+				const role = member.role.toUpperCase()
+				dispatch({
+					type: ACTIONS.SET_GROUP_MEMBERSHIP_ROLE,
+					payload: role as MembershipRole_type,
+				})
+			} else {
+				dispatch({
+					type: ACTIONS.SET_GROUP_MEMBERSHIP_ROLE,
+					payload: 'NOT_MEMBER' as MembershipRole_type,
+				})
 			}
 		}
 	}, [loggedInUser, state.members])
+
+	const getButtonText = () => {
+		switch (state.membershipRole) {
+			case 'ADMIN':
+				return ''
+			case 'MEMBER':
+				return 'Leave'
+			case 'PENDING':
+				return 'Cancel Request to Join'
+			case 'NOT_MEMBER':
+			default:
+				return 'Join'
+		}
+	}
+
+	const handleButtonClick = async () => {
+		switch (state.membershipRole) {
+			case 'MEMBER':
+			case 'PENDING':
+				// Leave group logic
+				try {
+					const response = await axios.delete(
+						`${backendUrl}/api/groups/${id}/members/${loggedInUser?.id}`,
+						{
+							withCredentials: true,
+						},
+					)
+					console.log(response)
+					if (response.data.success) {
+						dispatch({
+							type: ACTIONS.SET_GROUP_MEMBERSHIP_ROLE,
+							payload: 'NOT_MEMBER',
+						})
+					}
+				} catch (error) {
+					console.log('Error leaving a group', error)
+				}
+				break
+
+			case 'NOT_MEMBER':
+				// Join group logic
+				try {
+					const response = await axios.post(
+						`${backendUrl}/api/groups/${id}/members/${loggedInUser?.id}`,
+						null,
+						{ withCredentials: true },
+					)
+					console.log(response)
+					if (response.data.success) {
+						dispatch({
+							type: ACTIONS.SET_GROUP_MEMBERSHIP_ROLE,
+							payload: 'PENDING',
+						})
+					}
+				} catch (error) {
+					console.log('Error joing a group', error)
+				}
+				break
+		}
+	}
+
 	return (
 		<div>
 			<Header />
@@ -158,7 +233,14 @@ export default function Group() {
 						) : (
 							<>
 								<div className='flex justify-end mb-6'>
-									<button className='btn btn-outline btn-sm'>Join</button>
+									{state.membershipRole !== 'ADMIN' && (
+										<button
+											className='btn btn-outline btn-sm'
+											onClick={handleButtonClick}
+										>
+											{getButtonText()}
+										</button>
+									)}
 								</div>
 								<div>Group name: {state.name}</div>
 								<div>
