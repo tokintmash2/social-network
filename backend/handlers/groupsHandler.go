@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-func GroupsRouter(w http.ResponseWriter, r *http.Request) {
+// func GroupsRouter(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("GroupsHandler called")
+// 	log.Println("GroupsHandler called")
 
-	switch r.Method {
-	case "GET":
-		FetchAllGroupsHandler(w, r)
-	case "POST":
-		CreateGroupHandler(w, r)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
+// 	switch r.Method {
+// 	case "GET":
+// 		FetchAllGroupsHandler(w, r)
+// 	case "POST":
+// 		CreateGroupHandler(w, r)
+// 	default:
+// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 	}
+// }
 
-func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// endpoints:
 	// /api/groups?user_id=1 to fetch all groups for a specific user
@@ -60,7 +60,7 @@ func FetchAllGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("CreateGroupHandler called")
 
 	var group structs.Group

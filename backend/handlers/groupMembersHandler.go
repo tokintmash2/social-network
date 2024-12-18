@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"social-network/utils"
+	"strconv"
+	"strings"
 )
 
-func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
+func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GroupMembersHandler called")
 
@@ -24,12 +26,19 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 		return
 	}
 
-	userIDtoProcess, err := utils.FetchIdFromPath(r.URL.Path, 4)
-	if err != nil {
-		log.Printf("Error fetching user ID: %v", err)
-		http.Error(w, "Error fetching user ID", http.StatusBadRequest)
-		return
-	}
+	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+	pathParts := strings.Split(path, "/")
+	groupID, _ := strconv.Atoi(pathParts[0])
+	userIDtoProcess, _ := strconv.Atoi(pathParts[2])
+
+	// userIDtoProcess, err := utils.FetchIdFromPath(r.URL.Path, 4)
+	// if err != nil {
+	// 	log.Printf("Error fetching user ID: %v", err)
+	// 	http.Error(w, "Error fetching user ID", http.StatusBadRequest)
+	// 	return
+	// }
+
+	
 
 	message := ""
 
