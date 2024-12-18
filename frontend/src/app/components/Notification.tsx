@@ -1,5 +1,4 @@
 import { Notification as NotificationType } from '../utils/types/notifications'
-import { formatLongDate } from '../utils/dateUtils'
 
 type NotificationProps = {
 	notification: NotificationType
@@ -44,9 +43,7 @@ const Notification = ({ notification, onClick }: NotificationProps) => {
 				className={`flex flex-col gap-1 py-3 ${notification.read ? 'bg-white' : 'bg-blue-50/80'}`}
 			>
 				<span className='text-sm'>{notification.message}</span>
-				<span className='text-xs text-gray-500'>
-					{formatLongDate(notification.timestamp)}
-				</span>
+				<span className='text-xs text-gray-500'>Date</span>
 				{renderActionButtons()}
 			</a>
 		</li>
