@@ -3,6 +3,7 @@
 import { useEffect, useReducer } from 'react'
 import Header from '../../components/Header'
 import { useParams } from 'next/navigation'
+import { useLoggedInUser } from '@/app/context/UserContext'
 import axios from 'axios'
 import Link from 'next/link'
 import DOMPurify from 'dompurify'
@@ -11,7 +12,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const ACTIONS = {
 	SET_GROUP: 'SET_GROUP',
-	SET_GROUP_MEMBERSHIP: 'SET_GROUP_MEMBERSHIP',
+	SET_GROUP_MEMBERSHIP_ROLE: 'SET_GROUP_MEMBERSHIP_ROLE',
 
 	SET_LOADING: 'SET_LOADING',
 
@@ -26,17 +27,16 @@ type Group_type = {
 	description: string
 	createdAt: string
 	creatorId: number
-	members: { id: number; firstName: string; lastName: string }[]
+	members: { id: number; firstName: string; lastName: string; role: string }[]
 }
 
 type GroupState_type = {
-	id: number
-	name: string
-	description: string
-	createdAt: string
-	creator: number
-	members: { id: number; firstName: string; lastName: string }[]
-	membershipStatus: MembershipStatus_type
+	id: Group_type['id']
+	name: Group_type['name']
+	description: Group_type['description']
+	createdAt: Group_type['createdAt']
+	creatorId: Group_type['creatorId']
+	members: Group_type['members']
 	loading: boolean
 }
 
@@ -45,21 +45,20 @@ const GroupState_default: GroupState_type = {
 	name: '',
 	description: '',
 	createdAt: '',
-	creator: 0,
+	creatorId: 0,
 	members: [],
-	membershipStatus: 'NOT_MEMBER',
 	loading: true,
 }
 
-type MembershipStatus_type = 'MEMBER' | 'PENDING' | 'NOT_MEMBER' | 'ADMIN'
+type MembershipRole_type = 'NOT_MEMBER' | 'PENDING' | 'MEMBER' | 'ADMIN'
 type GroupActions_type =
 	| {
 			type: typeof ACTIONS.SET_GROUP
 			payload: Group_type
 	  }
 	| {
-			type: typeof ACTIONS.SET_GROUP_MEMBERSHIP
-			payload: MembershipStatus_type
+			type: typeof ACTIONS.SET_GROUP_MEMBERSHIP_ROLE
+			payload: MembershipRole_type
 	  }
 	| {
 			type: typeof ACTIONS.SET_LOADING
@@ -93,7 +92,7 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 			} else {
 				throw new Error('Invalid payload for SET_LOADING')
 			}
-		case ACTIONS.SET_GROUP_MEMBERSHIP:
+		case ACTIONS.SET_GROUP_MEMBERSHIP_ROLE:
 			return {
 				...state,
 			}
@@ -107,6 +106,7 @@ export default function Group() {
 	const id = params.id as string
 	const [state, dispatch] = useReducer(reducer, GroupState_default)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+	const { loggedInUser } = useLoggedInUser()
 	useEffect(() => {
 		const fetchGroup = async () => {
 			try {
@@ -114,7 +114,7 @@ export default function Group() {
 				const response = await axios.get(`${backendUrl}/api/groups/${id}`, {
 					withCredentials: true,
 				})
-				console.log('response', response.data)
+				console.log('fetchGroup response', response.data)
 				dispatch({
 					type: ACTIONS.SET_GROUP,
 					payload: {
@@ -134,6 +134,19 @@ export default function Group() {
 		}
 		fetchGroup()
 	}, [id, backendUrl])
+	useEffect(() => {
+		if (loggedInUser) {
+			console.log('Me: ' + loggedInUser?.id + ' | group members: ' + state.members)
+			let iAmMember = false
+			for (let i = 0; i < state.members.length; i++) {
+				if (state.members[i].id === loggedInUser?.id) {
+					iAmMember = true
+					console.log('I AM A MEMBER', iAmMember)
+					return
+				}
+			}
+		}
+	}, [loggedInUser, state.members])
 	return (
 		<div>
 			<Header />
