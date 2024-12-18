@@ -73,30 +73,21 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// urlPath := request.URL.Path
-	// log.Println("URL Path:", urlPath)
-	// userIdStr := strings.TrimPrefix(urlPath, "/users/")
-	// userID, _ := strconv.Atoi(userIdStr)
-
+	// Check if the request is for all users or a specific user
 	userID, err := utils.FetchIdFromPath(request.URL.Path, 1)
-	if err != nil {
-		log.Printf("Error parsing user ID: %v\n", err)
-	}
-
-	if request.Method == http.MethodGet {
-		// Fetch user profile data
-		profile, err := utils.GetUserProfile(userID)
+	if err != nil || userID == 0 {
+		// No valid user ID in the path, return all users
+		log.Println("Fetching all users...")
+		users, err := utils.GetAllUsers()
 		if err != nil {
-			log.Printf("Error fetching user profile: %v\n", err)
-			http.Error(writer, "Error fetching user profile", http.StatusInternalServerError)
+			log.Printf("Error fetching all users: %v\n", err)
+			http.Error(writer, "Error fetching users", http.StatusInternalServerError)
 			return
 		}
 
-		
-
 		response := map[string]interface{}{
 			"success": true,
-			"profile": profile, // Entire profile object
+			"users":   users,
 		}
 
 		writer.Header().Set("Content-Type", "application/json")
@@ -104,4 +95,20 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	// Fetch a specific user's profile
+	log.Printf("Fetching profile for user ID: %d\n", userID)
+	profile, err := utils.GetUserProfile(userID)
+	if err != nil {
+		log.Printf("Error fetching user profile: %v\n", err)
+		http.Error(writer, "Error fetching user profile", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"success": true,
+		"profile": profile, // Entire profile object
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(response)
 }
