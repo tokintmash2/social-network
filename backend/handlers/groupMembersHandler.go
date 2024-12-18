@@ -36,11 +36,11 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 	if r.Method == http.MethodPost { // Add member
 
 		// Check if the requesting user is an admin
-		if !utils.IsGroupAdmin(groupID, adminID) {
+		/* if !utils.IsGroupAdmin(groupID, adminID) {
 			http.Error(w, "Unauthorized: Only group admins can add members", http.StatusForbidden)
 			return
 		}
-
+		*/
 		// Check if user is already a member
 		if utils.IsMemberInGroup(groupID, userIDtoProcess) {
 			http.Error(w, "User is already a member of this group", http.StatusConflict)

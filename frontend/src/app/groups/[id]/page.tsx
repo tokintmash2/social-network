@@ -8,7 +8,7 @@ import axios from 'axios'
 import Link from 'next/link'
 import DOMPurify from 'dompurify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCrown } from '@fortawesome/free-solid-svg-icons'
 
 const ACTIONS = {
 	SET_GROUP: 'SET_GROUP',
@@ -262,27 +262,34 @@ export default function Group() {
 							<h1 className='text-2xl font-bold text-primary mb-4'>Members</h1>
 							<div className='text-sm text-gray-500 mb-4'>
 								<span className='font-semibold'>Total members:</span>{' '}
-								{state.members.length}
+								{
+									state.members.filter(
+										(m) => m.role === 'member' || m.role === 'admin',
+									).length
+								}
 							</div>
 						</div>
 						<div>
 							<button className='btn bg-white'>
 								<FontAwesomeIcon icon={faPlus} />
-								Add member
+								Invite member
 							</button>
 						</div>
 					</div>
 
 					<div className='bg-base-100 p-6 mb-6 rounded-lg'>
-						{state.members.map((member) => (
-							<Link
-								key={'member-' + member.id}
-								href={`/profile/${member.id}`}
-								className='link link-hover mr-2'
-							>
-								{member.firstName} {member.lastName}
-							</Link>
-						))}
+						{state.members
+							.filter((member) => member.role === 'admin' || member.role === 'member')
+							.map((member) => (
+								<Link
+									key={'member-' + member.id}
+									href={`/profile/${member.id}`}
+									className='link link-hover mr-2 block'
+								>
+									{member.firstName} {member.lastName}{' '}
+									{member.role === 'admin' && <FontAwesomeIcon icon={faCrown} />}
+								</Link>
+							))}
 					</div>
 				</div>
 			</div>
