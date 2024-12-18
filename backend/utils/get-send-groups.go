@@ -287,6 +287,5 @@ func CreateGroup(group structs.Group) error {
 		log.Printf("Error committing transaction: %v\n", err)
 		return err
 	}
-
 	return nil
 }

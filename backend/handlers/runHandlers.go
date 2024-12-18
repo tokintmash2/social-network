@@ -23,6 +23,7 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("POST /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
 	r.HandleFunc("PATCH /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
 	r.HandleFunc("DELETE /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
+	r.HandleFunc("POST /api/groups/{group_id}/events", app.CreateEventHandler)
 	// r.HandleFunc("POST /api/groups/{id}/messages", app.GroupMessagesHandler)
 
 
