@@ -171,7 +171,7 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 	var members []structs.PersonResponse
 
 	rows, err := database.DB.Query(`
-        SELECT u.id
+        SELECT u.id, gm.role
         FROM users u
         INNER JOIN group_memberships gm ON u.id = gm.user_id
         WHERE gm.group_id = ?`, groupID)
@@ -183,7 +183,8 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 
 	for rows.Next() {
 		var userID int
-		err := rows.Scan(&userID)
+		var role string
+		err := rows.Scan(&userID, &role)
 		if err != nil {
 			log.Println("Error scanning group member:", err)
 			return nil, err
@@ -199,6 +200,7 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 			ID:        userProfile.ID,
 			FirstName: userProfile.FirstName,
 			LastName:  userProfile.LastName,
+			Role:      role,
 		}
 		members = append(members, member)
 	}
@@ -226,14 +228,14 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-        var post structs.PostResponse
-        err := rows.Scan(&post.ID, &post.Author.ID, &post.Content, &post.MediaURL, &post.CreatedAt)
-        if err != nil {
-            log.Println("Error scanning post:", err)
-            return nil, err
-        }
-        posts = append(posts, post)
-    }
+		var post structs.PostResponse
+		err := rows.Scan(&post.ID, &post.Author.ID, &post.Content, &post.MediaURL, &post.CreatedAt)
+		if err != nil {
+			log.Println("Error scanning post:", err)
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
 	if err := rows.Err(); err != nil {
 		log.Println("Error iterating over group members:", err)
 		return nil, err
