@@ -5,25 +5,13 @@ import { useLoggedInUser, UserProvider } from './context/UserContext'
 import UsersList from './components/UsersList'
 import Messenger from './components/Messenger'
 
-
 function SocialFeatures() {
 	const pathname = usePathname()
 	const { loggedInUser } = useLoggedInUser()
 
 	const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
 	const showSocialFeatures = loggedInUser && !isAuthPage
-	const pathname = usePathname()
-	const { loggedInUser } = useLoggedInUser()
 
-	const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
-	const showSocialFeatures = loggedInUser && !isAuthPage
-
-	return showSocialFeatures ? (
-		<>
-			<UsersList />
-			<Messenger />
-		</>
-	) : null
 	return showSocialFeatures ? (
 		<>
 			<UsersList />
