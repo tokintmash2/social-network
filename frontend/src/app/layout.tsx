@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import ClientLayout from './ClientLayout'
+import { WebSocketProvider } from './components/WsContext'
 
 const geistSans = localFont({
 	src: './fonts/GeistVF.woff',
@@ -23,7 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html lang='en' className='bg-base-200'>
 			<body className={`${geistSans.variable} ${geistMono.variable} bg-base-200 antialiased`}>
-				<ClientLayout>{children}</ClientLayout>
+				<WebSocketProvider>
+					<ClientLayout>{children}</ClientLayout>
+				</WebSocketProvider>
 			</body>
 		</html>
 	)

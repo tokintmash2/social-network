@@ -6,21 +6,13 @@ export type Post_type = {
 	title: string
 	content: string
 	privacy: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'
-	author: {
-		id: number
-		firstName: string
-		lastName: string
-	}
+	author: UserBasic_type
 	createdAt: Date
 	mediaUrl?: string | null
 	allowedUsers?: number[]
 	comments: {
 		id: number
-		author: {
-			id: number
-			firstName: string
-			lastName: string
-		}
+		author: UserBasic_type
 		content: string
 		mediaUrl?: string | null
 		createdAt: Date
@@ -65,11 +57,7 @@ export type PostsAction_type =
 					content: string
 					mediaUrl: string | null
 					createdAt: Date
-					author: {
-						id: number
-						firstName: string
-						lastName: string
-					}
+					author: UserBasic_type
 				}
 			}
 	  }
@@ -85,6 +73,8 @@ export type PostsContainerProps_type = {
 export type PostProps_type = {
 	post: Post_type
 	dispatch: (action: PostsAction_type) => void
+	followers?: Follower_type[]
+	allowedUsers?: Post_type['allowedUsers']
 	isOwnPost: boolean
 }
 
@@ -110,8 +100,20 @@ export type User = {
 	isPublic: boolean
 }
 
+export type UserBasic_type = {
+	id: number
+	firstName: string
+	lastName: string
+}
+
 type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
 export type UserDataProps_type = {
 	userId: number
-	accessType: ProfileAccess
+	isOwnProfile: boolean
+}
+
+export type Follower_type = {
+	id: number
+	firstName: string
+	lastName: string
 }

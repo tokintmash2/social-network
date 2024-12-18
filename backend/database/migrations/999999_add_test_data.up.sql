@@ -47,6 +47,16 @@ VALUES (2, 'Tere', 'Test post content for User 2', 'private');
 INSERT INTO posts (user_id, title, content, privacy_setting) 
 VALUES (3, 'Testering', 'Test post content for User 3', 'almost_private');
 
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 2, 'Beautiful Saaremaa Sunset', 'Just captured this amazing sunset at Saaremaa! The orange sky reflecting off the Baltic Sea was breathtaking. What do you think?', '2024-01-15 19:30:00+02:00');
+
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 1, 'Spring Wildflowers in Lahemaa', 'Found these beautiful wildflowers during my hike in Lahemaa National Park. The colors this spring are incredible!', '2024-01-14 14:15:00+02:00');
+
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp) 
+VALUES (1, 3, 'Misty Morning in Tartu', 'Morning fog in Tartu. The way the mist rolls over the Emajõgi river creates such a mystical atmosphere. Who else loves early morning nature photography?', '2024-01-13 08:45:00+02:00');
+
+
 INSERT INTO followers (follower_id, followed_id, status)
 VALUES (1, 2, 'accepted');
 
@@ -57,7 +67,7 @@ INSERT INTO post_access (post_id, follower_id)
 VALUES (3, 2);
 
 INSERT INTO groups (group_name, creator_id, description, created_at) 
-VALUES ('Nature photo enthusiasts', 1, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');
+VALUES ('Nature photo enthusiasts', 4, 'Group for nature lovers. Join us and share your favorite photos of nature, from the forest to the sky.', '1990-03-01 00:00:00+00:00');
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (1, 4, "admin", "2024-12-12 15:05:49.419539+02:00");
@@ -70,3 +80,30 @@ VALUES (1, 2, "pending", "2024-12-12 15:05:49.419539+02:00");
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (1, 3, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Houseplant Enthusiasts', 4, 'Welcome to Houseplant Haven — a cozy corner for all plant lovers!<br><br>Share your favorite plant care tips, showcase your lush indoor jungles, and get advice on keeping your green friends thriving. Whether you''re a seasoned botanist or just bought your first pothos, you''ll find a home here!', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (2, 4, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (2, 1, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Farmhouse Revival', 1, 'Passionate about preserving history through the art of restoration?<br><br>Join Farmhouse Revival to connect with like-minded renovators, share your before-and-after transformations, and swap tips on tackling those stubborn barn beams or creaky floors. Together, let''s bring old farmhouses back to life, one plank at a time!', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (3, 1, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (3, 2, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO groups (group_name, creator_id, description, created_at) 
+VALUES ('Jack Russell Pack', 2, 'This group is for all proud Jack Russell Terrier parents!<br><br> From training tips to hilarious antics, this is the perfect space to connect with other JRT lovers. Share stories, photos, and advice about caring for these feisty and lovable companions', '1990-03-01 00:00:00+00:00');
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (4, 3, "admin", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (4, 4, "member", "2024-12-12 15:05:49.419539+02:00");

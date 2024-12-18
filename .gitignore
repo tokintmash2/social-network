@@ -121,5 +121,6 @@ cookies.txt
 test_avatar.JPEG
 backend/uploads/
 node_modules
+backend/tests/
 backend/test_posts.sh
 backend/test_groups.sh

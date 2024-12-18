@@ -92,29 +92,6 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 	return posts, nil
 }
 
-// func FetchAllowedUsers(postID int) ([]structs.AllowedUserResponse, error) {
-//     rows, err := database.DB.Query(`
-//         SELECT u.id, u.first_name, u.last_name
-//         FROM post_access pa
-//         JOIN users u ON pa.follower_id = u.id
-//         WHERE pa.post_id = ?
-//     `, postID)
-//     if err != nil {
-//         return nil, err
-//     }
-//     defer rows.Close()
-
-//     var allowedUsers []structs.AllowedUserResponse
-//     for rows.Next() {
-//         var user structs.AllowedUserResponse
-//         if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName); err != nil {
-//             return nil, err
-//         }
-//         allowedUsers = append(allowedUsers, user)
-//     }
-//     return allowedUsers, nil
-// }
-
 func CreatePost(newPost structs.PostResponse) error {
 
 	log.Println("Got post:", newPost)
@@ -152,22 +129,6 @@ func CreatePost(newPost structs.PostResponse) error {
 
 	log.Println("Post privacy setting:", newPost.Privacy)
 
-	// followers data should be fetched here
-
-	// if newPost.Privacy == "almost_private" {
-	// 	postID, _ := result.LastInsertId()
-	// 	for _, userIdStr := range newPost.AllowedUsers {
-	// 		var userID int
-	// 		userID, _ = strconv.Atoi(userIdStr)
-	// 		_, err = tx.Exec(`INSERT INTO post_access (post_id, follower_id) VALUES (?, ?)`,
-	// 			postID, userID)
-	// 		if err != nil {
-	// 			log.Printf("Error setting post access: %v\n", err)
-	// 			return err
-	// 		}
-	// 	}
-	// }
-
 	log.Println("About to commit transaction")
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
@@ -177,4 +138,53 @@ func CreatePost(newPost structs.PostResponse) error {
 	// return nil
 	log.Printf("About to set post access for postID: %d", postID)
 	return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
+}
+
+func CreateGroupPost(newPost structs.PostResponse) error {
+
+	log.Println("Got post:", newPost)
+
+	log.Printf("Starting database transaction for post creation")
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Insert post
+	log.Println("Starting post insertion")
+	result, err := tx.Exec(`
+        INSERT INTO group_posts (group_id, user_id, title, content, image, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?)`,
+		newPost.GroupID, newPost.Author.ID, newPost.Title, newPost.Content, newPost.MediaURL, newPost.CreatedAt,
+	)
+	if err != nil {
+		log.Printf("Error inserting post in CreatePost(): %v\n", err)
+		return err
+	} else {
+		log.Printf("Post insertion successful")
+	}
+
+	postID, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("Error getting post ID: %v\n", err)
+		return err
+	}
+
+	log.Println("Last inserted post ID:", postID)
+
+	// var postresponse structs.PostResponse
+
+	// log.Println("Post privacy setting:", newPost.Privacy)
+
+	log.Println("About to commit transaction")
+	if err = tx.Commit(); err != nil {
+		log.Printf("Error committing transaction: %v\n", err)
+		return err
+	}
+
+	return nil
+	
+	// log.Printf("About to set post access for postID: %d", postID)
+	// return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
 }

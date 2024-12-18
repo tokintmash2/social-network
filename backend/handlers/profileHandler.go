@@ -7,6 +7,53 @@ import (
 	"social-network/utils"
 )
 
+func UsersRouter(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("UsersRouter called")
+
+	switch r.Method {
+	case "GET":
+		ProfileHandler(w, r)
+	case "POST":
+		AddFollowerHandler(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func AddFollowerHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("AddFollowerHandler called")
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	followerID, validSession := utils.VerifySession(sessionUUID, "AddFollowerHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	log.Println("Path to be fetched: ", r.URL.Path)
+	followedID, err := utils.FetchIdFromPath(r.URL.Path, 2)
+
+	if err != nil {
+		log.Printf("Error parsing user ID: %v\n", err)
+	}
+
+	err = utils.AddFollower(followerID, followedID)
+	if err != nil {
+		log.Printf("Error adding follower: %v\n", err)
+		http.Error(w, "Error adding follower", http.StatusInternalServerError)
+		return
+	}
+
+}
+
 // Returns the user's profile data JSON
 // If profile is public, returns full profile data
 // If profile is private, returns only usernname
@@ -44,6 +91,8 @@ func ProfileHandler(writer http.ResponseWriter, request *http.Request) {
 			http.Error(writer, "Error fetching user profile", http.StatusInternalServerError)
 			return
 		}
+
+		
 
 		response := map[string]interface{}{
 			"success": true,

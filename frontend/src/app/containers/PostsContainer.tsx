@@ -2,15 +2,18 @@
 
 import { useEffect, useReducer } from 'react'
 import Post from '../components/Post'
+import CreatePost from '../components/CreatePost'
 import {
 	Post_type,
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
+	Follower_type,
 } from '../utils/types/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
 import axios from 'axios'
+
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
@@ -114,6 +117,13 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return state
 	}
 }
+// todo: fetch only when feed or when isOwnProfile
+export const dummyFollowers: Follower_type[] = [
+	{ id: 1, firstName: 'John', lastName: 'Doe' },
+	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
+	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
+]
+
 export default function PostsContainer({
 	userId,
 	feed = false,
@@ -122,7 +132,7 @@ export default function PostsContainer({
 	const { loggedInUser } = useLoggedInUser()
 
 	const [state, dispatch] = useReducer(reducer, { posts: [], loading: false, error: null })
-
+	console.log('PostsContainer | isOwnProfile', isOwnProfile)
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
@@ -149,24 +159,28 @@ export default function PostsContainer({
 		return <div>Error: {state.error}</div>
 	}
 
+	let headerText = ''
+	if (feed) {
+		headerText = 'Latest Posts'
+	} else if (isOwnProfile) {
+		headerText = 'My Posts'
+	} else {
+		headerText = `${state.posts[0].author.firstName}'s Posts`
+	}
+
 	return (
 		<div className='mb-4'>
+			{(isOwnProfile || feed) && <CreatePost />}
+
 			{/* Header */}
-			{isOwnProfile ? (
-				<h1 className='text-2xl font-bold text-primary mb-4'>My Posts</h1>
-			) : (
-				state.posts.length > 0 &&
-				!feed && (
-					<h1 className='text-2xl font-bold text-secondary mb-4'>
-						{`${state.posts[0].author.firstName}'s Posts`}
-					</h1>
-				)
-			)}
+			<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>{headerText}</h1>
 
 			{/* Post Count */}
-			<div className='text-sm text-gray-500 mb-4'>
-				<span className='font-semibold'>Total posts:</span> {state.posts.length}
-			</div>
+			{!feed && (
+				<div className='text-sm text-gray-500 mb-4'>
+					<span className='font-semibold'>Total posts:</span> {state.posts.length}
+				</div>
+			)}
 
 			{/* Posts List */}
 			<div className='space-y-4 flex flex-col'>
@@ -175,6 +189,7 @@ export default function PostsContainer({
 						key={post.id}
 						post={post}
 						dispatch={dispatch}
+						followers={dummyFollowers}
 						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}

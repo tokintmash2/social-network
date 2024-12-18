@@ -33,8 +33,6 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 
 	message := ""
 
-	// TODO: Add PATCH method ("pending" -> "member")
-
 	if r.Method == http.MethodPost { // Add member
 
 		// Check if the requesting user is an admin
@@ -59,13 +57,44 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 		message = "Member added successfully"
 	}
 
-	if r.Method == http.MethodDelete { // Remove member/leave group
+	if r.Method == http.MethodPatch {
+		// Check if the requesting user is an admin
+		if !utils.IsGroupAdmin(groupID, adminID) {
+			http.Error(w, "Unauthorized: Only group admins can approve members", http.StatusForbidden)
+			return
+		}
+
+		// Check if user exists and is in pending state
+		if !utils.IsPendingMember(groupID, userIDtoProcess) {
+			http.Error(w, "User is not in pending state", http.StatusConflict)
+			return
+		}
+
+		// Update member status from pending to member
+		err = utils.UpdateMemberStatus(groupID, userIDtoProcess, "member")
+		if err != nil {
+			log.Printf("Error updating member status: %v\n", err)
+			http.Error(w, "Error updating member status", http.StatusInternalServerError)
+			return
+		}
+
+		message = "Member approved successfully"
+	}
+
+	if r.Method == http.MethodDelete { // Reject member/leave group
 
 		if userIDtoProcess == adminID || utils.IsGroupAdmin(groupID, adminID) {
 			// Check if user exists in group
 			if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
 				http.Error(w, "User is not a member of this group", http.StatusConflict)
 				return
+			}
+
+			// Check if user exists and is in pending state
+			if utils.IsPendingMember(groupID, userIDtoProcess) {
+				message = "Membership rejected"
+			} else {
+				message = "Member removed successfully"
 			}
 
 			// Prevent admin from being removed
@@ -86,7 +115,6 @@ func GroupMembersHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 			return
 		}
 
-		message = "Member removed successfully"
 	}
 
 	response := map[string]interface{}{

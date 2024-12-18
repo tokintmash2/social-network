@@ -73,7 +73,7 @@ func GetUserProfile(userID int) (structs.User, error) {
 	).Scan(
 		&userProfile.ID,
 		&userProfile.Username,
-		&userProfile.Email,		
+		&userProfile.Email,
 		&userProfile.FirstName,
 		&userProfile.LastName,
 		&userProfile.DOB,
@@ -84,17 +84,15 @@ func GetUserProfile(userID int) (structs.User, error) {
 	if err != nil {
 		return structs.User{}, err
 	}
-
 	if !userProfile.IsPublic {
-        // Return limited profile for private accounts
-        return structs.User{
-            // Username: userProfile.Username,
+		// Return limited profile for private accounts
+		return structs.User{
+			// Username: userProfile.Username,
 			FirstName: userProfile.FirstName,
-			LastName: userProfile.LastName,
-            IsPublic: userProfile.IsPublic,
-        }, nil
-    }
-
+			LastName:  userProfile.LastName,
+			IsPublic:  userProfile.IsPublic,
+		}, nil
+	}
 	return userProfile, nil
 }
 
