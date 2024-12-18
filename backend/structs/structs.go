@@ -104,6 +104,7 @@ type PersonResponse struct {
 	ID        int    `json:"id"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	Role      string `json:"role"`
 }
 
 type GroupMemberResponse struct {
