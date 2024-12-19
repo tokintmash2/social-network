@@ -146,12 +146,12 @@ type GroupMemberResponse struct {
 
 type Notification struct {
 	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	Message   string    `json:"message"`
+	Users    []int       `json:"user_id"`
 	Type      string    `json:"type"`
-	LinkTo    string    `json:"linkTo"`
-	Read      bool      `json:"read"`
+	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`
+	Read      bool      `json:"read"`
+	// LinkTo    string    `json:"linkTo"`
 }
 
 type NotificationResponse struct {
