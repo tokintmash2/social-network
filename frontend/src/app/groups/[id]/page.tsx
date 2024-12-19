@@ -333,55 +333,68 @@ export default function Group() {
 				</div>
 
 				{(state.membershipRole === 'ADMIN' || state.membershipRole === 'MEMBER') && (
-					<div className='mb-4'>
-						<div className='flex justify-between'>
-							<div>
-								<h1 className='text-2xl font-bold text-primary mb-4'>Members</h1>
-								<div className='text-sm text-gray-500 mb-4'>
-									<span className='font-semibold'>Total members:</span>{' '}
-									{
-										state.members.filter(
-											(m) => m.role === 'member' || m.role === 'admin',
-										).length
-									}
+					<>
+						<div className='mb-4'>
+							<div className='flex justify-between'>
+								<div>
+									<h1 className='text-2xl font-bold text-primary mb-4'>
+										Members
+									</h1>
+									<div className='text-sm text-gray-500 mb-4'>
+										<span className='font-semibold'>Total members:</span>{' '}
+										{
+											state.members.filter(
+												(m) => m.role === 'member' || m.role === 'admin',
+											).length
+										}
+									</div>
+								</div>
+								<div>
+									<button
+										className='btn bg-white'
+										onClick={() => {
+											inviteModalRef.current?.showModal()
+											dispatch({
+												type: ACTIONS.TOGGLE_INVITE_MODAL,
+												payload: true,
+											})
+										}}
+									>
+										<FontAwesomeIcon icon={faPlus} />
+										Invite member
+									</button>
 								</div>
 							</div>
-							<div>
-								<button
-									className='btn bg-white'
-									onClick={() => {
-										inviteModalRef.current?.showModal()
-										dispatch({
-											type: ACTIONS.TOGGLE_INVITE_MODAL,
-											payload: true,
-										})
-									}}
-								>
-									<FontAwesomeIcon icon={faPlus} />
-									Invite member
-								</button>
+
+							<div className='bg-base-100 p-6 mb-6 rounded-lg'>
+								{state.members
+									.filter(
+										(member) =>
+											member.role === 'admin' || member.role === 'member',
+									)
+									.map((member) => (
+										<Link
+											key={'member-' + member.id}
+											href={`/profile/${member.id}`}
+											className='link link-hover mr-2 block'
+										>
+											{member.firstName} {member.lastName}{' '}
+											{member.role === 'admin' && (
+												<FontAwesomeIcon icon={faCrown} />
+											)}
+										</Link>
+									))}
 							</div>
 						</div>
 
-						<div className='bg-base-100 p-6 mb-6 rounded-lg'>
-							{state.members
-								.filter(
-									(member) => member.role === 'admin' || member.role === 'member',
-								)
-								.map((member) => (
-									<Link
-										key={'member-' + member.id}
-										href={`/profile/${member.id}`}
-										className='link link-hover mr-2 block'
-									>
-										{member.firstName} {member.lastName}{' '}
-										{member.role === 'admin' && (
-											<FontAwesomeIcon icon={faCrown} />
-										)}
-									</Link>
-								))}
+						<div className='mb-4'>
+							<div className='flex justify-between'>
+								<div>
+									<h1 className='text-2xl font-bold text-primary mb-4'>Events</h1>
+								</div>
+							</div>
 						</div>
-					</div>
+					</>
 				)}
 
 				<dialog ref={inviteModalRef} className='modal'>
