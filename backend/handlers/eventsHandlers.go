@@ -109,3 +109,38 @@ func (app *application) FetchGroupEventsHandler(w http.ResponseWriter, r *http.R
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func (app *application) FetchGroupEventHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("FetchGroupEventHandler called")
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	_, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+	pathParts := strings.Split(path, "/")
+	// groupID, _ := strconv.Atoi(pathParts[0])
+	eventID, _ := strconv.Atoi(pathParts[2])
+
+	log.Println("eventID: ", eventID)
+
+	event := utils.FetchEvent(eventID)
+
+	response := map[string]interface{}{
+		"success": true,
+		"events":  event,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
