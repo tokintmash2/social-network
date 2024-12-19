@@ -22,7 +22,8 @@ const ACTIONS = {
 
 	SET_LOADING: 'SET_LOADING',
 
-	SET_EVENT: 'SET_EVENT',
+	SET_EVENTS: 'SET_EVENTS',
+	TOGGLE_EVENT_RSVP: 'TOGGLE_EVENT_RSVP',
 	CREATE_EVENT: 'CREATE_EVENT',
 	RSVP: 'RSVP',
 }
@@ -36,6 +37,22 @@ type Group_type = {
 	members: { id: number; firstName: string; lastName: string; role: string }[]
 }
 
+type UserBasic_type = {
+	id: number
+	firstName: string
+	lastName: string
+}
+
+type Event_type = {
+	id: number
+	title: string
+	description: string
+	date_time: string
+	group_id: number
+	author: UserBasic_type
+	attendees: UserBasic_type[]
+}
+
 type GroupState_type = {
 	id: Group_type['id']
 	name: Group_type['name']
@@ -45,8 +62,9 @@ type GroupState_type = {
 	members: Group_type['members']
 	membershipRole: MembershipRole_type
 	loading: boolean
-	users: Group_type['members'][]
+	users: Group_type['members']
 	showInviteModal: boolean
+	events: Event_type[]
 }
 
 const GroupState_default: GroupState_type = {
@@ -60,6 +78,7 @@ const GroupState_default: GroupState_type = {
 	loading: true,
 	users: [],
 	showInviteModal: false,
+	events: [],
 }
 
 type UserResponse = {
@@ -89,6 +108,14 @@ type GroupActions_type =
 	| {
 			type: typeof ACTIONS.TOGGLE_INVITE_MODAL
 			payload: boolean
+	  }
+	| {
+			type: typeof ACTIONS.SET_EVENTS
+			payload: Event_type[]
+	  }
+	| {
+			type: typeof ACTIONS.TOGGLE_EVENT_RSVP
+			payload: { eventId: Event_type['id']; user: UserBasic_type }
 	  }
 
 function reducer(state: GroupState_type, action: GroupActions_type): GroupState_type {
@@ -132,14 +159,81 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 			}
 
 		case ACTIONS.SET_USERS:
-			if (Array.isArray(action.payload)) {
+			if (
+				Array.isArray(action.payload) &&
+				action.payload.every(
+					(user) =>
+						'id' in user && 'firstName' in user && 'lastName' in user && 'role' in user,
+				)
+			) {
 				return {
 					...state,
-					users: [action.payload],
+					users: action.payload,
 				}
 			}
 		case ACTIONS.TOGGLE_INVITE_MODAL:
 			return { ...state, showInviteModal: !state.showInviteModal }
+
+		case ACTIONS.SET_EVENTS:
+			if (
+				Array.isArray(action.payload) &&
+				action.payload.every(
+					(event) =>
+						'id' in event &&
+						'title' in event &&
+						'description' in event &&
+						'date_time' in event &&
+						'group_id' in event &&
+						'author' in event &&
+						'attendees' in event,
+				)
+			) {
+				console.log('SET_EVENTS payload', action.payload)
+				return { ...state, events: action.payload }
+			}
+		case ACTIONS.TOGGLE_EVENT_RSVP:
+			if (
+				typeof action.payload === 'object' &&
+				'payload' in action &&
+				'eventId' in action.payload &&
+				'user' in action.payload &&
+				typeof action.payload.eventId === 'number' &&
+				typeof action.payload.user === 'object' &&
+				'id' in action.payload.user &&
+				typeof action.payload.user.id === 'number' &&
+				'firstName' in action.payload.user &&
+				'lastName' in action.payload.user
+			) {
+				const payload = action.payload as { eventId: number; user: UserBasic_type }
+				// check if use is attending
+				const myEvent = state.events.find((e) => e.id === payload.eventId)
+				const isAttending = myEvent?.attendees.some((a) => a.id === payload.user.id)
+				if (isAttending) {
+					const newEvent = {
+						...myEvent!,
+						attendees: myEvent!.attendees.filter((a) => a.id !== payload.user.id),
+					}
+					const newEvents = state.events.map((e) =>
+						e.id === payload.eventId ? newEvent : e,
+					)
+					return {
+						...state,
+						events: newEvents,
+					}
+				} else {
+					const newEvent = {
+						...myEvent!,
+						attendees: [...myEvent!.attendees, payload.user],
+					}
+					const newEvents = state.events.map((e) =>
+						e.id === payload.eventId ? newEvent : e,
+					)
+					return {
+						...state,
+						events: newEvents,
+					}
+				}
+			}
 
 		default:
 			return state
@@ -184,8 +278,13 @@ export default function Group() {
 				const response = await axios.get(`${backendUrl}/api/groups/${id}/events`, {
 					withCredentials: true,
 				})
+
 				console.log('events', response.data)
 				if (response.data.success) {
+					dispatch({
+						type: ACTIONS.SET_EVENTS,
+						payload: response.data.events,
+					})
 				}
 			} catch (error) {
 				console.log('Error fetching events', error)
@@ -242,6 +341,28 @@ export default function Group() {
 			fetchUsers()
 		}
 	}, [state.members, loggedInUser, backendUrl])
+
+	const handleRSVPChange = async (eventId: number) => {
+		console.log('handleRSVPChange for event', eventId)
+		const myEvent = state.events.find((e) => e.id === eventId)
+		const isAttending = myEvent?.attendees?.some((a) => a.id === loggedInUser?.id)
+		let response = ''
+		try {
+			if (isAttending) {
+				response = await axios.delete(`${backendUrl}/api/events/${eventId}/rsvp`, {
+					withCredentials: true,
+				})
+			} else {
+				response = await axios.post(`${backendUrl}/api/events/${eventId}/rsvp`, {
+					withCredentials: true,
+				})
+			}
+
+			console.log('response', response)
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
 	const handleSendInvites = () => {
 		if (selectedOptions.length > 0) {
@@ -403,11 +524,57 @@ export default function Group() {
 						</div>
 
 						<div className='mb-4'>
-							<div className='flex justify-between'>
-								<div>
-									<h1 className='text-2xl font-bold text-primary mb-4'>Events</h1>
-								</div>
-							</div>
+							<h1 className='text-2xl font-bold text-primary mb-4'>Events</h1>
+
+							{state.events?.length > 0 &&
+								state.events.map((event) => (
+									<div
+										key={'event-' + event.id}
+										className='bg-base-100 p-6 mb-6 rounded-lg'
+									>
+										<div className='form-control mb-4'>
+											<div className='flex items-center justify-end'>
+												<span className='text-sm text-gray-600 mr-4'>
+													RSVP
+												</span>
+												<input
+													type='checkbox'
+													className='toggle toggle-md toggle-accent'
+													checked={event.attendees?.some(
+														(attendee) =>
+															attendee.id === loggedInUser?.id,
+													)}
+													onChange={() => handleRSVPChange(event.id)}
+												/>
+											</div>
+										</div>
+
+										<p>Event title: {event.title}</p>
+										<p>Event description: {event.description}</p>
+										<p>Event date: {event.date_time}</p>
+										<p>
+											Event author: {event.author.firstName}{' '}
+											{event.author.lastName}
+										</p>
+										<p>
+											Event attendees:{' '}
+											{event.attendees?.length > 0 && (
+												<>
+													{event.attendees.map((attendee) => (
+														<Link
+															key={'attendee-' + attendee.id}
+															href={`/profile/${attendee.id}`}
+															className='link link-hover mr-2 block'
+														>
+															{attendee.firstName} {attendee.lastName}
+														</Link>
+													))}
+												</>
+											)}{' '}
+											{!event.attendees && 'No attendees'}
+										</p>
+									</div>
+								))}
 						</div>
 					</>
 				)}

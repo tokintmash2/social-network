@@ -37,7 +37,7 @@ type UserResponse struct {
 }
 
 type Group struct {
-	ID          int
+	ID          int       `json:"id"`
 	CreatorID   int       `json:"creator_id"`
 	Name        string    `json:"group_name"`
 	Description string    `json:"group_description"`
@@ -45,7 +45,7 @@ type Group struct {
 }
 
 type Event struct {
-	EventID     int              `json:"event_id"`
+	EventID     int              `json:"id"`
 	GroupID     int              `json:"group_id"`
 	Title       string           `json:"title"`
 	Description string           `json:"description"`
