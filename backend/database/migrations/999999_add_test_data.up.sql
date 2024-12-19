@@ -107,3 +107,30 @@ VALUES (4, 3, "admin", "2024-12-12 15:05:49.419539+02:00");
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (4, 4, "member", "2024-12-12 15:05:49.419539+02:00");
+
+INSERT INTO events (group_id, title, description, date_time, created_by) 
+VALUES (1, 'Book Club Meeting', 'Join us for a virtual book club discussion!', '2024-03-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by) 
+VALUES (1, 'Nature Photography Workshop', 'Learn the basics of nature photography!', '2024-04-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by) 
+VALUES (2, 'Houseplant Care Tips', 'Discover the secrets of houseplant care!', '2024-05-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by) 
+VALUES (3, 'Farmhouse Renovation', 'Transform your farmhouse into a cozy haven!', '2024-06-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by) 
+VALUES (4, 'Dog Training Workshop', 'Learn the basics of dog training!', '2024-07-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by)
+VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-07-01 10:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by)
+VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-08-01 20:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by)
+VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-09-01 20:00:00+00:00', 4);
+
+INSERT INTO events (group_id, title, description, date_time, created_by)
+VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-10-01 20:00:00+00:00', 4);
