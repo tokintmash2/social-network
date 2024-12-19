@@ -165,56 +165,9 @@ func (app *application) FetchPostsHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// response := map[string]interface{}{
-	// 	"posts": posts,
-	// }
-
-	// response := []*structs.PostResponse{posts}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
 	return
 }
 
-func CreateGroupPostHandler(writer http.ResponseWriter, request *http.Request) {
-
-	log.Println("CreateGroupPostHandler called")
-
-	cookie, err := request.Cookie("session")
-	if err != nil {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther) // Needs to reviewed
-		return
-	}
-
-	sessionUUID := cookie.Value
-	userID, validSession := utils.VerifySession(sessionUUID, "CreatePostHandler")
-	if !validSession {
-		http.Redirect(writer, request, "/login", http.StatusSeeOther)
-		return
-	}
-
-	if request.Method == http.MethodPost {
-		var post structs.PostResponse
-
-		err := json.NewDecoder(request.Body).Decode(&post)
-		if err != nil {
-			http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
-			return
-		}
-
-		log.Println("Post:", post) // testing
-
-		post.Author.ID = userID
-		post.CreatedAt = time.Now()
-
-		response := map[string]interface{}{
-			"success": true,
-		}
-
-		writer.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(writer).Encode(response)
-		return
-	}
-
-	http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
-}
