@@ -178,7 +178,22 @@ export default function Group() {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: false })
 			}
 		}
+
+		const fetchEvents = async () => {
+			try {
+				const response = await axios.get(`${backendUrl}/api/groups/${id}/events`, {
+					withCredentials: true,
+				})
+				console.log('events', response.data)
+				if (response.data.success) {
+				}
+			} catch (error) {
+				console.log('Error fetching events', error)
+			}
+		}
+
 		fetchGroup()
+		fetchEvents()
 	}, [id, backendUrl])
 	useEffect(() => {
 		if (loggedInUser) {
