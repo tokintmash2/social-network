@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useReducer } from 'react'
+import React from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import Header from '../../components/Header'
 import { useParams } from 'next/navigation'
 import { useLoggedInUser } from '@/app/context/UserContext'
@@ -10,9 +11,14 @@ import DOMPurify from 'dompurify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faCrown } from '@fortawesome/free-solid-svg-icons'
 
+import dynamic from 'next/dynamic'
+
+const Select = dynamic(() => import('react-select'), { ssr: false })
 const ACTIONS = {
 	SET_GROUP: 'SET_GROUP',
 	SET_GROUP_MEMBERSHIP_ROLE: 'SET_GROUP_MEMBERSHIP_ROLE',
+	SET_USERS: 'SET_USERS',
+	TOGGLE_INVITE_MODAL: 'TOGGLE_INVITE_MODAL',
 
 	SET_LOADING: 'SET_LOADING',
 
@@ -39,6 +45,8 @@ type GroupState_type = {
 	members: Group_type['members']
 	membershipRole: MembershipRole_type
 	loading: boolean
+	users: Group_type['members'][]
+	showInviteModal: boolean
 }
 
 const GroupState_default: GroupState_type = {
@@ -50,6 +58,14 @@ const GroupState_default: GroupState_type = {
 	members: [],
 	membershipRole: 'NOT_MEMBER',
 	loading: true,
+	users: [],
+	showInviteModal: false,
+}
+
+type UserResponse = {
+	ID: number
+	FirstName: string
+	LastName: string
 }
 
 type MembershipRole_type = 'NOT_MEMBER' | 'PENDING' | 'MEMBER' | 'ADMIN'
@@ -64,6 +80,14 @@ type GroupActions_type =
 	  }
 	| {
 			type: typeof ACTIONS.SET_LOADING
+			payload: boolean
+	  }
+	| {
+			type: typeof ACTIONS.SET_USERS
+			payload: Group_type['members']
+	  }
+	| {
+			type: typeof ACTIONS.TOGGLE_INVITE_MODAL
 			payload: boolean
 	  }
 
@@ -107,17 +131,29 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 				}
 			}
 
+		case ACTIONS.SET_USERS:
+			if (Array.isArray(action.payload)) {
+				return {
+					...state,
+					users: [action.payload],
+				}
+			}
+		case ACTIONS.TOGGLE_INVITE_MODAL:
+			return { ...state, showInviteModal: !state.showInviteModal }
+
 		default:
 			return state
 	}
 }
-
 export default function Group() {
 	const params = useParams()
 	const id = params.id as string
 	const [state, dispatch] = useReducer(reducer, GroupState_default)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const { loggedInUser } = useLoggedInUser()
+	const inviteModalRef = useRef<HTMLDialogElement | null>(null)
+	const [options, setOptions] = useState([])
+	const [selectedOptions, setSelectedOptions] = useState<{ value: number; label: string }[]>([])
 	useEffect(() => {
 		const fetchGroup = async () => {
 			try {
@@ -162,19 +198,43 @@ export default function Group() {
 		}
 	}, [loggedInUser, state.members])
 
-	useEffect(() => {
-		const fetchAllUsers = async () => {
-			try {
-				const response = await axios.get(`${backendUrl}/api/users`, {
-					withCredentials: true,
-				})
-				console.log(response.data)
-			} catch (error) {
-				console.log('Error fetching all users', error)
+	const fetchUsers = async () => {
+		try {
+			const response = await axios.get(`${backendUrl}/api/users`, { withCredentials: true })
+			if (response.data.success) {
+				const allUsers = response.data.users
+				const nonMembers = allUsers.filter(
+					(user: UserResponse) =>
+						user.ID !== loggedInUser?.id &&
+						!state.members.some((member) => member.id === user.ID),
+				)
+				const formattedOptions = nonMembers.map((user: UserResponse) => ({
+					value: user.ID,
+					label: `${user.FirstName} ${user.LastName}`,
+				}))
+				setOptions(formattedOptions)
+				dispatch({ type: ACTIONS.SET_USERS, payload: nonMembers })
 			}
+		} catch (error) {
+			console.error('Error fetching users:', error)
 		}
-		fetchAllUsers()
-	}, [backendUrl])
+	}
+
+	useEffect(() => {
+		if (state.members.length > 0 && loggedInUser) {
+			fetchUsers()
+		}
+	}, [state.members, loggedInUser, backendUrl])
+
+	const handleSendInvites = () => {
+		if (selectedOptions.length > 0) {
+			const invitees = selectedOptions.map((option) => option.value)
+			inviteModalRef.current?.close()
+			dispatch({ type: ACTIONS.TOGGLE_INVITE_MODAL, payload: false })
+			console.log('Invitees:', invitees)
+			// TODO-WS: Send invite notifications to invitees
+		}
+	}
 
 	const getButtonText = () => {
 		switch (state.membershipRole) {
@@ -285,7 +345,16 @@ export default function Group() {
 								</div>
 							</div>
 							<div>
-								<button className='btn bg-white'>
+								<button
+									className='btn bg-white'
+									onClick={() => {
+										inviteModalRef.current?.showModal()
+										dispatch({
+											type: ACTIONS.TOGGLE_INVITE_MODAL,
+											payload: true,
+										})
+									}}
+								>
 									<FontAwesomeIcon icon={faPlus} />
 									Invite member
 								</button>
@@ -312,6 +381,44 @@ export default function Group() {
 						</div>
 					</div>
 				)}
+
+				<dialog ref={inviteModalRef} className='modal'>
+					<div className='modal-box w-11/12 max-w-5xl min-h-96'>
+						<div
+							className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'
+							onClick={() => {
+								inviteModalRef.current?.close()
+								dispatch({ type: ACTIONS.TOGGLE_INVITE_MODAL, payload: false })
+							}}
+						>
+							✕
+						</div>
+						<h2 className='text-lg font-bold mb-4'>Invite Members</h2>
+						<Select
+							options={options}
+							isMulti={true}
+							isSearchable={true}
+							onChange={(newValues) =>
+								newValues &&
+								setSelectedOptions(
+									Array.from(newValues as { value: number; label: string }[]),
+								)
+							}
+							instanceId='my-select'
+							inputId='my-select-input'
+						/>
+
+						<div className='modal-action'>
+							<button
+								className='btn'
+								onClick={handleSendInvites}
+								disabled={selectedOptions.length === 0}
+							>
+								Send Invitation
+							</button>
+						</div>
+					</div>
+				</dialog>
 			</div>
 		</div>
 	)
