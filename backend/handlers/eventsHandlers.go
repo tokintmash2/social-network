@@ -66,7 +66,27 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	utils.CreateEvent(event)
 
-	// TODO: notify group members about the new event
+	// notify group members about the new event
+	members, err := utils.GetGroupMembers(groupID) 
+	if err != nil {
+		http.Error(w, "Failed to fetch group members", http.StatusInternalServerError)
+		return
+	}
+
+	userIDs := make([]int, len(members))
+	for i, member := range members {
+		userIDs[i] = member.ID
+	}
+
+	notification := &structs.Notification{
+		Users:     userIDs,
+		Type:      "event_created",
+		Message:   fmt.Sprintf("New group event: %s", event.Title),
+		Timestamp: time.Now(),
+		Read:      false,
+	}
+
+	utils.CreateNotification(notification)
 
 	response := map[string]interface{}{
 		"success": true,
