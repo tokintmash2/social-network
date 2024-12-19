@@ -11,54 +11,54 @@ import (
 	"time"
 )
 
-func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
+// func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("GroupDetailsRouter called")
+// 	log.Println("GroupDetailsRouter called")
 
-	cookie, err := r.Cookie("session")
-	log.Println("Cookie:", cookie)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
+// 	cookie, err := r.Cookie("session")
+// 	log.Println("Cookie:", cookie)
+// 	if err != nil {
+// 		http.Redirect(w, r, "/login", http.StatusSeeOther)
+// 		return
+// 	}
 
-	sessionUUID := cookie.Value
-	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
-	if !validSession {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
+// 	sessionUUID := cookie.Value
+// 	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
+// 	if !validSession {
+// 		http.Redirect(w, r, "/login", http.StatusSeeOther)
+// 		return
+// 	}
 
-	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
-	pathParts := strings.Split(path, "/")
+// 	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+// 	pathParts := strings.Split(path, "/")
 
-	// GET
-	if r.Method == http.MethodGet {
-		if len(pathParts) < 2 {
-			// Handle /api/groups/:id
-			GroupDetailsHandler(w, r)
-			return
-		}
-	}
+// 	// GET
+// 	if r.Method == http.MethodGet {
+// 		if len(pathParts) < 2 {
+// 			// Handle /api/groups/:id
+// 			GroupDetailsHandler(w, r)
+// 			return
+// 		}
+// 	}
 	
-	// POST etc
-	if r.Method != http.MethodGet {
-		groupID, _ := strconv.Atoi(pathParts[0])
-		switch pathParts[1] {
-		case "posts":
-			// /api/groups/:id/posts/
-			GroupPostsHandler(w, r, CurrentUserID, groupID)
-		case "messages":
-			GroupMessagesHandler(w, r, groupID)
-		case "members":
-			GroupMembersHandler(w, r, groupID)
-		default:
-			http.NotFound(w, r)
-		}
-	}
-}
+// 	// POST etc
+// 	if r.Method != http.MethodGet {
+// 		groupID, _ := strconv.Atoi(pathParts[0])
+// 		switch pathParts[1] {
+// 		// case "posts":
+// 		// 	// /api/groups/:id/posts/
+// 		// 	GroupPostsHandler(w, r, CurrentUserID, groupID)
+// 		case "messages":
+// 			GroupMessagesHandler(w, r, groupID)
+// 		case "members":
+// 			GroupMembersHandler(w, r, groupID)
+// 		default:
+// 			http.NotFound(w, r)
+// 		}
+// 	}
+// }
 
-func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GroupDetailsHandler called")
 
@@ -108,9 +108,27 @@ func GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GroupPostsHandler(w http.ResponseWriter, r *http.Request, userID, groupID int) {
+func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("CreatePostHandler called")
+
+	cookie, err := r.Cookie("session")
+	log.Println("Cookie:", cookie)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	userID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+	pathParts := strings.Split(path, "/")
+	groupID, _ := strconv.Atoi(pathParts[0])
 
 	log.Println("User ID:", userID)
 	log.Println("Group ID:", groupID)
@@ -169,7 +187,7 @@ func GroupPostsHandler(w http.ResponseWriter, r *http.Request, userID, groupID i
 	post.CreatedAt = time.Now()
 	post.GroupID = groupID
 
-	err := utils.CreateGroupPost(post)
+	err = utils.CreateGroupPost(post)
 	if err != nil {
 		log.Printf("Error creating post in CreatePostHandler: %v\n", err)
 		http.Error(w, "Error creating post", http.StatusInternalServerError)
@@ -187,5 +205,5 @@ func GroupPostsHandler(w http.ResponseWriter, r *http.Request, userID, groupID i
 
 }
 
-func GroupMessagesHandler(w http.ResponseWriter, r *http.Request, groupID int) {
+func (app *application) GroupMessagesHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 }
