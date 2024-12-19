@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"social-network/utils"
+	"strconv"
+	"strings"
 )
 
 func (app *application) FetchNotificationsHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,5 +38,30 @@ func (app *application) FetchNotificationsHandler(w http.ResponseWriter, r *http
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+
+}
+
+func (app *application) MarkNotificationHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("MarkNotificationAsReadHandler called")
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	_, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/notifications/")
+	pathParts := strings.Split(path, "/")
+	notificationID, _ := strconv.Atoi(pathParts[0])
+
+	utils.MarkNotificationAsRead(notificationID)
 
 }

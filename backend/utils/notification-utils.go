@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"social-network/database"
 	"social-network/structs"
 )
@@ -68,4 +69,13 @@ func FetchNotifications(userID int) ([]structs.Notification, error) {
 		notifications = append(notifications, notification)
 	}
 	return notifications, nil
+}
+
+func MarkNotificationAsRead(notificationID int) error {
+	_, err := database.DB.Exec("UPDATE notifications SET seen_status = 1 WHERE notification_id = ?",
+		notificationID)
+	if err != nil {
+		return fmt.Errorf("error marking notification as read: %v", err)
+	}
+	return nil
 }

@@ -30,6 +30,7 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	// r.HandleFunc("POST /api/groups/{id}/messages", app.GroupMessagesHandler)
 	
 	r.HandleFunc("GET /api/notifications", app.FetchNotificationsHandler) // Fetch all user notifications
+	r.HandleFunc("PATCH /api/notifications/{id}", app.MarkNotificationHandler)
 
 	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
 	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)
