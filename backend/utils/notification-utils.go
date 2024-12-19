@@ -38,3 +38,34 @@ func CreateNotification(notification *structs.Notification) error {
 
 	return tx.Commit()
 }
+
+func FetchNotifications(userID int) ([]structs.Notification, error) {
+
+	rows, err := database.DB.Query(`
+        SELECT notification_id, type, message, created_at, seen_status
+        FROM notifications
+        WHERE user_id = ? AND seen_status = 0
+        ORDER BY created_at DESC
+    `, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	notifications := []structs.Notification{}
+
+	for rows.Next() {
+		var notification structs.Notification
+		err := rows.Scan(
+			&notification.ID,
+			&notification.Type,
+			&notification.Message,
+			&notification.Timestamp,
+			&notification.Read)
+		if err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, notification)
+	}
+	return notifications, nil
+}

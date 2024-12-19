@@ -28,7 +28,8 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("POST /api/groups/{group_id}/events/{event_id}/rsvp", app.RSVPEventHandler) 
 	r.HandleFunc("DELETE /api/groups/{group_id}/events/{event_id}/rsvp", app.RSVPEventHandler)
 	// r.HandleFunc("POST /api/groups/{id}/messages", app.GroupMessagesHandler)
-	// r.HandleFunc("GET /api/notifications", app.FetchNotificationsHandler)
+	
+	r.HandleFunc("GET /api/notifications", app.FetchNotificationsHandler) // Fetch all user notifications
 
 	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
 	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)
