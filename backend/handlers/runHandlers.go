@@ -15,7 +15,6 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("/api/followers/requests", FollowRequestHandler)
 	r.HandleFunc("/api/verify-session", VerifySessionHandler)
 	r.HandleFunc("/toggle-privacy", TogglePrivacyHandler)
-	// r.HandleFunc("/api/groups", GroupsRouter)
 	r.HandleFunc("GET /api/groups", app.FetchAllGroupsHandler)
 	r.HandleFunc("POST /api/groups", app.CreateGroupHandler)
 	r.HandleFunc("GET /api/groups/{id}", app.GroupDetailsHandler)
@@ -30,7 +29,10 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("DELETE /api/groups/{group_id}/events/{event_id}/rsvp", app.RSVPEventHandler) // Fetch one
 	// r.HandleFunc("POST /api/groups/{id}/messages", app.GroupMessagesHandler)
 
-	r.HandleFunc("/api/posts", PostsHandler)
+	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
+	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)
+
+	// r.HandleFunc("/api/posts", PostsHandler)
 	r.HandleFunc("/api/posts/", PostDetailHandler)
 	// r.HandleFunc("/group-posts", CreateGroupPostHandler)
 	r.HandleFunc("GET /ws", app.WebSocketHandler)

@@ -40,7 +40,7 @@ import (
 // 			return
 // 		}
 // 	}
-	
+
 // 	// POST etc
 // 	if r.Method != http.MethodGet {
 // 		groupID, _ := strconv.Atoi(pathParts[0])
@@ -183,7 +183,11 @@ func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request
 	// 	return
 	// }
 
+	author, err := utils.GetUserProfile(userID)
+
 	post.Author.ID = userID
+	post.Author.FirstName = author.FirstName
+	post.Author.LastName = author.LastName
 	post.CreatedAt = time.Now()
 	post.GroupID = groupID
 

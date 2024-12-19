@@ -184,7 +184,7 @@ func CreateGroupPost(newPost structs.PostResponse) error {
 	}
 
 	return nil
-	
+
 	// log.Printf("About to set post access for postID: %d", postID)
 	// return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
 }

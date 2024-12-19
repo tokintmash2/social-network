@@ -11,20 +11,20 @@ import (
 	"time"
 )
 
-func PostsHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		FetchPostsHandler(w, r)
-	case "POST":
-		log.Println("Metheod is POST")
-		CreatePostHandler(w, r)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
+// func PostsHandler(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case "GET":
+// 		FetchPostsHandler(w, r)
+// 	case "POST":
+// 		log.Println("Metheod is POST")
+// 		CreatePostHandler(w, r)
+// 	default:
+// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 	}
+// }
 
 // CreatePostHandler manages post creation functionality
-func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
+func (app *application) CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 
 	log.Println("CreatePostHandler called")
 
@@ -93,7 +93,11 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
+		author, err := utils.GetUserProfile(userID)
+
 		post.Author.ID = userID
+		post.Author.FirstName = author.FirstName
+		post.Author.LastName = author.LastName
 		post.CreatedAt = time.Now()
 
 		err = utils.CreatePost(post)
@@ -116,7 +120,7 @@ func CreatePostHandler(writer http.ResponseWriter, request *http.Request) {
 	http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) FetchPostsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("FetchPostsHandler called")
 
