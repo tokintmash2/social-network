@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Image from 'next/image'
@@ -8,19 +7,15 @@ import { mapUserApiResponseToUser } from '../utils/userMapper'
 import { User, UserDataProps_type } from '../utils/types/types'
 import { formatDate } from '../utils/dateUtils'
 import PostsContainer from '../containers/PostsContainer'
-
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 const avatarUrl = `${backendUrl}/avatars/`
-
 export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData] = useState<{ following: number; followers: number }>({
 		following: 0,
 		followers: 0,
 	})
-
 	const { loggedInUser } = useLoggedInUser()
-
 	useEffect(() => {
 		const fetchUserData = async () => {
 			try {
@@ -37,7 +32,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			fetchUserData()
 		}
 	}, [userId, isOwnProfile])
-
 	useEffect(() => {
 		if (isOwnProfile && loggedInUser) {
 			console.log('isOwnProfile | loggedInUser', loggedInUser)
@@ -46,7 +40,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			console.log('isOwnProfile | loggedInUser null')
 		}
 	}, [isOwnProfile, loggedInUser])
-
 	/*  use when this api endpoint is ready
     
     useEffect(() => {
@@ -73,7 +66,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 				isPublic: !prevUserData.isPublic,
 			}
 		})
-
 		try {
 			const response = await axios.get('http://localhost:8080/toggle-privacy', {
 				withCredentials: true,
@@ -86,9 +78,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			console.error('Error toggling privacy:', error)
 		}
 	}
-
 	const accessType = 'PUBLIC' // remove when user has accessType info from api
-
 	/*
     UNCOMMENT WHEN USER HAS ACCESSTYPE INFO FROM API.
     useEffect(() => {
@@ -102,9 +92,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 		}
 	}, [userData]) */
 	const followButtonText = 'dummy text'
-
 	const handleFollow = () => {}
-
 	return (
 		<div>
 			{userData ? (
@@ -113,7 +101,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 						{/* Gradient Background */}
 						<div className='relative h-[350px] rounded-b-lg overflow-hidden'>
 							<div className='w-full h-full bg-gradient-to-r from-[#687984] to-[#B9D7EA]' />
-
 							{/* Profile Picture and Name Container */}
 							<div className='absolute top-8 left-8 flex items-center'>
 								{/* Profile Picture */}
@@ -139,7 +126,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 										</div>
 									)}
 								</div>
-
 								{/* Name and Username */}
 								<div className='ml-6'>
 									<h2 className='text-3xl font-bold text-white'>
@@ -150,7 +136,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 									)}
 								</div>
 							</div>
-
 							{/* Follow Stats */}
 							{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
 								<div className='absolute bottom-8 left-8 flex gap-6 text-white'>
@@ -169,7 +154,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								</div>
 							)}
 						</div>
-
 						{/* Profile Info Card */}
 						<div className='w-full bg-white rounded-lg shadow-sm p-6 mt-8'>
 							{/* Privacy Toggle */}
@@ -188,7 +172,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 									</div>
 								</div>
 							)}
-
 							{/* Follow Button */}
 							{!isOwnProfile && (
 								<div className='mb-4'>
@@ -200,7 +183,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 									</button>
 								</div>
 							)}
-
 							{/* User Info */}
 							<div className='profile-info text-gray-700'>
 								{userData.dob && (
@@ -225,7 +207,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								)}
 							</div>
 						</div>
-
 						{/* Posts Container */}
 						<div className='mt-8'>
 							<PostsContainer

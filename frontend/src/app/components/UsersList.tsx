@@ -1,15 +1,22 @@
 'use client'
 
+import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+
 export default function UsersList() {
+    const [isOpen, setIsOpen] = useState(false)
+
     return (
-        <div className="fixed right-0 top-16 w-64 h-[calc(100vh-4rem)] bg-white shadow-lg overflow-y-auto">
+        <div className='fixed right-0 top-16 w-64 h-[calc(100vh-4rem)] bg-white shadow-lg overflow-y-auto">
+'>
             <div className="p-4">
               
             </div>
-            <div className="overflow-y-auto h-full">
-                <div className="p-4 hover:bg-gray-50 cursor-pointer">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+            <div className='overflow-y-auto h-full'>
+                <div className='p-4 hover:bg-gray-50 cursor-pointer'>
+                    <div className='flex items-center gap-3'>
+                        <div className='w-8 h-8 bg-gray-200 rounded-full'></div>
                         <span>User Name</span>
                     </div>
                 </div>

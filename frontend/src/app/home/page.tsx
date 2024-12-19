@@ -10,12 +10,13 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 export default function HomePage() {
 	const { loggedInUser } = useLoggedInUser()
 
+
 	return (
 		<div className='min-h-screen pt-16'>
 			<Header />
 			{loggedInUser && (
 				<main className='flex min-h-screen'>
-					<aside className='w-1/6 p-6 bg-base-100 border-r border-gray-200 min-h-screen fixed'>
+					<aside className='w-1/6 p-6 bg-base-100 border-r border-gray-200 min-h-screen fixed max-[980px]:hidden'>
 						<div className='flex flex-col items-center'>
 							<Link href='/profile' className='avatar mb-4'>
 								{loggedInUser.avatar &&
@@ -49,7 +50,7 @@ export default function HomePage() {
 							)}
 						</div>
 					</aside>
-					<section className='w-2/3 p-6 ml-[16.666667%]'>
+					<section className='flex-1 ml-[16.666667%] px-8 pl-12 pr-2 pt-2 max-[980px]:ml-0 max-[980px]:px-4'>
 						<PostsContainer userId={loggedInUser.id} isOwnProfile={false} feed={true} />
 					</section>
 				</main>
