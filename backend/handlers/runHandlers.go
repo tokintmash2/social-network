@@ -36,9 +36,9 @@ func RunHandlers(r *http.ServeMux, app *application) {
 
 	r.HandleFunc("/api/posts/", PostDetailHandler)
 	// r.HandleFunc("/group-posts", CreateGroupPostHandler)
-	r.HandleFunc("GET /ws", app.WebSocketHandler)
+	r.HandleFunc("GET /ws", app.authenticate(app.WebSocketHandler, false))
 
-	r.HandleFunc("GET /api/users/", app.UsersHandler)
+	r.HandleFunc("GET /api/users/", app.authenticate(app.UsersHandler, true))
 
 	// r.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir("./avatars"))))
 	r.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))

@@ -6,9 +6,7 @@ package handlers
 
 import (
 	"log"
-	"log/slog"
 	"net/http"
-	"social-network/utils"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
@@ -140,20 +138,7 @@ func (app *application) WebSocketHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	cookie, err := r.Cookie("session")
-	if err != nil {
-		app.logger.Error("Error getting session cookie:", slog.Any("err", err))
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Use sessionUUID to get userID
-	userID, valid := utils.VerifySession(cookie.Value, "Handleconnections")
-	if !valid {
-		app.logger.Error("Invalid session:", slog.Any("err", err))
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	userID := app.contextGetUser(r)
 
 	upgrader.CheckOrigin = checkFrontendOrigin
 	conn, err := upgrader.Upgrade(w, r, nil)
