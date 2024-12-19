@@ -238,7 +238,7 @@ export default function Group() {
 		}
 	}
 
-	const getButtonText = () => {
+	const getChangeMembershipButtonText = () => {
 		switch (state.membershipRole) {
 			case 'ADMIN':
 				return ''
@@ -252,7 +252,7 @@ export default function Group() {
 		}
 	}
 
-	const handleButtonClick = async () => {
+	const handleChangeMembershipButtonClick = async () => {
 		switch (state.membershipRole) {
 			case 'MEMBER':
 			case 'PENDING':
@@ -312,9 +312,9 @@ export default function Group() {
 									{state.membershipRole !== 'ADMIN' && (
 										<button
 											className='btn btn-outline btn-sm'
-											onClick={handleButtonClick}
+											onClick={handleChangeMembershipButtonClick}
 										>
-											{getButtonText()}
+											{getChangeMembershipButtonText()}
 										</button>
 									)}
 								</div>
