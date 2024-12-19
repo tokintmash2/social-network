@@ -6,16 +6,14 @@ import axios from "axios"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { mapUserApiResponseToUser } from "../utils/userMapper"
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export default function UsersList() {
     const [isOpen, setIsOpen] = useState(false)
-    const [users, setUsers] = useState<User[]>([
-        { id: 123, username: "testuser", dob: new Date(), email: "", firstName: "", lastName: "", isPublic: true },
-        { id: 124, username: "testuser5", dob: new Date(), email: "", firstName: "", lastName: "", isPublic: true },
-        { id: 125, username: "testuser4", dob: new Date(), email: "", firstName: "", lastName: "", isPublic: true },
-    ])
+    const [users, setUsers] = useState<User[]>([])
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -24,11 +22,11 @@ export default function UsersList() {
             })
 
             if (response.data.users) {
-                setUsers(response.data.users)
+                setUsers(response.data.users.map(mapUserApiResponseToUser))
             }
         }
         fetchUsers()
-    })
+    }, [backendUrl])
 
 	return (
 		<div className="fixed right-0 top-16 w-64 h-[calc(100vh-4rem)] bg-white shadow-lg overflow-y-auto">
