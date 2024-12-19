@@ -2,61 +2,133 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"social-network/utils"
+	"strings"
 )
 
 func FollowersHandler(writer http.ResponseWriter, request *http.Request) {
-
 	var follower struct {
 		FollowerID int `json:"user_id"`
 		FollowedID int `json:"followed_id"`
 	}
 
 	path := request.URL.Path
-	// log.Println("URL Path:", urlPath)
-	// userIdStr := strings.TrimPrefix(urlPath, "/followers/")
-	// follower.FollowedID, _ = strconv.Atoi(userIdStr)
+	var err error
+	follower.FollowedID, err = utils.FetchIdFromPath(path, 2)
+	if err != nil {
+		log.Printf("Error fetching ID from path: %v", err)
+		http.Error(writer, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
 
-	follower.FollowedID, _ = utils.FetchIdFromPath(path, 1)
-
-	log.Println("ID:", follower.FollowedID)
+	log.Println("FollowedID:", follower.FollowedID)
 
 	cookie, err := request.Cookie("session")
 	if err != nil {
 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
 		return
 	}
-
 	var validSession bool
-
 	sessionUUID := cookie.Value
 	follower.FollowerID, validSession = utils.VerifySession(sessionUUID, "FollowersHandler")
-	log.Println("FollowersHandler follower: ", follower)
-	log.Println("FollowersHandler validSession: ", validSession)
 	if !validSession {
 		http.Redirect(writer, request, "/login", http.StatusSeeOther)
 		return
 	}
 
-	// err = json.NewDecoder(request.Body).Decode(&follower)
-	// if err != nil {
-	// 	http.Error(writer, "Invalid JSON payload", http.StatusBadRequest)
-	// 	return
-	// }
-
-	log.Println("FollowersHandler follower: ", follower)
-
-	if request.Method == http.MethodPost {
+	switch request.Method {
+	case http.MethodPost:
 		// Add a follower
 		err := utils.AddFollower(follower.FollowerID, follower.FollowedID)
 		if err != nil {
 			http.Error(writer, "Error adding follower", http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(writer).Encode(map[string]interface {
-		}{"success": true,
-			"message": "Follower added successfully"})
+		json.NewEncoder(writer).Encode(map[string]interface{}{
+			"success": true,
+			"message": "Follower added successfully",
+		})
+
+	case http.MethodGet:
+		followers, err := utils.GetFollowers(follower.FollowedID)
+		if err != nil {
+			http.Error(writer, "Error getting followers", http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(writer).Encode(map[string]interface{}{
+			"success":   true,
+			"followers": followers,
+		})
+
+	case http.MethodDelete:
+		err := utils.RemoveFollower(follower.FollowerID, follower.FollowedID)
+		if err != nil {
+			log.Printf("Error in RemoveFollower: %v", err)
+
+			if err.Error() == "no follower relationship found between users" {
+				http.Error(writer, "Follower relationship not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(writer, "Error removing follower", http.StatusInternalServerError)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(writer).Encode(map[string]interface{}{
+			"success": true,
+			"message": "Follower removed successfully",
+		})
+
+	default:
+		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func FollowRequestHandler(writer http.ResponseWriter, request *http.Request) {
+	cookie, err := request.Cookie("session")
+	if err != nil {
+		http.Error(writer, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	followedID, validSession := utils.VerifySession(sessionUUID, "FollowRequestHandler")
+	if !validSession {
+		http.Error(writer, "Invalid session", http.StatusUnauthorized)
+		return
+	}
+
+	var requestData struct {
+		FollowerID int    `json:"follower_id"`
+		Action     string `json:"action"` // "accept" or "reject"
+	}
+
+	if err := json.NewDecoder(request.Body).Decode(&requestData); err != nil {
+		http.Error(writer, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	err = utils.HandleFollowRequest(requestData.FollowerID, followedID, requestData.Action)
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), "invalid action"):
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+		case strings.Contains(err.Error(), "no follow request found"):
+			http.Error(writer, err.Error(), http.StatusNotFound)
+		default:
+			log.Printf("Error handling follow request: %v", err)
+			http.Error(writer, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(writer).Encode(map[string]interface{}{
+		"success": true,
+		"message": fmt.Sprintf("Follow request %sed successfully", requestData.Action),
+	})
 }

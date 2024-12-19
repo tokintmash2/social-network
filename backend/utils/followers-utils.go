@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"social-network/database"
@@ -63,31 +64,158 @@ func createFollowRelationship(followerID, followedID int, status string) error {
 }
 
 func RemoveFollower(followerID, followedID int) error {
-	_, err := database.DB.Exec(`
+	log.Printf("Removing follower relationship: follower=%d, followed=%d", followerID, followedID)
+
+	if followerID == followedID {
+		return fmt.Errorf("invalid operation: cannot unfollow yourself")
+	}
+
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	result, err := tx.Exec(`
         DELETE FROM followers
         WHERE follower_id = ? AND followed_id = ?`,
 		followerID, followedID,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("error removing follower: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking affected rows: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no follower relationship found between users %d and %d", followerID, followedID)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	log.Printf("Successfully removed follower relationship")
+	return nil
 }
 
 func GetFollowers(userID int) ([]int, error) {
+	log.Printf("Getting followers for user %d", userID)
+
 	rows, err := database.DB.Query(`
-        SELECT follower_id FROM followers
+        SELECT follower_id 
+        FROM followers 
         WHERE followed_id = ?`,
 		userID,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error querying followers: %v", err)
 	}
 	defer rows.Close()
+
 	var followers []int
 	for rows.Next() {
 		var followerID int
 		if err := rows.Scan(&followerID); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning follower data: %v", err)
 		}
 		followers = append(followers, followerID)
 	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over followers: %v", err)
+	}
+
+	log.Printf("Retrieved %d followers successfully", len(followers))
 	return followers, nil
+}
+
+func HandleFollowRequest(followerID, followedID int, action string) error {
+	log.Printf("Handling follow request: follower=%d, followed=%d, action=%s",
+		followerID, followedID, action)
+
+	if err := validateRequest(followerID, followedID, action); err != nil {
+		return err
+	}
+
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+	defer tx.Rollback()
+
+	if err := verifyPendingRequest(tx, followerID, followedID); err != nil {
+		return err
+	}
+
+	if err := executeAction(tx, followerID, followedID, action); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	log.Printf("Successfully %sed follow request", action)
+	return nil
+}
+
+func validateRequest(followerID, followedID int, action string) error {
+	if followerID == followedID {
+		return fmt.Errorf("invalid operation: cannot handle self-follow")
+	}
+	if action != "accept" && action != "reject" {
+		return fmt.Errorf("invalid action: must be 'accept' or 'reject'")
+	}
+	return nil
+}
+
+func verifyPendingRequest(tx *sql.Tx, followerID, followedID int) error {
+	var status string
+	err := tx.QueryRow(`
+		SELECT status 
+		FROM followers 
+		WHERE follower_id = ? AND followed_id = ?`,
+		followerID, followedID,
+	).Scan(&status)
+
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("no follow request found")
+	}
+	if err != nil {
+		return fmt.Errorf("error checking follow request: %v", err)
+	}
+	if status != "pending" {
+		return fmt.Errorf("can only handle pending follow requests, current status: %s", status)
+	}
+	return nil
+}
+
+func executeAction(tx *sql.Tx, followerID, followedID int, action string) error {
+	var query string
+	if action == "accept" {
+		query = `UPDATE followers 
+			SET status = 'accepted'
+			WHERE follower_id = ? AND followed_id = ? AND status = 'pending'`
+	} else {
+		query = `DELETE FROM followers
+			WHERE follower_id = ? AND followed_id = ? AND status = 'pending'`
+	}
+
+	result, err := tx.Exec(query, followerID, followedID)
+	if err != nil {
+		return fmt.Errorf("error %sing follow request: %v", action, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking affected rows: %v", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no pending follow request found")
+	}
+	return nil
 }
