@@ -162,6 +162,20 @@ export default function Group() {
 		}
 	}, [loggedInUser, state.members])
 
+	useEffect(() => {
+		const fetchAllUsers = async () => {
+			try {
+				const response = await axios.get(`${backendUrl}/api/users`, {
+					withCredentials: true,
+				})
+				console.log(response.data)
+			} catch (error) {
+				console.log('Error fetching all users', error)
+			}
+		}
+		fetchAllUsers()
+	}, [backendUrl])
+
 	const getButtonText = () => {
 		switch (state.membershipRole) {
 			case 'ADMIN':
