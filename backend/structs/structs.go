@@ -39,12 +39,14 @@ type Group struct {
 }
 
 type Event struct {
-	EventID     int       `json:"event_id"`
-	GroupID     int       `json:"group_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	DateTime    time.Time `json:"date_time"`
-	CreatedBy   int       `json:"created_by"`
+	EventID     int              `json:"event_id"`
+	GroupID     int              `json:"group_id"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
+	DateTime    time.Time        `json:"date_time"`
+	CreatedBy   int              `json:"created_by"`
+	Author      PersonResponse   `json:"author"`
+	Attendees   []PersonResponse `json:"attendees"`
 }
 
 type Message struct { // Needs review

@@ -65,6 +65,8 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	utils.CreateEvent(event)
 
+	// TODO: notify group members about the new event
+
 	response := map[string]interface{}{
 		"success": true,
 		"post":    event,
@@ -76,5 +78,34 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
-func (app *application) FetchAllEventsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) FetchGroupEventsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("FetchGroupEventsHandler called")
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	_, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+	pathParts := strings.Split(path, "/")
+	groupID, _ := strconv.Atoi(pathParts[0])
+
+	events := utils.FetchGroupEvents(groupID)
+
+	response := map[string]interface{}{
+		"success": true,
+		"events":  events,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
