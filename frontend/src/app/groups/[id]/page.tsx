@@ -198,29 +198,31 @@ export default function Group() {
 		}
 	}, [loggedInUser, state.members])
 
-	const fetchUsers = async () => {
-		try {
-			const response = await axios.get(`${backendUrl}/api/users`, { withCredentials: true })
-			if (response.data.success) {
-				const allUsers = response.data.users
-				const nonMembers = allUsers.filter(
-					(user: UserResponse) =>
-						user.ID !== loggedInUser?.id &&
-						!state.members.some((member) => member.id === user.ID),
-				)
-				const formattedOptions = nonMembers.map((user: UserResponse) => ({
-					value: user.ID,
-					label: `${user.FirstName} ${user.LastName}`,
-				}))
-				setOptions(formattedOptions)
-				dispatch({ type: ACTIONS.SET_USERS, payload: nonMembers })
-			}
-		} catch (error) {
-			console.error('Error fetching users:', error)
-		}
-	}
-
 	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				const response = await axios.get(`${backendUrl}/api/users`, {
+					withCredentials: true,
+				})
+				if (response.data.success) {
+					const allUsers = response.data.users
+					const nonMembers = allUsers.filter(
+						(user: UserResponse) =>
+							user.ID !== loggedInUser?.id &&
+							!state.members.some((member) => member.id === user.ID),
+					)
+					const formattedOptions = nonMembers.map((user: UserResponse) => ({
+						value: user.ID,
+						label: `${user.FirstName} ${user.LastName}`,
+					}))
+					setOptions(formattedOptions)
+					dispatch({ type: ACTIONS.SET_USERS, payload: nonMembers })
+				}
+			} catch (error) {
+				console.error('Error fetching users:', error)
+			}
+		}
+
 		if (state.members.length > 0 && loggedInUser) {
 			fetchUsers()
 		}
