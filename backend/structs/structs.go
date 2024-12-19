@@ -17,6 +17,12 @@ type User struct {
 	// Gender    string
 }
 
+type UserBasic struct {
+	ID        int
+	FirstName string
+	LastName  string
+}
+
 type UserResponse struct {
 	ID        int              `json:"id"`
 	Email     string           `json:"email"`

@@ -96,6 +96,35 @@ func GetUserProfile(userID int) (structs.User, error) {
 	return userProfile, nil
 }
 
+func GetAllUsers() ([]structs.UserBasic, error) {
+	rows, err := database.DB.Query(`
+        SELECT id, first_name, last_name
+        FROM users
+    `)
+	if err != nil {
+		log.Printf("Error querying all users: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []structs.UserBasic
+	for rows.Next() {
+		var user structs.UserBasic
+		err := rows.Scan(
+			&user.ID,
+			&user.FirstName,
+			&user.LastName,
+		)
+		if err != nil {
+			log.Printf("Error scanning user row: %v", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func ToggleUserPrivacy(userID int) error {
 	_, err := database.DB.Exec(`
         UPDATE users

@@ -38,8 +38,6 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 	// 	return
 	// }
 
-	
-
 	message := ""
 
 	if r.Method == http.MethodPost { // Add member
