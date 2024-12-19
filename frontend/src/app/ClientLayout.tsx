@@ -23,8 +23,12 @@ function SocialFeatures() {
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<UserProvider>
+			 <div className="flex min-h-screen">
+			 <div className="flex-1 mr-64">
 			{children}
+			</div>
 			<SocialFeatures />
+			</div>
 		</UserProvider>
 	)
 }
