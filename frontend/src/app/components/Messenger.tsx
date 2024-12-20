@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 
-export default function Messenger() {
-    const [isOpen, setIsOpen] = useState(false)
+export default function Messenger({ onClose, receiverID }: { onClose: Function, receiverID: Number }) {
+    const [isOpen, setIsOpen] = useState(true)
     const [messageContent, setMessageContent] = useState('')
 
     return (

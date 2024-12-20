@@ -17,6 +17,7 @@ type application struct {
 	logger *slog.Logger
 	hub    *Hub
 	users  *models.UserModel
+	chat   *models.ChatModel
 }
 
 func SetupServer() {
@@ -40,6 +41,7 @@ func SetupServer() {
 		logger: logger,
 		hub:    newHub(),
 		users:  &models.UserModel{DB: database.DB},
+		chat:   &models.ChatModel{DB: database.DB},
 	}
 
 	go app.hub.run(app)

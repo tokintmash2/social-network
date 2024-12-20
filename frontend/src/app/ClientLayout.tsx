@@ -4,17 +4,30 @@ import { usePathname } from 'next/navigation'
 import { useLoggedInUser, UserProvider } from './context/UserContext'
 import UsersList from './components/UsersList'
 import Messenger from './components/Messenger'
+import { useState } from 'react'
 
 function SocialFeatures() {
     const pathname = usePathname()
     const { loggedInUser } = useLoggedInUser()
     const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
     const showSocialFeatures = loggedInUser && !isAuthPage
+    const [ activeChats, setActiveChats ] = useState<Number[]>([])
+    const openChat = (id: Number) => {
+        console.log("Open chat with:", id)
+        setActiveChats(Array.from(new Set([...activeChats, id]).values()))
+    }
+    const closeChat = (id: Number) => {
+        console.log("Close chat with:", id)
+    }
 
     return showSocialFeatures ? (
         <>
-            <UsersList />
-            <Messenger />
+            <UsersList onChat={openChat} />
+            <div>
+                {activeChats.map((id) => (
+                    <Messenger onClose={closeChat} receiverID={id} key={String(id)} />
+                ))}
+            </div>
         </>
     ) : null
 }

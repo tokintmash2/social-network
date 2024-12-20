@@ -31,14 +31,17 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("GET /api/notifications", app.FetchNotificationsHandler) // Fetch all user notifications
 	r.HandleFunc("PATCH /api/notifications/{id}", app.MarkNotificationHandler)
 
+	//r.HandleFunc("GET /api/chat", app.ListChatRoomsHandler)
+	r.HandleFunc("GET /api/chat/{id}", app.authenticate(app.ListChatHandler, false))
+	r.HandleFunc("POST /api/chat", app.authenticate(app.SaveChatHandler, false))
+	r.HandleFunc("GET /api/chat/users", app.authenticate(app.UsersHandler, true))
+
 	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
 	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)
 
 	r.HandleFunc("/api/posts/", PostDetailHandler)
 	// r.HandleFunc("/group-posts", CreateGroupPostHandler)
 	r.HandleFunc("GET /ws", app.authenticate(app.WebSocketHandler, false))
-
-	r.HandleFunc("GET /api/users/", app.authenticate(app.UsersHandler, true))
 
 	// r.Handle("/avatars/", http.StripPrefix("/avatars/", http.FileServer(http.Dir("./avatars"))))
 	r.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
