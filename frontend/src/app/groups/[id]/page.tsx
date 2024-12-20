@@ -3,6 +3,7 @@
 import React from 'react'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import Header from '../../components/Header'
+import { formatDateTime } from '../../utils/dateUtils'
 import { useParams } from 'next/navigation'
 import { useLoggedInUser } from '@/app/context/UserContext'
 import axios from 'axios'
@@ -10,6 +11,10 @@ import Link from 'next/link'
 import DOMPurify from 'dompurify'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faCrown } from '@fortawesome/free-solid-svg-icons'
+
+import DatePicker, { registerLocale } from 'react-datepicker'
+import { enGB } from 'date-fns/locale/en-GB'
+import 'react-datepicker/dist/react-datepicker.css'
 
 import dynamic from 'next/dynamic'
 
@@ -220,12 +225,26 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 export default function Group() {
 	const params = useParams()
 	const id = params.id as string
-	const [state, dispatch] = useReducer(reducer, GroupState_default)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
-	const { loggedInUser } = useLoggedInUser()
-	const inviteModalRef = useRef<HTMLDialogElement | null>(null)
+
+	const [state, dispatch] = useReducer(reducer, GroupState_default)
 	const [options, setOptions] = useState([])
 	const [selectedOptions, setSelectedOptions] = useState<{ value: number; label: string }[]>([])
+	const [newEvent, setNewEvent] = useState<{
+		title: string
+		description: string
+		date_time: Date
+	}>({
+		title: '',
+		description: '',
+		date_time: new Date(),
+	})
+
+	const { loggedInUser } = useLoggedInUser()
+
+	const inviteModalRef = useRef<HTMLDialogElement | null>(null)
+	const createEventRef = useRef<HTMLDialogElement | null>(null)
+
 	useEffect(() => {
 		const fetchGroup = async () => {
 			try {
@@ -359,6 +378,41 @@ export default function Group() {
 		}
 	}
 
+	const handleCreateEvent = async () => {
+		try {
+			const eventData = {
+				title: newEvent.title.trim(),
+				description: newEvent.description.trim().replace(/\n/g, '<br />'),
+				date_time: newEvent.date_time,
+			}
+
+			// Send POST request to create the event
+			const response = await axios.post(`${backendUrl}/api/groups/${id}/events`, eventData, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+
+			console.log('handleCreateEvent | response', response)
+
+			if (response.data.success) {
+				// Update the state with the new event
+				dispatch({
+					type: ACTIONS.SET_EVENTS,
+					payload: [...state.events, response.data.event],
+				})
+
+				// Clear form and close modal
+				setNewEvent({ title: '', description: '', date_time: new Date() })
+				createEventRef.current?.close()
+			}
+		} catch (error) {
+			console.error('Error creating event:', error)
+			alert('Error creating event. Please try again.')
+		}
+	}
+
 	const getChangeMembershipButtonText = () => {
 		switch (state.membershipRole) {
 			case 'ADMIN':
@@ -419,6 +473,8 @@ export default function Group() {
 		}
 	}
 
+	registerLocale('en-GB', enGB)
+
 	return (
 		<div>
 			<Header />
@@ -458,7 +514,7 @@ export default function Group() {
 						<div className='mb-4'>
 							<div className='flex justify-between'>
 								<div>
-									<h1 className='text-2xl font-bold text-primary mb-4'>
+									<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
 										Members
 									</h1>
 									<div className='text-sm text-gray-500 mb-4'>
@@ -509,7 +565,18 @@ export default function Group() {
 						</div>
 
 						<div className='mb-4'>
-							<h1 className='text-2xl font-bold text-primary mb-4'>Events</h1>
+							<div className='flex justify-between'>
+								<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
+									Events
+								</h1>
+								<button
+									className='btn bg-white'
+									onClick={() => createEventRef.current?.showModal()}
+								>
+									<FontAwesomeIcon icon={faPlus} />
+									Create new event
+								</button>
+							</div>
 
 							{state.events?.length > 0 &&
 								state.events.map((event) => (
@@ -537,8 +604,15 @@ export default function Group() {
 										</div>
 
 										<p>Event title: {event.title}</p>
-										<p>Event description: {event.description}</p>
-										<p>Event date: {event.date_time}</p>
+										<p>
+											Event description:{' '}
+											<span
+												dangerouslySetInnerHTML={{
+													__html: DOMPurify.sanitize(event.description),
+												}}
+											></span>
+										</p>
+										<p>Event date: {formatDateTime(event.date_time)}</p>
 										<p>
 											Event author: {event.author.firstName}{' '}
 											{event.author.lastName}
@@ -604,6 +678,89 @@ export default function Group() {
 								disabled={selectedOptions.length === 0}
 							>
 								Send Invitation
+							</button>
+						</div>
+					</div>
+				</dialog>
+
+				<dialog ref={createEventRef} className='modal'>
+					<div className='modal-box w-11/12 max-w-5xl min-h-96'>
+						<div
+							className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'
+							onClick={() => {
+								createEventRef.current?.close()
+							}}
+						>
+							✕
+						</div>
+						<h2 className='text-lg font-bold mb-4'>Add event</h2>
+						<form className='flex flex-col items-center justify-center w-full pt-4'>
+							<div
+								className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'
+								onClick={() => createEventRef.current?.close()}
+							>
+								✕
+							</div>
+							<label className='form-control w-full mb-4'>
+								<span className='label-text mb-2'>Title</span>
+								<input
+									type='text'
+									className='input input-bordered w-full'
+									value={newEvent.title}
+									autoFocus
+									spellCheck={false}
+									onChange={(e) =>
+										setNewEvent({ ...newEvent, title: e.target.value })
+									}
+								/>
+							</label>
+
+							<label className='form-control w-full  mb-4'>
+								<span className='label-text mb-2'>Description</span>
+								<textarea
+									className='textarea textarea-bordered text-base w-full h-32'
+									value={newEvent.description}
+									spellCheck={false}
+									onChange={(e) =>
+										setNewEvent({ ...newEvent, description: e.target.value })
+									}
+								></textarea>
+							</label>
+
+							<label className='form-control w-full'>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Start time
+								</span>
+								<DatePicker
+									selected={newEvent.date_time}
+									className='input input-bordered w-full'
+									dateFormat='dd/MM/yyyy HH:mm'
+									showTimeSelect
+									timeIntervals={15}
+									timeCaption='Time'
+									onChange={(date: Date | null) => {
+										if (date) {
+											console.log('new date', date)
+											setNewEvent({
+												...newEvent,
+												date_time: date,
+											})
+										}
+									}}
+								/>
+							</label>
+						</form>
+
+						<div className='modal-action'>
+							<button
+								className='btn'
+								disabled={
+									newEvent.title.trim() === '' ||
+									newEvent.description.trim() === ''
+								}
+								onClick={() => handleCreateEvent()}
+							>
+								SUBMIT
 							</button>
 						</div>
 					</div>

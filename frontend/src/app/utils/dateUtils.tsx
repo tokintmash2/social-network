@@ -19,3 +19,18 @@ export function formatLongDate(date: string | Date) {
 		minute: '2-digit',
 	}).format(new Date(date))
 }
+
+export const formatDateTime = (isoDateTime: string) => {
+	// Parse the ISO datetime string
+	const date = new Date(isoDateTime)
+
+	// Extract parts of the date
+	const day = String(date.getDate()).padStart(2, '0') // dd
+	const month = String(date.getMonth() + 1).padStart(2, '0') // mm
+	const year = date.getFullYear() // yyyy
+	const hours = String(date.getHours()).padStart(2, '0') // hh
+	const minutes = String(date.getMinutes()).padStart(2, '0') // mm
+
+	// Format into "dd.mm.yyyy hh:mm"
+	return `${day}.${month}.${year} ${hours}:${minutes}`
+}

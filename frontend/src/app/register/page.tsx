@@ -34,7 +34,7 @@ export default function RegisterPage() {
 
 	const [buttonDisabled, setButtonDisabled] = React.useState(false)
 	const [loading, setLoading] = React.useState(false)
-	const [startDate, setStartDate] = React.useState<Date | null>(null)
+	const [dateOfBirth, setDateOfBirth] = React.useState<Date | null>(null)
 
 	useEffect(() => {
 		if (
@@ -95,18 +95,24 @@ export default function RegisterPage() {
 					<div className='card-body'>
 						<form className='flex flex-col items-center justify-center space-y-2 w-full'>
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>First Name</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									First Name
+								</span>
 								<input
 									type='text'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.firstName}
 									autoFocus
-									onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+									onChange={(e) =>
+										setUser({ ...user, firstName: e.target.value })
+									}
 								/>
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Last Name</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Last Name
+								</span>
 								<input
 									type='text'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -116,7 +122,9 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Email</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Email
+								</span>
 								<input
 									type='email'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -126,15 +134,17 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Date of Birth</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Date of Birth
+								</span>
 								<DatePicker
 									dateFormat='dd/MM/yyyy'
-									selected={startDate}
+									selected={dateOfBirth}
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									locale='en-GB'
 									onChange={(date: Date | null) => {
 										if (date) {
-											setStartDate(date)
+											setDateOfBirth(date)
 											setUser({ ...user, dob: date })
 										}
 									}}
@@ -142,7 +152,9 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Avatar/Image</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Avatar/Image
+								</span>
 								<input
 									type='file'
 									className='file-input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light file-input-bordered [&::file-selector-button]:bg-[#B9D7EA] [&::file-selector-button]:text-[#687984] [&::file-selector-button]:border-0 [&::file-selector-button]:font-light [&::file-selector-button]:shadow-[0_4px_4px_rgba(0,0,0,0.25)] [&::file-selector-button]:hover:bg-[#A3B8C5] [&::file-selector-button]:hover:text-[#FFFFFF] hover:bg-[#F5F5F5] transition-colors'
@@ -165,7 +177,9 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Nickname</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Nickname
+								</span>
 								<input
 									type='text'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -175,7 +189,9 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>About Me</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									About Me
+								</span>
 								<textarea
 									className='textarea h-16 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
 									value={user.about}
@@ -184,7 +200,9 @@ export default function RegisterPage() {
 							</label>
 
 							<label className='form-control w-2/3'>
-								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>Password</span>
+								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
+									Password
+								</span>
 								<input
 									type='password'
 									className='input h-9 bg-white shadow-inner shadow-gray-400 rounded-2xl w-full text-[#687984] text-sm font-light hover:bg-[#F5F5F5] transition-colors'
@@ -215,7 +233,13 @@ export default function RegisterPage() {
 				</div>
 			</div>
 
-			<div className='w-3/5 bg-cover bg-center' style={{ backgroundImage: 'url(https://res.cloudinary.com/dtdneratd/image/upload/v1733229108/augustine-wong-T0BYurbDK_M-unsplash-min_obmpdc.jpg)' }}></div>
+			<div
+				className='w-3/5 bg-cover bg-center'
+				style={{
+					backgroundImage:
+						'url(https://res.cloudinary.com/dtdneratd/image/upload/v1733229108/augustine-wong-T0BYurbDK_M-unsplash-min_obmpdc.jpg)',
+				}}
+			></div>
 		</div>
 	)
 }
