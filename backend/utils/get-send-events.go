@@ -75,6 +75,8 @@ func FetchGroupEvents(groupID int) []structs.Event {
 			LastName:  authorProfile.LastName,
 		}
 
+		event.Attendees = GetAttendees(event.EventID)
+
 		events = append(events, event)
 	}
 	return events
