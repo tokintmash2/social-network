@@ -201,11 +201,12 @@ func (app *application) RSVPEventHandler(w http.ResponseWriter, r *http.Request)
 		message = fmt.Sprintf("RSVP for user %d cancelled", currentUserID)
 	}
 
+	attendees := utils.GetAttendees(eventID)
 	response := map[string]interface{}{
-		"success": true,
-		"message": message,
+		"success":   true,
+		"message":   message,
+		"attendees": attendees,
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

@@ -9,7 +9,7 @@ import (
 
 func GetAttendees(eventID int) []structs.PersonResponse {
 
-	var attendees []structs.PersonResponse
+	var attendees = []structs.PersonResponse{}
 
 	rows, err := database.DB.Query(`
 	SELECT user_id
@@ -30,14 +30,26 @@ func GetAttendees(eventID int) []structs.PersonResponse {
 			continue
 		}
 
+		// Check if the attendee is already in the list
+		exists := false
+		for _, a := range attendees {
+			if a.ID == attendee.ID {
+				exists = true
+				break
+			}
+		}
+		if exists {
+			continue
+		}
+
 		attendeeProfile, err := GetUserProfile(attendee.ID)
 		if err != nil {
 			log.Println("Error fetching attendee profile:", err)
 			continue
 		}
 
-		attendee.FirstName = attendeeProfile.Username
-		attendee.LastName = attendeeProfile.Avatar
+		attendee.FirstName = attendeeProfile.FirstName
+		attendee.LastName = attendeeProfile.LastName
 
 		attendees = append(attendees, attendee)
 	}
@@ -77,7 +89,7 @@ func RSVPForEvent(eventID, userID int) error {
 
 func UnRSVPForEvent(eventID int, userID int) error {
 	log.Printf("Got UnRSVP by user %d for event %d:", userID, eventID)
-	
+
 	tx, err := database.DB.Begin()
 	if err != nil {
 		return err
@@ -86,8 +98,8 @@ func UnRSVPForEvent(eventID int, userID int) error {
 	result, err := tx.Exec(`
     DELETE FROM event_responses 
     WHERE event_id = ? AND user_id = ?`,
-        eventID, userID,
-    )
+		eventID, userID,
+	)
 
 	log.Printf("Result: %v\n", result)
 

@@ -115,7 +115,7 @@ type GroupActions_type =
 	  }
 	| {
 			type: typeof ACTIONS.TOGGLE_EVENT_RSVP
-			payload: { eventId: Event_type['id']; user: UserBasic_type }
+			payload: { eventId: Event_type['id']; attendeeList: UserBasic_type[] }
 	  }
 
 function reducer(state: GroupState_type, action: GroupActions_type): GroupState_type {
@@ -191,54 +191,32 @@ function reducer(state: GroupState_type, action: GroupActions_type): GroupState_
 				console.log('SET_EVENTS payload', action.payload)
 				return { ...state, events: action.payload }
 			}
+
 		case ACTIONS.TOGGLE_EVENT_RSVP:
 			if (
 				typeof action.payload === 'object' &&
-				'payload' in action &&
 				'eventId' in action.payload &&
-				'user' in action.payload &&
+				'attendeeList' in action.payload &&
 				typeof action.payload.eventId === 'number' &&
-				typeof action.payload.user === 'object' &&
-				'id' in action.payload.user &&
-				typeof action.payload.user.id === 'number' &&
-				'firstName' in action.payload.user &&
-				'lastName' in action.payload.user
+				Array.isArray(action.payload.attendeeList)
 			) {
-				const payload = action.payload as { eventId: number; user: UserBasic_type }
-				// check if use is attending
-				const myEvent = state.events.find((e) => e.id === payload.eventId)
-				const isAttending = myEvent?.attendees.some((a) => a.id === payload.user.id)
-				if (isAttending) {
-					const newEvent = {
-						...myEvent!,
-						attendees: myEvent!.attendees.filter((a) => a.id !== payload.user.id),
-					}
-					const newEvents = state.events.map((e) =>
-						e.id === payload.eventId ? newEvent : e,
-					)
-					return {
-						...state,
-						events: newEvents,
-					}
-				} else {
-					const newEvent = {
-						...myEvent!,
-						attendees: [...myEvent!.attendees, payload.user],
-					}
-					const newEvents = state.events.map((e) =>
-						e.id === payload.eventId ? newEvent : e,
-					)
-					return {
-						...state,
-						events: newEvents,
-					}
+				const { eventId, attendeeList } = action.payload
+				const updatedEvents = state.events.map((event) =>
+					event.id === eventId ? { ...event, attendees: attendeeList } : event,
+				)
+				console.log('dispatch | updatedEvents', updatedEvents)
+				return {
+					...state,
+					events: updatedEvents,
 				}
 			}
+			return state
 
 		default:
 			return state
 	}
 }
+
 export default function Group() {
 	const params = useParams()
 	const id = params.id as string
@@ -343,44 +321,31 @@ export default function Group() {
 	}, [state.members, loggedInUser, backendUrl])
 
 	const handleRSVPChange = async (eventId: number) => {
-		console.log('handleRSVPChange for event', eventId)
-		const myEvent = state.events.find((e) => e.id === eventId)
-		const isAttending = myEvent?.attendees?.some((a) => a.id === loggedInUser?.id)
-		let response
 		try {
-			if (isAttending) {
-				response = await axios.delete(
-					`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`,
-					{
+			const myEvent = state.events.find((e) => e.id === eventId)
+			const isAttending = myEvent?.attendees?.some((a) => a.id === loggedInUser?.id)
+
+			const response = isAttending
+				? await axios.delete(`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`, {
 						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							Cookie: document.cookie, // Ensure the session cookie is included
+					})
+				: await axios.post(
+						`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`,
+						{},
+						{
+							withCredentials: true,
 						},
-					},
-				)
-			} else {
-				response = await axios.post(
-					`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`,
-					{},
-					{
-						withCredentials: true,
-						headers: {
-							'Content-Type': 'application/json',
-							Cookie: document.cookie, // Ensure the session cookie is included
-						},
-					},
-				)
-			}
-			/* if (response.data.success){
+					)
+			if (response.data.success && response.data.attendees) {
 				dispatch({
-					type: ACTIONS.SET_EVENTS,
-					payload: {eventId: eventId, user: response.data.attendees},
+					type: ACTIONS.TOGGLE_EVENT_RSVP,
+					payload: { eventId, attendeeList: response.data.attendees },
 				})
-			} */
-			console.log('response', response)
+			} else {
+				throw new Error('Failed to update RSVP')
+			}
 		} catch (error) {
-			console.log(error)
+			console.error('RSVP update failed:', error)
 		}
 	}
 
@@ -560,10 +525,12 @@ export default function Group() {
 												<input
 													type='checkbox'
 													className='toggle toggle-md toggle-accent'
-													checked={event.attendees?.some(
-														(attendee) =>
-															attendee.id === loggedInUser?.id,
-													)}
+													checked={
+														event.attendees?.some(
+															(attendee) =>
+																attendee.id === loggedInUser?.id,
+														) || false
+													}
 													onChange={() => handleRSVPChange(event.id)}
 												/>
 											</div>
@@ -582,7 +549,12 @@ export default function Group() {
 												<>
 													{event.attendees.map((attendee) => (
 														<Link
-															key={'attendee-' + attendee.id}
+															key={
+																'event-' +
+																event.id +
+																'-attendee-' +
+																attendee.id
+															}
 															href={`/profile/${attendee.id}`}
 															className='link link-hover mr-2 block'
 														>
