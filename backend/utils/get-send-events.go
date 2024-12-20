@@ -119,8 +119,8 @@ func FetchEvent(eventID int) structs.Event {
 
 		event.Author = structs.PersonResponse{
 			ID:        authorProfile.ID,
-			FirstName: authorProfile.Username,
-			LastName:  authorProfile.Avatar,
+			FirstName: authorProfile.FirstName,
+			LastName:  authorProfile.LastName,
 		}
 
 		event.Attendees = GetAttendees(event.EventID)
