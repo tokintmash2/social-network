@@ -346,18 +346,38 @@ export default function Group() {
 		console.log('handleRSVPChange for event', eventId)
 		const myEvent = state.events.find((e) => e.id === eventId)
 		const isAttending = myEvent?.attendees?.some((a) => a.id === loggedInUser?.id)
-		let response = ''
+		let response
 		try {
 			if (isAttending) {
-				response = await axios.delete(`${backendUrl}/api/events/${eventId}/rsvp`, {
-					withCredentials: true,
-				})
+				response = await axios.delete(
+					`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							Cookie: document.cookie, // Ensure the session cookie is included
+						},
+					},
+				)
 			} else {
-				response = await axios.post(`${backendUrl}/api/events/${eventId}/rsvp`, {
-					withCredentials: true,
-				})
+				response = await axios.post(
+					`${backendUrl}/api/groups/${id}/events/${eventId}/rsvp`,
+					{},
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+							Cookie: document.cookie, // Ensure the session cookie is included
+						},
+					},
+				)
 			}
-
+			/* if (response.data.success){
+				dispatch({
+					type: ACTIONS.SET_EVENTS,
+					payload: {eventId: eventId, user: response.data.attendees},
+				})
+			} */
 			console.log('response', response)
 		} catch (error) {
 			console.log(error)

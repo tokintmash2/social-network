@@ -67,7 +67,7 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 	utils.CreateEvent(event)
 
 	// notify group members about the new event
-	members, err := utils.GetGroupMembers(groupID) 
+	members, err := utils.GetGroupMembers(groupID)
 	if err != nil {
 		http.Error(w, "Failed to fetch group members", http.StatusInternalServerError)
 		return
@@ -187,6 +187,7 @@ func (app *application) RSVPEventHandler(w http.ResponseWriter, r *http.Request)
 	pathParts := strings.Split(path, "/")
 	// groupID, _ := strconv.Atoi(pathParts[0])
 	eventID, _ := strconv.Atoi(pathParts[2])
+	log.Println("eventID", eventID)
 
 	message := ""
 
