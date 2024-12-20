@@ -6,32 +6,38 @@ import (
 	"social-network/structs"
 )
 
-func CreateEvent(event *structs.Event) error {
-
+func CreateEvent(event *structs.Event) (int, error) {
 	log.Println("Got event:", event)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	result, err := tx.Exec(`
-	INSERT INTO events (group_id, title, description, date_time, created_by)
-		VALUES (?, ?, ?, ?, ?)`,
+    INSERT INTO events (group_id, title, description, date_time, created_by)
+        VALUES (?, ?, ?, ?, ?)`,
 		event.GroupID, event.Title, event.Description, event.DateTime, event.CreatedBy,
 	)
-	log.Printf("Insert result: %+v", result)
 	if err != nil {
-		log.Println("Error inserting group:", err)
-		return err
+		tx.Rollback()
+		log.Println("Error inserting event:", err)
+		return 0, err
+	}
+
+	eventID, err := result.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Error getting last inserted ID: %v", err)
+		return 0, err
 	}
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return err
+		return 0, err
 	}
 
-	return nil
+	return int(eventID), nil
 }
 
 func FetchGroupEvents(groupID int) []structs.Event {

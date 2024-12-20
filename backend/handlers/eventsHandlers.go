@@ -13,7 +13,6 @@ import (
 )
 
 func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Request) {
-
 	log.Println("CreateEventHandler called")
 
 	err := r.ParseMultipartForm(10 << 20) // 10 MB max memory
@@ -22,8 +21,6 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// var event structs.Event
-
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -31,7 +28,7 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	sessionUUID := cookie.Value
-	currentUserID, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
+	currentUserID, validSession := utils.VerifySession(sessionUUID, "CreateEventHandler")
 	if !validSession {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -45,14 +42,15 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 	description := r.FormValue("description")
 	dateTimeStr := r.FormValue("date_time")
 
-	dateTime, err := time.Parse("2006-01-02T15:04", dateTimeStr)
-	if err != nil {
-		http.Error(w, "Invalid date format", http.StatusBadRequest)
+	if title == "" || description == "" || dateTimeStr == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
-	if title == "" {
-		http.Error(w, "Title is required. Cuz ya wanna be entitled", http.StatusBadRequest)
+	dateTime, err := time.Parse(time.RFC3339, dateTimeStr)
+	if err != nil {
+		log.Printf("Error parsing date_time: %v", err)
+		http.Error(w, "Invalid date format. Ensure format is YYYY-MM-DDTHH:MM:SSZ", http.StatusBadRequest)
 		return
 	}
 
@@ -64,9 +62,24 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		CreatedBy:   currentUserID,
 	}
 
-	utils.CreateEvent(event)
+	// Create event and fetch the inserted event's ID
+	eventID, err := utils.CreateEvent(event)
+	if err != nil {
+		log.Printf("Error creating event: %v", err)
+		http.Error(w, "Failed to create event", http.StatusInternalServerError)
+		return
+	}
+	event.EventID = eventID // Update event with the generated ID
 
-	// notify group members about the new event
+	// Add group creator to attendees list
+	err = utils.RSVPForEvent(eventID, currentUserID)
+	if err != nil {
+		log.Printf("Error adding group creator as attendee: %v", err)
+		http.Error(w, "Failed to add group creator as attendee", http.StatusInternalServerError)
+		return
+	}
+
+	// Notify group members about the new event
 	members, err := utils.GetGroupMembers(groupID)
 	if err != nil {
 		http.Error(w, "Failed to fetch group members", http.StatusInternalServerError)
@@ -88,15 +101,16 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	utils.CreateNotification(notification)
 
+	// Fetch updated event details with attendees and author
+	eventWithDetails := utils.FetchEvent(event.EventID)
+
 	response := map[string]interface{}{
 		"success": true,
-		"post":    event,
+		"event":   eventWithDetails,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	return
-
 }
 
 func (app *application) FetchGroupEventsHandler(w http.ResponseWriter, r *http.Request) {
