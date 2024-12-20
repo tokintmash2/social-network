@@ -125,10 +125,6 @@ func (h *Hub) run(app *application) {
 			switch input.Action {
 			case "echo":
 				go app.handleEcho(ctx, input.Data)
-			case "get_conversations":
-				go app.handleGetConversations(ctx, input.Data)
-			case "user_message":
-				go app.handleUserMessage(ctx, input.Data)
 			case "online_users":
 				go app.handleGetOnlineUsers(ctx, input.Data)
 			default:

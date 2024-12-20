@@ -6,6 +6,7 @@ import useWS from '../utils/hooks/useWs'
 
 const channelTypes = {
     echo: () => 'echo',
+    chat_message: () => 'chat_message',
     online_user: () => 'online_users',
 }
 
