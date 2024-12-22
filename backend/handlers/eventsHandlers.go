@@ -73,10 +73,17 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	log.Println("Members: ", members)
+
+
 	userIDs := make([]int, len(members))
 	for i, member := range members {
 		userIDs[i] = member.ID
 	}
+
+	log.Println("UserIDs: ", userIDs)
+
+
 
 	notification := &structs.Notification{
 		Users:     userIDs,
@@ -85,6 +92,8 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		Timestamp: time.Now(),
 		Read:      false,
 	}
+
+	log.Println("Notification: ", notification)
 
 	utils.CreateNotification(notification)
 

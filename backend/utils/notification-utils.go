@@ -2,11 +2,17 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"social-network/database"
 	"social-network/structs"
 )
 
 func CreateNotification(notification *structs.Notification) error {
+
+	// WHen adding new types of notifications,
+	// they must also be added to the migration file
+
+	log.Println("About to start creating notification: ", notification)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
@@ -18,6 +24,7 @@ func CreateNotification(notification *structs.Notification) error {
         INSERT INTO notifications (user_id, type, message, created_at, seen_status)
         VALUES (?, ?, ?, ?, ?)
     `)
+
 	if err != nil {
 		return err
 	}
@@ -32,7 +39,9 @@ func CreateNotification(notification *structs.Notification) error {
 			notification.Timestamp,
 			notification.Read,
 		)
+		
 		if err != nil {
+			log.Printf("Error inserting notification: %v", err)
 			return err
 		}
 	}

@@ -70,7 +70,7 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		// Notify admin for approval
 		adminNotification := &structs.Notification{
 			Users:     []int{adminID},
-			Type:      "group_member_pending",
+			Type:      "group_member_added",
 			Message:   fmt.Sprintf("User %d wants to add user %d to group", currentUser, userIDtoProcess),
 			Timestamp: time.Now(),
 			Read:      false,
@@ -81,7 +81,7 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		// Notify added user that they're pending
 		userNotification := &structs.Notification{
 			Users:     []int{userIDtoProcess},
-			Type:      "group_member_pending",
+			Type:      "group_member_added",
 			Message:   "Your group membership is pending admin approval",
 			Timestamp: time.Now(),
 			Read:      false,
