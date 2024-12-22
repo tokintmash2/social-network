@@ -48,7 +48,7 @@ func SetupServer() {
 
 	mux := http.NewServeMux()
 	server := &http.Server{
-		Addr:    "127.0.0.1:8080",
+		Addr:    ":8080",
 		Handler: middleware.CorsMiddleware(mux),
 		// Handler: mux,
 	}
