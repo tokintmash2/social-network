@@ -75,8 +75,14 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			Timestamp: time.Now(),
 			Read:      false,
 		}
+
 		log.Println("Admin notification:", adminNotification)
+
+		// Store notification
 		utils.CreateNotification(adminNotification)
+		
+		// Send WS notification 
+		app.sendWSNotification(adminID, "group_member_added", adminNotification.Message)
 
 		// Notify added user that they're pending
 		userNotification := &structs.Notification{
@@ -86,7 +92,12 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			Timestamp: time.Now(),
 			Read:      false,
 		}
+
+		// Store notification
 		utils.CreateNotification(userNotification)
+		
+		// Send WS notification 
+		app.sendWSNotification(userIDtoProcess, "group_member_added", userNotification.Message)
 
 		message = "Member added successfully"
 	}
@@ -119,7 +130,10 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			Timestamp: time.Now(),
 			Read:      false,
 		}
+		
+		// Store & send notification
 		utils.CreateNotification(userNotification)
+		app.sendWSNotification(userIDtoProcess, "group_member_approved", userNotification.Message)
 
 		message = "Member approved successfully"
 	}
@@ -168,4 +182,21 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 	return
+}
+
+func (app *application) sendWSNotification(userID int, notificationType string, message string) {
+	wsMessage := map[string]interface{}{
+		"response_to": "notification",
+		"data": map[string]interface{}{
+			"type":    notificationType,
+			"message": message,
+		},
+	}
+
+	jsonMessage, _ := json.Marshal(wsMessage)
+	for client := range app.hub.clients {
+		if client.userID == userID {
+			client.send <- jsonMessage
+		}
+	}
 }

@@ -47,10 +47,9 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	dateTime, err := time.Parse(time.RFC3339, dateTimeStr)
+	dateTime, err := time.Parse("2006-01-02T15:04", dateTimeStr)
 	if err != nil {
-		log.Printf("Error parsing date_time: %v", err)
-		http.Error(w, "Invalid date format. Ensure format is YYYY-MM-DDTHH:MM:SSZ", http.StatusBadRequest)
+		http.Error(w, "Invalid date format", http.StatusBadRequest)
 		return
 	}
 
@@ -105,18 +104,22 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	log.Println("Notification: ", notification)
 
-	utils.CreateNotification(notification)
+	utils.CreateNotification(notification)	
+
+	// Fetch updated event details with attendees and author
+	eventWithDetails := utils.FetchEvent(event.EventID)
 
 	// Broadcast the event creation to the WebSocket hub
-
 	wsMessage := map[string]interface{}{
 		"response_to": "notification",
 		"data": map[string]interface{}{
 			"type":    "event_created",
-			"event":   event,
+			"event":   eventWithDetails,
 			"message": notification.Message,
 		},
 	}
+
+	log.Println("WS Message: ", wsMessage)
 
 	jsonMessage, _ := json.Marshal(wsMessage)
 	for client := range app.hub.clients {
@@ -124,9 +127,6 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 			client.send <- jsonMessage
 		}
 	}
-
-	// Fetch updated event details with attendees and author
-	eventWithDetails := utils.FetchEvent(event.EventID)
 
 	response := map[string]interface{}{
 		"success": true,
