@@ -88,15 +88,12 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	log.Println("Members: ", members)
 
-
 	userIDs := make([]int, len(members))
 	for i, member := range members {
 		userIDs[i] = member.ID
 	}
 
 	log.Println("UserIDs: ", userIDs)
-
-
 
 	notification := &structs.Notification{
 		Users:     userIDs,
@@ -109,6 +106,24 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 	log.Println("Notification: ", notification)
 
 	utils.CreateNotification(notification)
+
+	// Broadcast the event creation to the WebSocket hub
+
+	wsMessage := map[string]interface{}{
+		"response_to": "notification",
+		"data": map[string]interface{}{
+			"type":    "event_created",
+			"event":   event,
+			"message": notification.Message,
+		},
+	}
+
+	jsonMessage, _ := json.Marshal(wsMessage)
+	for client := range app.hub.clients {
+		if utils.Contains(userIDs, client.userID) {
+			client.send <- jsonMessage
+		}
+	}
 
 	// Fetch updated event details with attendees and author
 	eventWithDetails := utils.FetchEvent(event.EventID)

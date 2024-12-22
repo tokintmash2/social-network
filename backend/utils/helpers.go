@@ -56,3 +56,12 @@ func BreakArray(array []string) [][]string {
 	}
 	return chunks
 }
+
+func Contains(slice []int, item int) bool {
+    for _, value := range slice {
+        if value == item {
+            return true
+        }
+    }
+    return false
+}
