@@ -136,36 +136,6 @@ func RemoveGroupMember(groupID, userID int) error {
 	return nil
 }
 
-func IsGroupAdmin(groupID, userID int) bool {
-	var exists bool
-	err := database.DB.QueryRow(`
-        SELECT EXISTS (
-            SELECT 1 FROM group_memberships 
-            WHERE group_id = ? AND user_id = ? AND role = 'admin'
-        )`, groupID, userID).Scan(&exists)
-
-	if err != nil {
-		log.Printf("Error checking admin status: %v\n", err)
-		return false
-	}
-	return exists
-}
-
-func IsMemberInGroup(groupID, userID int) bool {
-	var exists bool
-	err := database.DB.QueryRow(`
-        SELECT EXISTS (
-            SELECT 1 FROM group_memberships 
-            WHERE group_id = ? AND user_id = ?
-        )`, groupID, userID).Scan(&exists)
-
-	if err != nil {
-		log.Printf("Error checking membership: %v\n", err)
-		return false
-	}
-	return exists
-}
-
 func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 
 	var members []structs.PersonResponse
@@ -288,4 +258,17 @@ func CreateGroup(group structs.Group) error {
 		return err
 	}
 	return nil
+}
+
+func GetGroupAdmin(groupID int) (int, error) {
+	var adminID int
+	err := database.DB.QueryRow(`
+        SELECT creator_id
+        FROM groups
+        WHERE group_id = ?`, groupID).Scan(&adminID)
+	if err != nil {
+		log.Println("Error fetching group admin:", err)
+		return 0, err
+	}
+	return adminID, nil
 }
