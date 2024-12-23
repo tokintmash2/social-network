@@ -6,8 +6,16 @@ import { faPaperPlane, faImage, faXmark } from '@fortawesome/free-solid-svg-icon
 import axios from 'axios'
 import Image from 'next/image'
 import toast, { Toaster } from 'react-hot-toast'
+import SetPostPrivacy from './SetPostPrivacy'
+import { PostsAction_type } from '../utils/types/types'
 
-function CreatePost() {
+function CreatePost({
+	followers = [],
+	dispatch,
+}: {
+	followers: { id: number; firstName: string; lastName: string }[]
+	dispatch: (action: PostsAction_type) => void
+}) {
 	const [newPost, setNewPost] = useState<{ title: string; content: string; media: File | null }>({
 		title: '',
 		content: '',
@@ -144,6 +152,9 @@ function CreatePost() {
 				<>
 					<Toaster />
 				</>
+				<div className='flex justify-end'>
+					<SetPostPrivacy followers={followers || []} dispatch={dispatch} />
+				</div>
 				<input
 					type='text'
 					placeholder='Title'

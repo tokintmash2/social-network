@@ -21,7 +21,7 @@ function SetPostPrivacy({
 }: {
 	postId?: number
 	initialPrivacy?: PrivacyOption_type['value']
-	initialAllowedUsers: number[]
+	initialAllowedUsers?: number[]
 	followers: { id: number; firstName: string; lastName: string }[]
 	dispatch: (action: PostsAction_type) => void
 }) {

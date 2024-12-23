@@ -170,7 +170,9 @@ export default function PostsContainer({
 
 	return (
 		<div className='mb-4'>
-			{(isOwnProfile || feed) && <CreatePost />}
+			{(isOwnProfile || feed) && (
+				<CreatePost followers={dummyFollowers || []} dispatch={dispatch} />
+			)}
 
 			{/* Header */}
 			<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>{headerText}</h1>
@@ -186,7 +188,7 @@ export default function PostsContainer({
 			<div className='space-y-4 flex flex-col'>
 				{state.posts.map((post: Post_type) => (
 					<Post
-						key={post.id}
+						key={'post-' + post.id}
 						post={post}
 						dispatch={dispatch}
 						followers={dummyFollowers}
