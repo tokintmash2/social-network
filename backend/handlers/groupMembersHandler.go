@@ -186,17 +186,23 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) sendWSNotification(userID int, notificationType string, message string) {
 	wsMessage := map[string]interface{}{
-		"response_to": "notification",
-		"data": map[string]interface{}{
-			"type":    notificationType,
-			"message": message,
-		},
-	}
+        "response_to": "notification",
+        "data": map[string]interface{}{
+            "type":    notificationType,
+            "message": message,
+        },
+    }
 
-	jsonMessage, _ := json.Marshal(wsMessage)
-	for client := range app.hub.clients {
-		if client.userID == userID {
-			client.send <- jsonMessage
-		}
-	}
+    data, err := json.Marshal(wsMessage)
+    if err != nil {
+        app.logger.Error(err.Error())
+        return
+    }
+
+    go func() {
+        app.hub.outgoing <- OutgoingMessage{
+            userID: userID,
+            data:   data,
+        }
+    }()
 }
