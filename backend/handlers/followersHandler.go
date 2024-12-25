@@ -156,14 +156,14 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 	pathParts := strings.Split(path, "/")
 	userIDProcessed, _ := strconv.Atoi(pathParts[0])
 
-	
 	followersIDs, err := utils.GetFollowers(userIDProcessed)
 	if err != nil {
 		http.Error(w, "Error getting followers", http.StatusInternalServerError)
 		return
 	}
 
-	var followers []structs.PersonResponse
+	followers := []structs.PersonResponse{}
+	following := []structs.PersonResponse{}
 
 	for _, followerID := range followersIDs {
 		var followerName structs.PersonResponse
@@ -185,8 +185,6 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var following []structs.PersonResponse
-
 	for _, followedID := range followedIDs {
 		var followedName structs.PersonResponse
 		followedProfile, err := utils.GetUserProfile(followedID)
@@ -201,11 +199,10 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		following = append(following, followedName)
 	}
 
-
 	response := map[string]interface{}{
 		"success":   true,
 		"followers": followers,
-		"following":  following,
+		"following": following,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
