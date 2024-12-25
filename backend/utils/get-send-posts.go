@@ -92,14 +92,14 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 	return posts, nil
 }
 
-func CreatePost(newPost structs.PostResponse) error {
+func CreatePost(newPost structs.PostResponse) (int64, error) {
 
 	log.Println("Got post:", newPost)
 
 	log.Printf("Starting database transaction for post creation")
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
@@ -112,7 +112,7 @@ func CreatePost(newPost structs.PostResponse) error {
 	)
 	if err != nil {
 		log.Printf("Error inserting post in CreatePost(): %v\n", err)
-		return err
+		return 0, err
 	} else {
 		log.Printf("Post insertion successful")
 	}
@@ -120,7 +120,7 @@ func CreatePost(newPost structs.PostResponse) error {
 	postID, err := result.LastInsertId()
 	if err != nil {
 		log.Printf("Error getting post ID: %v\n", err)
-		return err
+		return 0, err
 	}
 
 	log.Println("Last inserted post ID:", postID)
@@ -132,12 +132,19 @@ func CreatePost(newPost structs.PostResponse) error {
 	log.Println("About to commit transaction")
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return err
+		return 0, err
 	}
 
 	// return nil
 	log.Printf("About to set post access for postID: %d", postID)
-	return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
+	// return SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
+	err = SetPostAccess(int(postID), newPost.Author.ID, newPost.Privacy, newPost.AllowedUsers)
+	if err != nil {
+		return 0, err
+	}
+
+	return postID, nil
+
 }
 
 func CreateGroupPost(newPost structs.PostResponse) error {
