@@ -22,11 +22,8 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			console.log('ACTIONS.SET_POSTS payload', action.payload)
 			if (Array.isArray(action.payload)) {
 				console.log('action.payload', action.payload)
-				const normalizedPosts = action.payload.map((post) => ({
-					...post,
-					comments: post.comments || [], // Default to an empty array if comments is null or undefined
-				}))
-				return { ...state, posts: [...normalizedPosts, ...state.posts] }
+
+				return { ...state, posts: [...state.posts, ...action.payload] }
 			} else if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -37,6 +34,23 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 				return { ...state, posts: [] }
 			}
 			throw new Error('Invalid payload for SET_POSTS')
+
+		case ACTIONS.CREATE_POST:
+			console.log('ACTIONS.CREATE_POST payload', action.payload)
+			if (Array.isArray(action.payload)) {
+				console.log('action.payload', action.payload)
+
+				return { ...state, posts: [...action.payload, ...state.posts] }
+			} else if (
+				action.payload &&
+				typeof action.payload === 'object' &&
+				'posts' in action.payload &&
+				Array.isArray(action.payload.posts) &&
+				!action.payload.posts.length
+			) {
+				return { ...state, posts: [] }
+			}
+			throw new Error('Invalid payload for CREATE_POST')
 
 		case ACTIONS.SET_LOADING:
 			if (typeof action.payload === 'boolean') {
@@ -155,21 +169,25 @@ export default function PostsContainer({
 		fetchPosts()
 	}, [userId, feed])
 
-	/* useEffect(() => {
-		if(feed && isOwnProfile) {
-			const fetchFollowers = async () =>{
+	useEffect(() => {
+		if ((feed || isOwnProfile) && loggedInUser) {
+			const fetchFollowers = async () => {
 				try {
-					const response = await axios.get('http://localhost:8080/followers', {
-						withCredentials: true
-					})
+					const response = await axios.get(
+						`${backendUrl}/api/users/${loggedInUser.id}/followers`,
+						{
+							withCredentials: true,
+						},
+					)
+					console.log('fetchFollowers response', response.data)
 				} catch (error) {
 					console.log(error)
 				}
 			}
 			fetchFollowers()
 		}
-	}, [feed, isOwnProfile])
- */
+	}, [feed, isOwnProfile, loggedInUser])
+
 	if (state.loading) {
 		return <div>Loading...</div>
 	}

@@ -101,7 +101,7 @@ function CreatePost({
 			console.log('response.data', response.data)
 
 			dispatch({
-				type: ACTIONS.SET_POSTS,
+				type: ACTIONS.CREATE_POST,
 				payload: [post],
 			})
 

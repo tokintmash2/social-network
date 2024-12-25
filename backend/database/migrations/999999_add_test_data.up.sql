@@ -60,6 +60,24 @@ VALUES (1, 3, 'Misty Morning in Tartu', 'Morning fog in Tartu. The way the mist 
 INSERT INTO followers (follower_id, followed_id, status)
 VALUES (1, 2, 'accepted');
 
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (4, 1, 'accepted');
+
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (4, 2, 'accepted');
+
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (4, 3, 'accepted');
+
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (1, 3, 'accepted');
+
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (1, 4, 'accepted');
+
+INSERT INTO followers (follower_id, followed_id, status)
+VALUES (2, 4, 'accepted');
+
 INSERT INTO comments (user_id, post_id, content, created_at) 
 VALUES (1, 1, 'Test comment content for User 1', '1990-03-01 00:00:00+00:00');
 
