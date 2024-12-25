@@ -15,7 +15,7 @@ export default function Messenger({ onClose, receiverID }: { onClose: Function, 
                     <div className="p-4 border-b flex justify-between items-center">
                         <h3 className="font-semibold">Messages</h3>
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => onClose(receiverID)}
                             className="hover:bg-gray-100 p-1 rounded-full"
                         >
                             <FontAwesomeIcon icon={faXmark} className="w-5 h-5"/>

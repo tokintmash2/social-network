@@ -18,6 +18,9 @@ function SocialFeatures() {
     }
     const closeChat = (id: Number) => {
         console.log("Close chat with:", id)
+        const s = new Set([...activeChats])
+        s.delete(id)
+        setActiveChats(Array.from(s.values()))
     }
 
     return showSocialFeatures ? (
