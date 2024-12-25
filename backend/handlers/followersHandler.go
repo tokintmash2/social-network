@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"social-network/structs"
 	"social-network/utils"
+	"strconv"
 	"strings"
 )
 
@@ -131,4 +133,57 @@ func FollowRequestHandler(writer http.ResponseWriter, request *http.Request) {
 		"success": true,
 		"message": fmt.Sprintf("Follow request %sed successfully", requestData.Action),
 	})
+}
+
+func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("AddFollowerHandler called")
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	_, validSession := utils.VerifySession(sessionUUID, "AddFollowerHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/users/")
+	pathParts := strings.Split(path, "/")
+	followedID, _ := strconv.Atoi(pathParts[0])
+
+	followersIDs, err := utils.GetFollowers(followedID)
+	if err != nil {
+		http.Error(w, "Error getting followers", http.StatusInternalServerError)
+		return
+	}
+
+	var followers []structs.PersonResponse
+
+	for _, followerID := range followersIDs {
+		var followerName structs.PersonResponse
+		followerProfile, err := utils.GetUserProfile(followerID)
+		if err != nil {
+			log.Printf("Error fetching follower: %v", err)
+			continue
+		}
+		followerName.ID = followerProfile.ID
+		followerName.FirstName = followerProfile.FirstName
+		followerName.LastName = followerProfile.LastName
+
+		followers = append(followers, followerName)
+	}
+
+	response := map[string]interface{}{
+		"success":   true,
+		"followers": followers,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	return
 }

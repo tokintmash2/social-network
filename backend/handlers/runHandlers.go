@@ -12,6 +12,7 @@ func RunHandlers(r *http.ServeMux, app *application) {
 
 	// r.HandleFunc("/api/users/", UsersRouter)
 	r.HandleFunc("GET /api/users/{u_id}", app.ProfileHandler)
+	r.HandleFunc("GET /api/users/{u_id}/followers", app.FetchFollowersHandler)
 	r.HandleFunc("POST /api/users/{u_id}/followers/{f_id}", app.FollowersHandler)
 	r.HandleFunc("PATCH /api/users/{u_id}/followers/{f_id}", app.FollowersHandler)
 	r.HandleFunc("DELETE /api/users/{u_id}/followers/{f_id}", app.RemoveFollowerHandler)
