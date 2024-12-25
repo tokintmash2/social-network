@@ -48,6 +48,7 @@ export default function Post({ post, dispatch, followers, isOwnPost = false }: P
 							className='rounded-lg border border-gray-200 max-w-full'
 							width={354}
 							height={354}
+							priority={false}
 						/>
 					</div>
 				)}

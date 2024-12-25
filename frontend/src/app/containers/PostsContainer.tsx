@@ -155,6 +155,21 @@ export default function PostsContainer({
 		fetchPosts()
 	}, [userId, feed])
 
+	/* useEffect(() => {
+		if(feed && isOwnProfile) {
+			const fetchFollowers = async () =>{
+				try {
+					const response = await axios.get('http://localhost:8080/followers', {
+						withCredentials: true
+					})
+				} catch (error) {
+					console.log(error)
+				}
+			}
+			fetchFollowers()
+		}
+	}, [feed, isOwnProfile])
+ */
 	if (state.loading) {
 		return <div>Loading...</div>
 	}
