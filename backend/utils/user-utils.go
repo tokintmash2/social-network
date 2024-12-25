@@ -84,15 +84,6 @@ func GetUserProfile(userID int) (structs.User, error) {
 	if err != nil {
 		return structs.User{}, err
 	}
-	if !userProfile.IsPublic {
-		// Return limited profile for private accounts
-		return structs.User{
-			// Username: userProfile.Username,
-			FirstName: userProfile.FirstName,
-			LastName:  userProfile.LastName,
-			IsPublic:  userProfile.IsPublic,
-		}, nil
-	}
 	return userProfile, nil
 }
 
