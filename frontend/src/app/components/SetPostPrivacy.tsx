@@ -75,7 +75,7 @@ function SetPostPrivacy({
 			: []
 
 	return (
-		<div className='post-actions flex flex-col items-end max-w-80'>
+		<div>
 			<div className='flex'>
 				Privacy: {privacy}
 				<button
