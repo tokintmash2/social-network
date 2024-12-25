@@ -1,10 +1,13 @@
 import React from 'react'
 import { CommentProps_type } from '../utils/types/types'
 import DOMPurify from 'dompurify'
+import Image from 'next/image'
 
 function Comment({ comment }: CommentProps_type) {
 	// Sanitize the HTML content to prevent XSS attacks
 	const sanitizedContent = DOMPurify.sanitize(comment.content)
+	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+	const uploadsUrl = `${backendUrl}/uploads/`
 	return (
 		<div className='comment card rounded-none shadow-sm bg-base-100 p-4 my-2'>
 			{/* Comment Header */}
@@ -30,10 +33,12 @@ function Comment({ comment }: CommentProps_type) {
 			{/* Media Content (if available) */}
 			{comment.mediaUrl && (
 				<div className='mt-2'>
-					<img
-						src={comment.mediaUrl}
+					<Image
+						src={`${uploadsUrl}${comment.mediaUrl}`}
 						alt='Attached media'
-						className='rounded-lg border border-gray-200'
+						className='rounded-lg border border-gray-200 max-w-full'
+						width={354}
+						height={354}
 					/>
 				</div>
 			)}
