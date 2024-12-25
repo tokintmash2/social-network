@@ -2,9 +2,9 @@ INSERT INTO users (email, password, first_name, last_name, dob, username, about_
 VALUES ('asd@asd.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Taylor', 'Lorenzo', '1990-03-01 00:00:00+00:00', 'taylor_l', 'I am a student of the University of Tartu.', 'default_avatar.jpg');
 INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
 VALUES ('qwe@qwe.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'qwe', 'qwe', '1990-03-01 00:00:00+00:00', 'qwe', 'testuser', 'default_avatar.jpg');
-INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
+INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar, is_public) 
 VALUES ('test@mail.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Peter', 'Parker', '1985-03-01 00:00:00+00:00', 'pparker', 
-'Aspiring software engineer from Paide, Estonia. I like to play tennis and play video games, read autobiographies and listen to classical music.', 'peter.jpg');
+'Aspiring software engineer from Paide, Estonia. I like to play tennis and play video games, read autobiographies and listen to classical music.', 'peter.jpg', false);
 
 INSERT INTO posts (user_id, title, content, privacy_setting) 
 VALUES (4, 'From Skeptic to Believer: My Experience with Loora AI', 

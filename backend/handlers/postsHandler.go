@@ -100,12 +100,14 @@ func (app *application) CreatePostHandler(writer http.ResponseWriter, request *h
 		post.Author.LastName = author.LastName
 		post.CreatedAt = time.Now()
 
-		err = utils.CreatePost(post)
+		postID, err := utils.CreatePost(post)
 		if err != nil {
 			log.Printf("Error creating post in CreatePostHandler: %v\n", err)
 			http.Error(writer, "Error creating post", http.StatusInternalServerError)
 			return
 		}
+
+		post.ID = int(postID)
 
 		response := map[string]interface{}{
 			"success": true,
@@ -165,9 +167,7 @@ func (app *application) FetchPostsHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
 	return
 }
-
