@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"slices"
+	"time"
 )
 
 type ChatMessage struct {
@@ -28,9 +29,16 @@ type ChatModel struct {
 }
 
 // Get messages
-func (m *ChatModel) GetUserMessages(senderID int, receiverID int, time string, count int) ([]ChatMessage, error) {
-	if len(time) == 0 {
-		time = "datetime()"
+func (m *ChatModel) GetUserMessages(senderID int, receiverID int, timestr string, count int) ([]ChatMessage, error) {
+
+	// Default check earlier than right now
+	timeFilter := "datetime()"
+
+	// Parse the ISO timestamp string into a time.Time object
+	t, err := time.Parse(time.RFC3339, timestr)
+	if err == nil {
+		// Use incoming time as filter in correct format for TIMESTAMP sqlite type
+		timeFilter = t.Format("2006-01-02 15:04:05")
 	}
 
 	query := `
@@ -54,7 +62,7 @@ func (m *ChatModel) GetUserMessages(senderID int, receiverID int, time string, c
 		sent_at DESC
 	LIMIT ?
 	`
-	rows, err := m.DB.Query(query, senderID, receiverID, senderID, receiverID, time, count)
+	rows, err := m.DB.Query(query, senderID, receiverID, senderID, receiverID, timeFilter, count)
 	if err != nil {
 		return nil, err
 	}
