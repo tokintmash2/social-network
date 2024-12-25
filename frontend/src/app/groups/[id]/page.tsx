@@ -292,6 +292,7 @@ export default function Group() {
 		fetchEvents()
 	}, [id, backendUrl])
 	useEffect(() => {
+		console.log('loggedInUser', loggedInUser)
 		if (loggedInUser) {
 			const member = state.members.find((m) => m.id === loggedInUser.id)
 			if (member) {
