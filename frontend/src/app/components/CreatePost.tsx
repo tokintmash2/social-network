@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane, faImage, faXmark } from '@fortawesome/free-solid-svg-icons'
-//import { ACTIONS } from '../utils/actions/postActions'
-//import { PostsAction_type } from '../utils/types'
+import { ACTIONS } from '../utils/actions/postActions'
+
 import axios from 'axios'
 import Image from 'next/image'
 import toast, { Toaster } from 'react-hot-toast'
@@ -21,6 +21,8 @@ function CreatePost({
 		content: '',
 		media: null,
 	})
+	const [privacy, setPrivacy] = useState<string>('PUBLIC')
+	const [allowedUsers, setAllowedUsers] = useState<number[]>([])
 	const [imagePreview, setImagePreview] = useState<string | null>(null)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const [loading, setLoading] = useState(false)
@@ -75,6 +77,8 @@ function CreatePost({
 			const formData = new FormData()
 			formData.append('title', newPost.title)
 			formData.append('content', formattedContent)
+			formData.append('privacy', privacy.toLowerCase())
+			formData.append('allowed_users', JSON.stringify(allowedUsers))
 
 			if (newPost.media) {
 				formData.append('image', newPost.media)
@@ -93,45 +97,16 @@ function CreatePost({
 				},
 			})
 
-			//const post = response.data.post
+			const post = response.data.post
 			console.log('response.data', response.data)
-			/* console.log({
-				postId,
-				comment: {
-					id: newComment.id,
-					content: newComment.content,
-					mediaUrl: newComment.mediaUrl,
-					createdAt: new Date(newComment.created_at),
-					author: {
-						id: newComment.user_id,
-						firstName: newComment.author?.firstName || 'Annonymous',
-						lastName: newComment.author?.lastName || '',
-					},
-				},
-			})
-
-			console.log('new Comment', newComment)
 
 			dispatch({
-				type: ACTIONS.ADD_COMMENT,
-				payload: {
-					postId,
-					comment: {
-						id: newComment.id,
-						content: newComment.content,
-						mediaUrl: newComment.mediaUrl,
-						createdAt: new Date(newComment.created_at),
-						author: {
-							id: newComment.user_id,
-							firstName: newComment.author?.firstName || 'Annonymous',
-							lastName: newComment.author?.lastName || '',
-						},
-					},
-				},
+				type: ACTIONS.SET_POSTS,
+				payload: [post],
 			})
 
-			setNewPost({ content: '', media: null }) // Reset comment
-			 */
+			setNewPost({ title: '', content: '', media: null }) // Reset comment
+
 			setImagePreview(null) // Remove preview
 			textareaRef.current?.blur() // Programmatically blur the textarea (to cause it to shrink it height)
 		} catch (error) {
@@ -153,7 +128,12 @@ function CreatePost({
 					<Toaster />
 				</>
 				<div className='flex justify-end'>
-					<SetPostPrivacy followers={followers || []} dispatch={dispatch} />
+					<SetPostPrivacy
+						followers={followers || []}
+						dispatch={dispatch}
+						setNewPostPrivacy={setPrivacy}
+						setNewPostAllowedUsers={setAllowedUsers}
+					/>
 				</div>
 				<input
 					type='text'

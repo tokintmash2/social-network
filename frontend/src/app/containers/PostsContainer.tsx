@@ -19,13 +19,14 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 function reducer(state: PostsState_type, action: PostsAction_type): PostsState_type {
 	switch (action.type) {
 		case ACTIONS.SET_POSTS:
+			console.log('ACTIONS.SET_POSTS payload', action.payload)
 			if (Array.isArray(action.payload)) {
 				console.log('action.payload', action.payload)
 				const normalizedPosts = action.payload.map((post) => ({
 					...post,
 					comments: post.comments || [], // Default to an empty array if comments is null or undefined
 				}))
-				return { ...state, posts: normalizedPosts }
+				return { ...state, posts: [...state.posts, ...normalizedPosts] }
 			} else if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -50,12 +51,14 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			throw new Error('Invalid payload for SET_ERROR')
 
 		case ACTIONS.SET_POST_PRIVACY:
+			console.log('ACTIONS.SET_POST_PRIVACY | action.payload', action.payload)
 			if (
 				action.payload &&
 				typeof action.payload === 'object' &&
 				'postId' in action.payload &&
 				'privacy' in action.payload
 			) {
+				console.log('ACTIONS.SET_POST_PRIVACY | updating state')
 				const { postId, privacy, allowedUsers } = action.payload
 				return {
 					...state,
