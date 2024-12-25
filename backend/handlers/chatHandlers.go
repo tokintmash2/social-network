@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"social-network/utils"
 	"strconv"
 )
 
@@ -21,13 +22,18 @@ func (app *application) ListChatHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	profile, err := utils.GetUserProfile(receiver)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 	messages, err := app.chat.GetUserMessages(userID, receiver, time, 10)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, envelope{"data": messages}, nil)
+	app.writeJSON(w, http.StatusOK, envelope{"data": envelope{"messages": messages, "profile": profile}}, nil)
 }
 
 func (app *application) SaveChatHandler(w http.ResponseWriter, r *http.Request) {
