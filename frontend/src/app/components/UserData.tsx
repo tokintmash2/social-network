@@ -19,7 +19,8 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	useEffect(() => {
 		const fetchUserData = async () => {
 			try {
-				const response = await axios.get(`http://localhost:8080/users/${userId}`, {
+				console.log('fetching user data for user', userId)
+				const response = await axios.get(`${backendUrl}/api/users/${userId}`, {
 					withCredentials: true,
 				})
 				console.log('response', response.data)

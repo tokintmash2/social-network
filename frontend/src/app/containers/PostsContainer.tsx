@@ -201,7 +201,7 @@ export default function PostsContainer({
 	} else if (isOwnProfile) {
 		headerText = 'My Posts'
 	} else {
-		headerText = `${state.posts[0].author.firstName}'s Posts`
+		headerText = 'Posts'
 	}
 
 	return (
