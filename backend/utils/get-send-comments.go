@@ -25,10 +25,10 @@ func CreateComment(newComment structs.CommentResponse) error {
 	}
 
 	if err = tx.Commit(); err != nil {
-        log.Printf("Error committing transaction: %v\n", err)
-        return err
-    }
-	
+		log.Printf("Error committing transaction: %v\n", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -36,7 +36,7 @@ func FetchComments(postID int) ([]structs.CommentResponse, error) {
 
 	log.Println("FetchComments called with postID:", postID)
 
-	var comments []structs.CommentResponse
+	comments := []structs.CommentResponse{}
 
 	// log.Println("Created emtpy comments slice. Starting to fetch comments...")
 
