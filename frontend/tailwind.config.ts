@@ -20,11 +20,10 @@ const config: Config = {
 				krona: ['Krona One', 'sans-serif'],
 			},
 		},
-		
 	},
 	plugins: [daisyui],
 	daisyui: {
-		themes: ['light', 'dark'],
+		themes: ['light'],
 	},
 }
 
