@@ -134,24 +134,24 @@ func (app *application) RemoveFollowerHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	err = utils.RemoveFollower(followerID, followedID)
-		if err != nil {
-			log.Printf("Error adding follower: %v\n", err)
-			http.Error(w, "Error adding follower", http.StatusInternalServerError)
-			return
-		}
+	if err != nil {
+		log.Printf("Error adding follower: %v\n", err)
+		http.Error(w, "Error adding follower", http.StatusInternalServerError)
+		return
+	}
 
-		// userNotification := &structs.Notification{
-		// 	Users:     []int{followedID},
-		// 	Type:      "follow_request",
-		// 	Message:   "You have a new follow request!",
-		// 	Timestamp: time.Now(),
-		// 	Read:      false,
-		// }
+	// userNotification := &structs.Notification{
+	// 	Users:     []int{followedID},
+	// 	Type:      "follow_request",
+	// 	Message:   "You have a new follow request!",
+	// 	Timestamp: time.Now(),
+	// 	Read:      false,
+	// }
 
-		// utils.CreateNotification(userNotification)
-		// app.sendWSNotification(followedID, "new_follower", userNotification.Message)
+	// utils.CreateNotification(userNotification)
+	// app.sendWSNotification(followedID, "new_follower", userNotification.Message)
 
-		// message = "Followe request sent successfully"
+	// message = "Followe request sent successfully"
 
 	response := map[string]interface{}{
 		"success": true,
@@ -184,7 +184,8 @@ func (app *application) ProfileHandler(writer http.ResponseWriter, request *http
 	}
 
 	// Check if the request is for all users or a specific user
-	userID, err := utils.FetchIdFromPath(request.URL.Path, 1)
+	userID, err := utils.FetchIdFromPath(request.URL.Path, 2)
+	log.Println("userID", userID)
 	if err != nil || userID == 0 {
 		// No valid user ID in the path, return all users
 		log.Println("Fetching all users...")
