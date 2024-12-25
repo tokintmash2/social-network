@@ -137,7 +137,7 @@ func FollowRequestHandler(writer http.ResponseWriter, request *http.Request) {
 
 func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("AddFollowerHandler called")
+	log.Println("FetchFollowersHandler called")
 
 	cookie, err := r.Cookie("session")
 	if err != nil {
@@ -154,9 +154,10 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 
 	path := strings.TrimPrefix(r.URL.Path, "/api/users/")
 	pathParts := strings.Split(path, "/")
-	followedID, _ := strconv.Atoi(pathParts[0])
+	userIDProcessed, _ := strconv.Atoi(pathParts[0])
 
-	followersIDs, err := utils.GetFollowers(followedID)
+	
+	followersIDs, err := utils.GetFollowers(userIDProcessed)
 	if err != nil {
 		http.Error(w, "Error getting followers", http.StatusInternalServerError)
 		return
@@ -178,9 +179,33 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		followers = append(followers, followerName)
 	}
 
+	followedIDs, err := utils.GetFollowed(userIDProcessed)
+	if err != nil {
+		http.Error(w, "Error getting followed", http.StatusInternalServerError)
+		return
+	}
+
+	var following []structs.PersonResponse
+
+	for _, followedID := range followedIDs {
+		var followedName structs.PersonResponse
+		followedProfile, err := utils.GetUserProfile(followedID)
+		if err != nil {
+			log.Printf("Error fetching followed: %v", err)
+			continue
+		}
+		followedName.ID = followedProfile.ID
+		followedName.FirstName = followedProfile.FirstName
+		followedName.LastName = followedProfile.LastName
+
+		following = append(following, followedName)
+	}
+
+
 	response := map[string]interface{}{
 		"success":   true,
 		"followers": followers,
+		"following":  following,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -133,6 +133,37 @@ func GetFollowers(userID int) ([]int, error) {
 	return followers, nil
 }
 
+func GetFollowed(userID int) ([]int, error) {
+	log.Printf("Getting followed for user %d", userID)
+
+	rows, err := database.DB.Query(`
+        SELECT followed_id 
+        FROM followers 
+        WHERE follower_id = ?`,
+		userID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error querying followed: %v", err)
+	}
+	defer rows.Close()
+
+	var followed []int
+	for rows.Next() {
+		var followerID int
+		if err := rows.Scan(&followerID); err != nil {
+			return nil, fmt.Errorf("error scanning followed data: %v", err)
+		}
+		followed = append(followed, followerID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over followed: %v", err)
+	}
+
+	log.Printf("Retrieved %d followed successfully", len(followed))
+	return followed, nil
+}
+
 func HandleFollowRequest(followerID, followedID int, action string) error {
 	log.Printf("Handling follow request: follower=%d, followed=%d, action=%s",
 		followerID, followedID, action)
