@@ -26,7 +26,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 					...post,
 					comments: post.comments || [], // Default to an empty array if comments is null or undefined
 				}))
-				return { ...state, posts: [...state.posts, ...normalizedPosts] }
+				return { ...state, posts: [...normalizedPosts, ...state.posts] }
 			} else if (
 				action.payload &&
 				typeof action.payload === 'object' &&

@@ -59,6 +59,8 @@ function SetPostPrivacy({
 			setNewPostPrivacy?.(privacy)
 			setNewPostAllowedUsers?.(allowedUsers)
 		}
+		changePrivacyRef.current?.close()
+		setShowAllowedUsersSelection(false)
 	}
 
 	const handleChangeAllowedUsers = (newValues: AllowedUserOption_type[]) => {
@@ -76,10 +78,10 @@ function SetPostPrivacy({
 
 	return (
 		<div>
-			<div className='flex'>
+			<div className='flex items-center'>
 				Privacy: {privacy}
 				<button
-					className='btn btn-sm'
+					className='btn btn-sm ml-3'
 					onClick={() => changePrivacyRef.current?.showModal()}
 				>
 					<FontAwesomeIcon icon={faGear} />
@@ -139,16 +141,7 @@ function SetPostPrivacy({
 					</form>
 
 					<div className='modal-action'>
-						<button
-							className='btn'
-							/* disabled={
-								loading ||
-								newGroup.name.trim() === '' ||
-								newGroup.description.trim() === ''
-							}
-								 */
-							onClick={() => handleSaveAllowedUsers()}
-						>
+						<button className='btn' onClick={() => handleSaveAllowedUsers()}>
 							SUBMIT
 						</button>
 					</div>
