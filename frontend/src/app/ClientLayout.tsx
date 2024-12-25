@@ -11,13 +11,16 @@ function SocialFeatures() {
     const { loggedInUser } = useLoggedInUser()
     const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
     const showSocialFeatures = loggedInUser && !isAuthPage
-    const [ activeChats, setActiveChats ] = useState<Number[]>([])
-    const openChat = (id: Number) => {
+    const [ activeChats, setActiveChats ] = useState<number[]>([])
+    const openChat = (id: number) => {
         console.log("Open chat with:", id)
         setActiveChats(Array.from(new Set([...activeChats, id]).values()))
     }
-    const closeChat = (id: Number) => {
+    const closeChat = (id: number) => {
         console.log("Close chat with:", id)
+        const s = new Set([...activeChats])
+        s.delete(id)
+        setActiveChats(Array.from(s.values()))
     }
 
     return showSocialFeatures ? (

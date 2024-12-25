@@ -84,8 +84,12 @@ func FetchPosts(userID int) ([]structs.PostResponse, error) {
 			log.Println("Error fetching allowed users for posts:", err)
 			return nil, err
 		}
-		// post.AllowedUsers = allowedUsers
-		// post.Comments = comments
+
+		author, err := GetUserProfile(post.Author.ID)
+
+		post.Author.ID = author.ID
+		post.Author.FirstName = author.FirstName
+		post.Author.LastName = author.LastName
 
 		posts = append(posts, post)
 	}
