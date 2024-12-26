@@ -170,26 +170,27 @@ export default function Messenger({
 	if (isMinimized) {
 		return (
 			<div className='fixed bottom-4 right-4 z-50'>
-				<button
+				  <button 
 					onClick={() => setIsMinimized(false)}
-					className='bg-white px-4 py-2 rounded-t-lg shadow-lg font-semibold hover:bg-gray-50'
+					className="w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center"
 				>
-					Messages
+					{user?.username?.charAt(0).toUpperCase()}
 				</button>
 			</div>
 		)
 	}
-
+	
 	return (
 		<div className='fixed bottom-4 right-4 z-50'>
 			<div className='w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col'>
 				<div className='p-4 border-b flex justify-between items-center'>
 					<h3 className='font-semibold'>{user?.username}</h3>
+                    <div className="flex gap-2">
 					<button
 						onClick={() => setIsMinimized(true)}
-						className='hover:bg-gray-100 p-1 rounded-full'
+						className='hover:bg-gray-100 p-1 rounded-full relative'
 					>
-						<FontAwesomeIcon icon={faWindowMinimize} className='w-5 h-5' />
+						<FontAwesomeIcon icon={faWindowMinimize} className='w-4 h-4 transform -translate-y-[6px]' />
 					</button>
 					<button
 						onClick={() => onClose(receiverID)}
@@ -197,7 +198,8 @@ export default function Messenger({
 					>
 						<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
 					</button>
-				</div>
+                    </div>
+                    </div>
 
 				{/* Chat messages container */}
 				<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
