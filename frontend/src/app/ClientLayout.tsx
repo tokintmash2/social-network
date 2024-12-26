@@ -26,9 +26,14 @@ function SocialFeatures() {
     return showSocialFeatures ? (
         <>
             <UsersList onChat={openChat} />
-            <div>
-                {activeChats.map((id) => (
-                    <Messenger onClose={closeChat} receiverID={id} key={String(id)} />
+            <div className="fixed bottom-4 right-4 z-50 flex flex-col-reverse gap-4">
+                {activeChats.map((id, index) => (
+                    <Messenger 
+                        key={`chat-${id}`}
+                        onClose={closeChat}
+                        receiverID={id}
+                        chatIndex={index}
+                    />
                 ))}
             </div>
         </>

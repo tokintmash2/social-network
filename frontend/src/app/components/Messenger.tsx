@@ -23,9 +23,11 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 export default function Messenger({
 	onClose,
 	receiverID,
+	chatIndex,
 }: {
 	onClose: Function
 	receiverID: number
+	chatIndex: number
 }) {
 	const [isMinimized, setIsMinimized] = useState(false)
 	const [messageContent, setMessageContent] = useState('')
@@ -33,6 +35,7 @@ export default function Messenger({
 	const [messages, setMessages] = useState<Message[]>([])
     const [earliest, setEarliest] = useState("")
     const [latest, setLatest] = useState("")
+
 
     const msgListRef = useRef(null)
 	const msgScrollDetect = useRef(null)
@@ -169,8 +172,8 @@ export default function Messenger({
 
 	if (isMinimized) {
 		return (
-			<div className='fixed bottom-4 right-4 z-50'>
-				  <button 
+			<div>
+				<button 
 					onClick={() => setIsMinimized(false)}
 					className="w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center"
 				>
@@ -179,6 +182,7 @@ export default function Messenger({
 			</div>
 		)
 	}
+	
 	
 	return (
 		<div className='fixed bottom-4 right-4 z-50'>
@@ -204,7 +208,8 @@ export default function Messenger({
 				{/* Chat messages container */}
 				<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
                     {/* This div is used in IntersectionObserver */}
-					{messages.length ? <div ref={msgScrollDetect}>&nbsp;</div> : ''}
+
+					{messages.length ? <div ref={msgScrollDetect}> </div> : ''}
 					{messages.map((message) => (
 						<MessageBubble
 							key={message.chat_id}
@@ -239,8 +244,8 @@ export default function Messenger({
 			</div>
 		</div>
 	)
-}
 
+}
 function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
 	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
 	return (
