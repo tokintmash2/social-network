@@ -16,7 +16,8 @@ func (u *UserModel) GetUserList(id int) ([]structs.User, error) {
 		U.id,
 		U.first_name,
 		U.last_name,
-		U.username
+		U.username,
+		U.is_public
 	FROM
 		users U
 		JOIN followers F ON U.id = F.followed_id 
@@ -27,14 +28,27 @@ func (u *UserModel) GetUserList(id int) ([]structs.User, error) {
 		U.id,
 		U.first_name,
 		U.last_name,
-		U.username
+		U.username,
+		U.is_public
 	FROM
 		users U
-		JOIN followers F ON U.id = F.follower_id 
+		JOIN followers F ON U.id = F.follower_id
 	WHERE
 		F.followed_id = ?
+	UNION
+	SELECT
+		U.id,
+		U.first_name,
+		U.last_name,
+		U.username,
+		U.is_public
+	FROM
+		users U
+	WHERE
+		U.is_public = TRUE
+		AND U.id != ?
 	`
-	rows, err := u.DB.Query(query, id, id)
+	rows, err := u.DB.Query(query, id, id, id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +63,7 @@ func (u *UserModel) GetUserList(id int) ([]structs.User, error) {
 			&user.FirstName,
 			&user.LastName,
 			&user.Username,
+			&user.IsPublic,
 		)
 		if err != nil {
 			return nil, err
