@@ -1,12 +1,20 @@
 'use client'
 
-import { useEffect, useState, FormEvent, KeyboardEvent, useRef } from 'react'
+import {
+	useEffect,
+	useState,
+	FormEvent,
+	KeyboardEvent,
+	useRef,
+	useContext,
+	useCallback,
+} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faWindowMinimize, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { User } from '../utils/types/types'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
-import { debug } from 'console'
+import { WebSocketContext, channelTypes } from '../components/WsContext'
 
 type Message = {
 	chat_id: number
@@ -33,18 +41,33 @@ export default function Messenger({
 	const [messageContent, setMessageContent] = useState('')
 	const [user, setUser] = useState<User>()
 	const [messages, setMessages] = useState<Message[]>([])
-    const [earliest, setEarliest] = useState("")
-    const [latest, setLatest] = useState("")
+	const [earliest, setEarliest] = useState('')
+	const [latest, setLatest] = useState('')
+	const [subscribe, unsubscribe] = useContext(WebSocketContext)
 
-
-    const msgListRef = useRef(null)
+	const msgListRef = useRef(null)
 	const msgScrollDetect = useRef(null)
+	const channel = channelTypes.chat_message()
 
 	const isMyUser = (id: number) => {
 		// if it's not the receiver it must be me
 		// TODO: actually should look up my own userID
 		return id != receiverID
 	}
+
+	const messageReceived = useCallback(
+		(msg: Message) => {
+			if (msg.sender_id == receiverID){
+				setMessages((p) => [...p, msg])
+			}
+		},
+		[messages],
+	)
+
+	useEffect(() => {
+		subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
+		return () => unsubscribe(channel)
+	}, [subscribe, unsubscribe])
 
 	const onSubmit = async (ev: FormEvent) => {
 		ev.preventDefault()
@@ -64,7 +87,7 @@ export default function Messenger({
 		form.reset()
 		if (res.data.data) {
 			setMessages([...messages, res.data.data])
-            setLatest(res.data.data.sent_at)
+			setLatest(res.data.data.sent_at)
 		}
 	}
 
@@ -102,11 +125,11 @@ export default function Messenger({
 		}
 	}, [msgListRef.current, latest])
 
-    useEffect(() => {
-        if (!earliest.length) {
-            return
-        }
-        const fetchMessages = async (timestamp: string) => {
+	useEffect(() => {
+		if (!earliest.length) {
+			return
+		}
+		const fetchMessages = async (timestamp: string) => {
 			console.log('before load msg count', messages.length)
 			const response = await axios.get(
 				`${backendUrl}/api/chat/${encodeURIComponent(receiverID)}?timestamp=${encodeURIComponent(timestamp)}`,
@@ -120,29 +143,25 @@ export default function Messenger({
 				console.log('after msg count', msgs.length)
 				setMessages(msgs)
 
-                // Scroll back to the element that triggered load more
-                if (msgListRef.current !== null) {
-                    const list = msgListRef.current as HTMLElement
-                    for (const node of list.childNodes) {
-                        if (node instanceof HTMLElement && node.dataset.timestamp === earliest) {
-                            node.scrollIntoView()
-                            break
-                        }
-                    }
-                }
+				// Scroll back to the element that triggered load more
+				if (msgListRef.current !== null) {
+					const list = msgListRef.current as HTMLElement
+					for (const node of list.childNodes) {
+						if (node instanceof HTMLElement && node.dataset.timestamp === earliest) {
+							node.scrollIntoView()
+							break
+						}
+					}
+				}
 			}
 		}
 
 		console.log('load more! earlier than:', earliest)
 		fetchMessages(earliest)
-
-    }, [earliest])
+	}, [earliest])
 
 	useEffect(() => {
-		if (
-			msgScrollDetect.current === null ||
-			msgListRef.current === null
-		) {
+		if (msgScrollDetect.current === null || msgListRef.current === null) {
 			return
 		}
 		const observerOptions = {
@@ -152,20 +171,20 @@ export default function Messenger({
 		}
 
 		const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-            console.log("intesection callback called")
-            if (!entries[0].isIntersecting) {
-                return
-            }
-            const timestamps = messages.map((m) => m.sent_at)
-            timestamps.sort()
-            setEarliest(timestamps.shift() || '')
-        }, observerOptions)
-        console.log("observing!!!")
+			console.log('intesection callback called')
+			if (!entries[0].isIntersecting) {
+				return
+			}
+			const timestamps = messages.map((m) => m.sent_at)
+			timestamps.sort()
+			setEarliest(timestamps.shift() || '')
+		}, observerOptions)
+		console.log('observing!!!')
 		observer.observe(msgScrollDetect.current)
 
 		return () => {
 			// Stop observing when unloaded
-            console.log("unobserving!!!")
+			console.log('unobserving!!!')
 			observer.disconnect()
 		}
 	}, [msgListRef.current, msgScrollDetect.current, messages])
@@ -207,9 +226,8 @@ export default function Messenger({
 
 				{/* Chat messages container */}
 				<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
-                    {/* This div is used in IntersectionObserver */}
-
-					{messages.length ? <div ref={msgScrollDetect}> </div> : ''}
+					{/* This div is used in IntersectionObserver */}
+					{messages.length ? <div ref={msgScrollDetect}>&nbsp;</div> : ''}
 					{messages.map((message) => (
 						<MessageBubble
 							key={message.chat_id}
