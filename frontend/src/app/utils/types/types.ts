@@ -117,3 +117,13 @@ export type Follower_type = {
 	firstName: string
 	lastName: string
 }
+
+export type Message = {
+	chat_id: number
+	sender_id: number
+	sender_name: string
+	receiver_id: number
+	receiver_name: string
+	sent_at: string
+	message: string
+}
