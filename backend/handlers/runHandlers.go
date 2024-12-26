@@ -44,6 +44,10 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("POST /api/chat", app.authenticate(app.SaveChatHandler, false))
 	r.HandleFunc("GET /api/chat/users", app.authenticate(app.UsersHandler, true))
 
+	// r.HandleFunc("GET /api/groupchat/{id}", app.authenticate(app.ListGroupChatHandler, false))
+	// r.HandleFunc("POST /api/chat", app.authenticate(app.SaveChatHandler, false))
+	// r.HandleFunc("GET /api/chat/users", app.authenticate(app.UsersHandler, true))
+
 	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
 	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)
 

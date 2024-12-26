@@ -11,20 +11,11 @@ import {
 } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faWindowMinimize, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
-import { User } from '../utils/types/types'
+import { Message, User } from '../utils/types/types'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
 import { WebSocketContext, channelTypes } from '../components/WsContext'
-
-type Message = {
-	chat_id: number
-	sender_id: number
-	sender_name: string
-	receiver_id: number
-	receiver_name: string
-	sent_at: string
-	message: string
-}
+import { useLoggedInUser } from '../context/UserContext'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
@@ -49,10 +40,9 @@ export default function Messenger({
 	const msgScrollDetect = useRef(null)
 	const channel = channelTypes.chat_message()
 
+	const { loggedInUser } = useLoggedInUser()
 	const isMyUser = (id: number) => {
-		// if it's not the receiver it must be me
-		// TODO: actually should look up my own userID
-		return id != receiverID
+		return (loggedInUser != null && loggedInUser.id == id)
 	}
 
 	const messageReceived = useCallback(
