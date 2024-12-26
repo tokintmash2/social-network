@@ -59,6 +59,7 @@ export default function Messenger({
 		(msg: Message) => {
 			if (msg.sender_id == receiverID){
 				setMessages((p) => [...p, msg])
+				setLatest(msg.sent_at)
 			}
 		},
 		[messages],
