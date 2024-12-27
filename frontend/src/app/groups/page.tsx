@@ -28,9 +28,9 @@ type Group_type = {
 
 type GroupsActions_type =
 	| {
-			type: typeof ACTIONS.SET_GROUPS
-			payload: Group_type[]
-	  }
+		type: typeof ACTIONS.SET_GROUPS
+		payload: Group_type[]
+	}
 	| { type: typeof ACTIONS.CREATE_GROUP; payload: Group_type }
 
 function reducer(state: GroupsState_type, action: GroupsActions_type): GroupsState_type {
@@ -163,96 +163,89 @@ export default function GroupsList() {
 	return (
 		<div>
 			<Header />
-
-			<div className='container pt-16'>
-				<div className='flex'>
-					{/* Left sidebar with groups */}
-					<div className='w-1/3'>
-						<div className='bg-white p-6 rounded-lg shadow-sm min-h-screen overflow-y-auto'>
-							<div className='flex flex-col'>
-								<h1>Groups</h1>
-								<button
-									className='btn bg-white mb-4 mt-4 w-full'
-									onClick={() => createGroupRef.current?.showModal()}
-								>
-									<FontAwesomeIcon icon={faPlus} />
-									Add new group
-								</button>
-								{state.groups.map((group) => (
-									<div
-										key={group.id}
-										className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
-										onClick={() => router.push(`/groups/${group.id}`)}
-									>
-										<div className='card-body'>
-											<h2 className='card-title'>{group.name}</h2>
-											<p
-												dangerouslySetInnerHTML={{
-													__html: DOMPurify.sanitize(group.description),
-												}}
-											></p>
-
-											<div className='card-actions justify-end'></div>
-										</div>
-									</div>
-								))}
+			<div className='pt-16'>
+				<div className='container pr-2 pl-2 pt-2'>
+					<div className='bg-white p-6 rounded-lg shadow-sm min-h-screen overflow-y-auto'>
+						<h1>Groups</h1>
+						<button
+							className='btn bg-white mb-4 mt-4 w-full'
+							onClick={() => createGroupRef.current?.showModal()}
+						>
+							<FontAwesomeIcon icon={faPlus} />
+							Add new group
+						</button>
+						{state.groups.map((group) => (
+							<div
+								key={group.id}
+								className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
+								onClick={() => router.push(`/groups/${group.id}`)}
+							>
+								<div className='card-body'>
+									<h2 className='card-title'>{group.name}</h2>
+									<p
+										dangerouslySetInnerHTML={{
+											__html: DOMPurify.sanitize(group.description),
+										}}
+									></p>
+								</div>
 							</div>
-						</div>
+						))}
 					</div>
 				</div>
-				<dialog id='my_modal_4' ref={createGroupRef} className='modal'>
-					<div className='modal-box w-11/12 max-w-5xl'>
-						<h3 className='font-bold text-lg'>Create new group</h3>
-						<form className='flex flex-col items-center justify-center w-full pt-4'>
-							<div
-								className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'
-								onClick={() => createGroupRef.current?.close()}
-							>
-								✕
-							</div>
-							<label className='form-control w-full mb-4'>
-								<span className='label-text mb-2'>Name</span>
-								<input
-									type='text'
-									className='input input-bordered w-full'
-									value={newGroup.name}
-									autoFocus
-									spellCheck={false}
-									onChange={(e) =>
-										setNewGroup({ ...newGroup, name: e.target.value })
-									}
-								/>
-							</label>
-
-							<label className='form-control w-full'>
-								<span className='label-text mb-2'>Description</span>
-								<textarea
-									className='textarea textarea-bordered text-base w-full h-32'
-									value={newGroup.description}
-									spellCheck={false}
-									onChange={(e) =>
-										setNewGroup({ ...newGroup, description: e.target.value })
-									}
-								></textarea>
-							</label>
-						</form>
-
-						<div className='modal-action'>
-							<button
-								className='btn'
-								disabled={
-									loading ||
-									newGroup.name.trim() === '' ||
-									newGroup.description.trim() === ''
-								}
-								onClick={() => handleSubmit()}
-							>
-								SUBMIT
-							</button>
-						</div>
-					</div>
-				</dialog>
 			</div>
+			<dialog id='my_modal_4' ref={createGroupRef} className='modal'>
+				<div className='modal-box w-11/12 max-w-5xl'>
+					<h3 className='font-bold text-lg'>Create new group</h3>
+					<form className='flex flex-col items-center justify-center w-full pt-4'>
+						<div
+							className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'
+							onClick={() => createGroupRef.current?.close()}
+						>
+							✕
+						</div>
+						<label className='form-control w-full mb-4'>
+							<span className='label-text mb-2'>Name</span>
+							<input
+								type='text'
+								className='input input-bordered w-full'
+								value={newGroup.name}
+								autoFocus
+								spellCheck={false}
+								onChange={(e) =>
+									setNewGroup({ ...newGroup, name: e.target.value })
+								}
+							/>
+						</label>
+
+						<label className='form-control w-full'>
+							<span className='label-text mb-2'>Description</span>
+							<textarea
+								className='textarea textarea-bordered text-base w-full h-32'
+								value={newGroup.description}
+								spellCheck={false}
+								onChange={(e) =>
+									setNewGroup({ ...newGroup, description: e.target.value })
+								}
+							></textarea>
+						</label>
+					</form>
+
+					<div className='modal-action'>
+						<button
+							className='btn'
+							disabled={
+								loading ||
+								newGroup.name.trim() === '' ||
+								newGroup.description.trim() === ''
+							}
+							onClick={() => handleSubmit()}
+						>
+							SUBMIT
+						</button>
+					</div>
+				</div>
+			</dialog>
 		</div>
+
 	)
 }
