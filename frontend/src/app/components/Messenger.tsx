@@ -16,6 +16,7 @@ import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
 import { WebSocketContext, channelTypes } from '../components/WsContext'
 import { useLoggedInUser } from '../context/UserContext'
+import Image from 'next/image'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
@@ -185,9 +186,22 @@ export default function Messenger({
 			<div>
 				<button 
 					onClick={() => setIsMinimized(false)}
-					className="w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center"
+					className="w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center overflow-hidden"
 				>
-					{user?.username?.charAt(0).toUpperCase()}
+					{user?.avatar && user.avatar !== 'default_avatar.jpg' ? (
+						<Image
+							src={`${backendUrl}/uploads/${user.avatar}`}
+							alt={`${user.username}'s avatar`}
+							width={48}
+							height={48}
+							className="object-cover"
+						/>
+					) : (
+						<span className="text-lg uppercase">
+							{user?.firstName[0]}
+							{user?.lastName[0]}
+						</span>
+					)}
 				</button>
 			</div>
 		)
@@ -256,18 +270,20 @@ export default function Messenger({
 
 }
 function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
-	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
-	return (
-		<div className={bubbleType} data-timestamp={message.sent_at}>
-			<div className='chat-image avatar'>
-				<div className='w-10 rounded-full'>
-					<img
-						alt='Tailwind CSS chat bubble component'
-						src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
-					/>
-				</div>
-			</div>
-			<div className='chat-bubble'>{message.message}</div>
-		</div>
-	)
+    const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
+    return (
+        <div className={bubbleType} data-timestamp={message.sent_at}>
+            <div className='chat-image avatar'>
+                <div className='avatar placeholder'>
+                    <div className='bg-neutral text-neutral-content w-10 rounded-full'>
+                        <span className='text-xs uppercase'>
+                            {message.sender_name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div className='chat-bubble'>{message.message}</div>
+        </div>
+    )
 }
+

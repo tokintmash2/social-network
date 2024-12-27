@@ -3,6 +3,7 @@
 import { useState, useEffect, MouseEvent } from "react"
 import { User } from "../utils/types/types"
 import axios from "axios"
+import Image from 'next/image'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -49,12 +50,31 @@ export default function UsersList({ onChat }: { onChat: Function }) {
 }
 
 function UserCard({ user }: { user: User }) {
-	return (
-		<div className='p-4 hover:bg-gray-50 cursor-pointer' data-user-id={user.id}>
-			<div className='flex items-center gap-3 pointer-events-none'>
-				<div className='w-8 h-8 bg-gray-200 rounded-full'></div>
-				<span>{user.username}</span>
-			</div>
-		</div>
-	)
+    return (
+        <div className='p-4 hover:bg-gray-50 cursor-pointer' data-user-id={user.id}>
+            <div className='flex items-center gap-3 pointer-events-none'>
+                {user.avatar && user.avatar !== 'default_avatar.jpg' ? (
+                    <div className='w-8 h-8 rounded-full overflow-hidden'>
+                        <Image
+                            src={`${backendUrl}/uploads/${user.avatar}`}
+                            alt={`${user.username}'s avatar`}
+                            width={32}
+                            height={32}
+                            className='object-cover'
+                        />
+                    </div>
+                ) : (
+                    <div className='avatar placeholder'>
+                        <div className='bg-neutral text-neutral-content w-8 h-8 rounded-full'>
+                            <span className='text-xs uppercase'>
+                                {user.firstName[0]}
+                                {user.lastName[0]}
+                            </span>
+                        </div>
+                    </div>
+                )}
+                <span>{user.username}</span>
+            </div>
+        </div>
+    )
 }

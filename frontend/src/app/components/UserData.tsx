@@ -7,15 +7,24 @@ import { mapUserApiResponseToUser } from '../utils/userMapper'
 import { User, UserDataProps_type } from '../utils/types/types'
 import { formatDate } from '../utils/dateUtils'
 import PostsContainer from '../containers/PostsContainer'
+
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
-const avatarUrl = `${backendUrl}/avatars/`
+const avatarUrl = `${backendUrl}/uploads/`
 export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData] = useState<{ following: number; followers: number }>({
 		following: 0,
 		followers: 0,
 	})
+
+	useEffect(() => {
+		console.log('userData:', userData);
+		console.log('avatar condition:', userData?.avatar && userData.avatar !== 'default_avatar.jpg');
+	}, [userData]);
+	
+
 	const { loggedInUser } = useLoggedInUser()
+
 	useEffect(() => {
 		const fetchUserData = async () => {
 			try {
