@@ -1,6 +1,9 @@
 package utils
 
-import "social-network/database"
+import (
+	"social-network/database"
+	"social-network/structs"
+)
 
 // func FetchAllowedUsers(postID int) ([]int, error) {
 // 	rows, err := database.DB.Query(`
@@ -103,4 +106,12 @@ func SetPostAccess(postID int, userID int, privacy string, allowedUsers []int) e
 	// }
 
 	return tx.Commit()
+}
+
+func UpdatePost(postID int, newPost structs.PostResponse) error {
+	tx, err := database.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 }
