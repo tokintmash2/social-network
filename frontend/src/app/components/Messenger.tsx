@@ -9,8 +9,9 @@ import {
 	useContext,
 	useCallback,
 } from 'react'
+import EmojiPicker from 'emoji-picker-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark, faWindowMinimize, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
+import { faXmark, faWindowMinimize, faPaperPlane, faSmile } from '@fortawesome/free-solid-svg-icons'
 import { Message, User } from '../utils/types/types'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
@@ -36,6 +37,12 @@ export default function Messenger({
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
 	const [subscribe, unsubscribe] = useContext(WebSocketContext)
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+
+	const onEmojiClick = (emojiObject: any) => {
+		setMessageContent(prev => prev + emojiObject.emoji)
+	}
+
 
 	const msgListRef = useRef(null)
 	const msgScrollDetect = useRef(null)
@@ -48,7 +55,7 @@ export default function Messenger({
 
 	const messageReceived = useCallback(
 		(msg: Message) => {
-			if (msg.sender_id == receiverID){
+			if (msg.sender_id == receiverID) {
 				setMessages((p) => [...p, msg])
 				setLatest(msg.sent_at)
 			}
@@ -181,10 +188,25 @@ export default function Messenger({
 		}
 	}, [msgListRef.current, msgScrollDetect.current, messages])
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (showEmojiPicker && event.target instanceof Element) {
+				const emojiPicker = document.querySelector('.EmojiPickerReact')
+				if (emojiPicker && !emojiPicker.contains(event.target)) {
+					setShowEmojiPicker(false)
+				}
+			}
+		}
+
+		document.addEventListener('mousedown', handleClickOutside)
+		return () => document.removeEventListener('mousedown', handleClickOutside)
+	}, [showEmojiPicker])
+
+
 	if (isMinimized) {
 		return (
 			<div>
-				<button 
+				<button
 					onClick={() => setIsMinimized(false)}
 					className="w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center overflow-hidden"
 				>
@@ -206,28 +228,30 @@ export default function Messenger({
 			</div>
 		)
 	}
+
 	
-	
+
 	return (
 		<div className='fixed bottom-4 right-4 z-50'>
+			
 			<div className='w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col'>
 				<div className='p-4 border-b flex justify-between items-center'>
 					<h3 className='font-semibold'>{user?.username}</h3>
-                    <div className="flex gap-2">
-					<button
-						onClick={() => setIsMinimized(true)}
-						className='hover:bg-gray-100 p-1 rounded-full relative'
-					>
-						<FontAwesomeIcon icon={faWindowMinimize} className='w-4 h-4 transform -translate-y-[6px]' />
-					</button>
-					<button
-						onClick={() => onClose(receiverID)}
-						className='hover:bg-gray-100 p-1 rounded-full'
-					>
-						<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
-					</button>
-                    </div>
-                    </div>
+					<div className="flex gap-2">
+						<button
+							onClick={() => setIsMinimized(true)}
+							className='hover:bg-gray-100 p-1 rounded-full relative'
+						>
+							<FontAwesomeIcon icon={faWindowMinimize} className='w-4 h-4 transform -translate-y-[6px]' />
+						</button>
+						<button
+							onClick={() => onClose(receiverID)}
+							className='hover:bg-gray-100 p-1 rounded-full'
+						>
+							<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
+						</button>
+					</div>
+				</div>
 
 				{/* Chat messages container */}
 				<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
@@ -246,6 +270,20 @@ export default function Messenger({
 				<form onSubmit={onSubmit}>
 					<div className='p-4 border-t'>
 						<div className='flex gap-2'>
+							<div className='relative'>
+								<button
+									type='button'
+									className='btn btn-circle btn-ghost btn-sm'
+									onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+								>
+									<FontAwesomeIcon icon={faSmile} />
+								</button>
+								{showEmojiPicker && (
+									<div className='absolute bottom-20 left-0 z-50 -translate-x-[200px]'>
+										<EmojiPicker onEmojiClick={onEmojiClick} />
+									</div>
+								)}
+							</div>
 							<textarea
 								placeholder='Type a message...'
 								className='textarea textarea-bordered w-full min-h-[40px] resize-none'
@@ -270,20 +308,20 @@ export default function Messenger({
 
 }
 function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
-    const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
-    return (
-        <div className={bubbleType} data-timestamp={message.sent_at}>
-            <div className='chat-image avatar'>
-                <div className='avatar placeholder'>
-                    <div className='bg-neutral text-neutral-content w-10 rounded-full'>
-                        <span className='text-xs uppercase'>
-                            {message.sender_name.split(' ').map(n => n[0]).join('')}
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div className='chat-bubble'>{message.message}</div>
-        </div>
-    )
+	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
+	return (
+		<div className={bubbleType} data-timestamp={message.sent_at}>
+			<div className='chat-image avatar'>
+				<div className='avatar placeholder'>
+					<div className='bg-neutral text-neutral-content w-10 rounded-full'>
+						<span className='text-xs uppercase'>
+							{message.sender_name.split(' ').map(n => n[0]).join('')}
+						</span>
+					</div>
+				</div>
+			</div>
+			<div className='chat-bubble'>{message.message}</div>
+		</div>
+	)
 }
 
