@@ -18,10 +18,12 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	})
 
 	useEffect(() => {
-		console.log('userData:', userData);
-		console.log('avatar condition:', userData?.avatar && userData.avatar !== 'default_avatar.jpg');
-	}, [userData]);
-	
+		console.log('userData:', userData)
+		console.log(
+			'avatar condition:',
+			userData?.avatar && userData.avatar !== 'default_avatar.jpg',
+		)
+	}, [userData])
 
 	const { loggedInUser } = useLoggedInUser()
 
@@ -50,24 +52,21 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			console.log('isOwnProfile | loggedInUser null')
 		}
 	}, [isOwnProfile, loggedInUser])
-	/*  use when this api endpoint is ready
-    
-    useEffect(() => {
-        const fetchFollowers = async () => {
-            try {
-                const response = axios.get('backendUrl/followers', {
-                    withCredentials: true,
-                })
-                console.log(response)
-            } catch (error) {
-                console.log(error)
-            }
-            
-            
-        }
-        fetchFollowers()
-    }, [])
- */
+
+	useEffect(() => {
+		const fetchFollowers = async () => {
+			try {
+				const response = axios.get('backendUrl/api/users/${userId}/followers', {
+					withCredentials: true,
+				})
+				console.log(response)
+			} catch (error) {
+				console.log(error)
+			}
+		}
+		fetchFollowers()
+	}, [userId])
+
 	const handleToggleProfilePrivacy = async () => {
 		setUserData((prevUserData) => {
 			if (prevUserData === null) return null
