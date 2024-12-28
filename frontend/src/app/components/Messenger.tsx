@@ -18,6 +18,7 @@ import axios from 'axios'
 import { WebSocketContext, channelTypes } from '../components/WsContext'
 import { useLoggedInUser } from '../context/UserContext'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
@@ -229,99 +230,106 @@ export default function Messenger({
 		)
 	}
 
-	
+
 
 	return (
 		<div className='fixed bottom-4 right-4 z-50'>
-			
+
 			<div className='w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col'>
 				<div className='p-4 border-b flex justify-between items-center'>
-					<h3 className='font-semibold'>{user?.username}</h3>
-					<div className="flex gap-2">
-						<button
-							onClick={() => setIsMinimized(true)}
-							className='hover:bg-gray-100 p-1 rounded-full relative'
+					<div className='p-4 border-b flex justify-between items-center'>
+						<Link
+							href={`/profile/${receiverID}`}
+							className='hover:underline cursor-pointer'
 						>
-							<FontAwesomeIcon icon={faWindowMinimize} className='w-4 h-4 transform -translate-y-[6px]' />
-						</button>
-						<button
-							onClick={() => onClose(receiverID)}
-							className='hover:bg-gray-100 p-1 rounded-full'
-						>
-							<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
-						</button>
-					</div>
-				</div>
+							<h3 className='font-semibold'>{user?.username}</h3>
+						</Link>
+						</div>
 
-				{/* Chat messages container */}
-				<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
-					{/* This div is used in IntersectionObserver */}
-					{messages.length ? <div ref={msgScrollDetect}>&nbsp;</div> : ''}
-					{messages.map((message) => (
-						<MessageBubble
-							key={message.chat_id}
-							message={message}
-							isMyUser={isMyUser}
-						/>
-					))}
-				</div>
-
-				{/* Message input area */}
-				<form onSubmit={onSubmit}>
-					<div className='p-4 border-t'>
-						<div className='flex gap-2'>
-							<div className='relative'>
-								<button
-									type='button'
-									className='btn btn-circle btn-ghost btn-sm'
-									onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-								>
-									<FontAwesomeIcon icon={faSmile} />
-								</button>
-								{showEmojiPicker && (
-									<div className='absolute bottom-20 left-0 z-50 -translate-x-[200px]'>
-										<EmojiPicker onEmojiClick={onEmojiClick} />
-									</div>
-								)}
-							</div>
-							<textarea
-								placeholder='Type a message...'
-								className='textarea textarea-bordered w-full min-h-[40px] resize-none'
-								value={messageContent}
-								name='messageContent'
-								onKeyUp={submitOnEnter}
-								onChange={(e) => setMessageContent(e.target.value)}
-							/>
+						<div className="flex gap-2">
 							<button
-								className='btn btn-circle btn-outline'
-								disabled={!messageContent.trim()}
-								type='submit'
+								onClick={() => setIsMinimized(true)}
+								className='hover:bg-gray-100 p-1 rounded-full relative'
 							>
-								<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
+								<FontAwesomeIcon icon={faWindowMinimize} className='w-4 h-4 transform -translate-y-[6px]' />
+							</button>
+							<button
+								onClick={() => onClose(receiverID)}
+								className='hover:bg-gray-100 p-1 rounded-full'
+							>
+								<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
 							</button>
 						</div>
 					</div>
-				</form>
-			</div>
-		</div>
-	)
 
-}
-function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
-	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
-	return (
-		<div className={bubbleType} data-timestamp={message.sent_at}>
-			<div className='chat-image avatar'>
-				<div className='avatar placeholder'>
-					<div className='bg-neutral text-neutral-content w-10 rounded-full'>
-						<span className='text-xs uppercase'>
-							{message.sender_name.split(' ').map(n => n[0]).join('')}
-						</span>
+					{/* Chat messages container */}
+					<div className='flex-1 overflow-y-auto p-4' ref={msgListRef}>
+						{messages.length ? <div ref={msgScrollDetect}>&nbsp;</div> : ''}
+						{messages.map((message) => (
+							<MessageBubble
+								key={message.chat_id}
+								message={message}
+								isMyUser={isMyUser}
+							/>
+						))}
 					</div>
+
+					{/* Message input area */}
+					<form onSubmit={onSubmit}>
+						<div className='p-4 border-t'>
+							<div className='flex gap-2'>
+								<div className='relative'>
+									<button
+										type='button'
+										className='btn btn-circle btn-ghost btn-sm'
+										onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+									>
+										<FontAwesomeIcon icon={faSmile} />
+									</button>
+									{showEmojiPicker && (
+										<div className='absolute bottom-20 left-0 z-50 -translate-x-[200px]'>
+											<EmojiPicker onEmojiClick={onEmojiClick} />
+										</div>
+									)}
+								</div>
+								<textarea
+									placeholder='Type a message...'
+									className='textarea textarea-bordered w-full min-h-[40px] resize-none'
+									value={messageContent}
+									name='messageContent'
+									onKeyUp={submitOnEnter}
+									onChange={(e) => setMessageContent(e.target.value)}
+								/>
+								<button
+									className='btn btn-circle btn-outline'
+									disabled={!messageContent.trim()}
+									type='submit'
+								>
+									<FontAwesomeIcon className='text-base/6' icon={faPaperPlane} />
+								</button>
+							</div>
+						</div>
+					</form>
 				</div>
 			</div>
-			<div className='chat-bubble'>{message.message}</div>
-		</div>
-	)
+			)
+
+}
+			function MessageBubble({message, isMyUser}: {message: Message; isMyUser: Function }) {
+	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
+			return (
+			<div className={bubbleType} data-timestamp={message.sent_at}>
+				<div className='chat-image avatar'>
+					<div className='avatar placeholder'>
+						<div className='bg-neutral text-neutral-content w-10 rounded-full'>
+							<span className='text-xs uppercase'>
+								{message.sender_name.split(' ').map(n => n[0]).join('')}
+							</span>
+						</div>
+					</div>
+				</div>
+				<div className='chat-bubble'>{message.message}</div>
+			</div>
+			)
 }
 
