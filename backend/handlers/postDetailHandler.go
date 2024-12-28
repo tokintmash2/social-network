@@ -85,9 +85,31 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if postUpdate.Privacy == "private" {
+		postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
+	}
+
+	log.Println("postUpdate:", postUpdate)
+
+	// if postUpdate.Privacy == "private" {
+	// 	postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
+	// } else if postUpdate.Privacy == "almost_private" {
+	// 	allowedUsersStr := r.Form["allowed_users[]"]
+	// 	postUpdate.AllowedUsers = make([]int, len(allowedUsersStr))
+	// 	for i, userStr := range allowedUsersStr {
+	// 		userID, err := strconv.Atoi(userStr)
+	// 		if err != nil {
+	// 			http.Error(w, "Invalid user ID format", http.StatusBadRequest)
+	// 			return
+	// 		}
+	// 		postUpdate.AllowedUsers[i] = userID
+	// 	}
+	// }
+
 	// utils.UpdatePost(postID, postUpdate)
 
-	utils.SetPostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+	// utils.SetPostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+	utils.UpdatePostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
 
 	response := map[string]interface{}{
 		"success": true,

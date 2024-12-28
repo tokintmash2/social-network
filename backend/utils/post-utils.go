@@ -2,7 +2,6 @@ package utils
 
 import (
 	"social-network/database"
-	"social-network/structs"
 )
 
 // func FetchAllowedUsers(postID int) ([]int, error) {
@@ -108,10 +107,40 @@ func SetPostAccess(postID int, userID int, privacy string, allowedUsers []int) e
 	return tx.Commit()
 }
 
-func UpdatePost(postID int, newPost structs.PostResponse) error {
+func UpdatePostAccess(postID, userID int, privacy string, allowedUsers []int) error {
 	tx, err := database.DB.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+	UPDATE posts 
+	SET privacy_setting = ?
+	WHERE post_id = ? AND user_id = ?`,
+		privacy, postID, userID)
+	if err != nil {
+		return err
+	}
+
+	// Delete existing post_access entries
+	_, err = tx.Exec(`
+	DELETE FROM post_access
+	WHERE post_id = ?`, postID)
+	if err != nil {
+		return err
+	}
+	// Insert new post_access entries
+	if len(allowedUsers) > 0 {
+		for _, userID := range allowedUsers {
+			_, err = tx.Exec(`
+				INSERT INTO post_access (post_id, follower_id)
+				VALUES (?, ?)`, postID, userID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return tx.Commit()
 }
