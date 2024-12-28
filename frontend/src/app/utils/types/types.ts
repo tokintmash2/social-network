@@ -67,6 +67,7 @@ export type PostsContainerProps_type = {
 	userId?: number
 	feed?: boolean
 	isOwnProfile?: boolean
+	followers: Follower_type[]
 }
 
 // Define the props's type for Post component

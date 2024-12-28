@@ -44,15 +44,25 @@ function SetPostPrivacy({
 		setShowAllowedUsersSelection(newPrivacy === 'ALMOST_PRIVATE')
 	}
 
-	const handleSaveAllowedUsers = () => {
-		// setShowAllowedUsersSelection(false)
-		setAllowedUsers(tempAllowedUsers)
+	const handleSaveAllowedUsers = async () => {
+		console.log('tempPrivacy: ' + tempPrivacy + ' | tempAllowedUsers: ' + tempAllowedUsers)
+
 		setPrivacy(tempPrivacy)
+		setAllowedUsers(tempAllowedUsers)
 		if (postId) {
 			console.log(postId, ' sending settings via dispatch')
+			/* 
+			resume when patch endpoint is ready
+			try {
+				const response = await axios.(`${backendUrl}/api/posts/${postId}`, {
+					
+				})
+			} catch(error){
+				console.log(error)
+			} */
 			dispatch({
 				type: ACTIONS.SET_POST_PRIVACY,
-				payload: { postId, privacy, allowedUsers },
+				payload: { postId, privacy: tempPrivacy, allowedUsers: tempAllowedUsers },
 			})
 		} else {
 			console.log('no id: setNewPostPrivacy, setNewPostAllowedUsers')

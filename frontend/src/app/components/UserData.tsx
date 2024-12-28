@@ -12,9 +12,12 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 const avatarUrl = `${backendUrl}/uploads/`
 export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
-	const [followData] = useState<{ following: number; followers: number }>({
-		following: 0,
-		followers: 0,
+	const [followData, setFollowData] = useState<{
+		following: { id: number; firstName: string; lastName: string }[]
+		followers: { id: number; firstName: string; lastName: string }[]
+	}>({
+		following: [],
+		followers: [],
 	})
 
 	useEffect(() => {
@@ -56,10 +59,16 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	useEffect(() => {
 		const fetchFollowers = async () => {
 			try {
-				const response = axios.get('backendUrl/api/users/${userId}/followers', {
+				const response = await axios.get(`${backendUrl}/api/users/${userId}/followers`, {
 					withCredentials: true,
 				})
 				console.log(response)
+				if (response.data.success) {
+					setFollowData({
+						following: [...followData.following, ...response.data.following],
+						followers: [...followData.followers, ...response.data.followers],
+					})
+				}
 			} catch (error) {
 				console.log(error)
 			}
@@ -150,13 +159,13 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								<div className='absolute bottom-8 left-8 flex gap-6 text-white'>
 									<div>
 										<span className='font-semibold'>
-											{followData.following}
+											{followData.following.length}
 										</span>
 										<span className='ml-2'>Following</span>
 									</div>
 									<div>
 										<span className='font-semibold'>
-											{followData.followers}
+											{followData.followers.length}
 										</span>
 										<span className='ml-2'>Followers</span>
 									</div>
@@ -222,6 +231,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								userId={userData.id}
 								isOwnProfile={isOwnProfile}
 								feed={false}
+								followers={followData.followers}
 							/>
 						</div>
 					</div>

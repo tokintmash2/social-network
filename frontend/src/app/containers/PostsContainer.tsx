@@ -21,9 +21,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 		case ACTIONS.SET_POSTS:
 			console.log('ACTIONS.SET_POSTS payload', action.payload)
 			if (Array.isArray(action.payload)) {
-				console.log('action.payload', action.payload)
-
-				return { ...state, posts: [...state.posts, ...action.payload] }
+				return { ...state, posts: action.payload }
 			} else if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -36,10 +34,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			throw new Error('Invalid payload for SET_POSTS')
 
 		case ACTIONS.CREATE_POST:
-			console.log('ACTIONS.CREATE_POST payload', action.payload)
 			if (Array.isArray(action.payload)) {
-				console.log('action.payload', action.payload)
-
 				return { ...state, posts: [...action.payload, ...state.posts] }
 			} else if (
 				action.payload &&
@@ -85,7 +80,6 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			}
 			throw new Error('Invalid payload for SET_POST_PRIVACY')
 		case ACTIONS.ADD_COMMENT:
-			console.log('action.payload', action.payload)
 			if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -134,17 +128,12 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return state
 	}
 }
-// todo: fetch only when feed or when isOwnProfile
-export const dummyFollowers: Follower_type[] = [
-	{ id: 1, firstName: 'John', lastName: 'Doe' },
-	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
-	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
-]
 
 export default function PostsContainer({
 	userId,
 	feed = false,
 	isOwnProfile = false,
+	followers = [],
 }: PostsContainerProps_type) {
 	const { loggedInUser } = useLoggedInUser()
 
@@ -169,25 +158,6 @@ export default function PostsContainer({
 		fetchPosts()
 	}, [userId, feed])
 
-	useEffect(() => {
-		if ((feed || isOwnProfile) && loggedInUser) {
-			const fetchFollowers = async () => {
-				try {
-					const response = await axios.get(
-						`${backendUrl}/api/users/${loggedInUser.id}/followers`,
-						{
-							withCredentials: true,
-						},
-					)
-					console.log('fetchFollowers response', response.data)
-				} catch (error) {
-					console.log(error)
-				}
-			}
-			fetchFollowers()
-		}
-	}, [feed, isOwnProfile, loggedInUser])
-
 	if (state.loading) {
 		return <div>Loading...</div>
 	}
@@ -207,7 +177,7 @@ export default function PostsContainer({
 	return (
 		<div className='mb-4'>
 			{(isOwnProfile || feed) && (
-				<CreatePost followers={dummyFollowers || []} dispatch={dispatch} />
+				<CreatePost followers={followers || []} dispatch={dispatch} />
 			)}
 
 			{/* Header */}
@@ -227,7 +197,7 @@ export default function PostsContainer({
 						key={'post-' + post.id}
 						post={post}
 						dispatch={dispatch}
-						followers={dummyFollowers}
+						followers={followers}
 						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}
