@@ -133,6 +133,58 @@ func GetFollowers(userID int) ([]int, error) {
 	return followers, nil
 }
 
+func GetFollowerStatus(followerID, followedID int) (string, error) {
+
+	var status string
+    
+	err := database.DB.QueryRow(`
+        SELECT status 
+        FROM followers 
+        WHERE follower_id = ? AND followed_id = ?`,
+        followerID, followedID,
+    ).Scan(&status)
+    
+    if err == sql.ErrNoRows {
+        return "", fmt.Errorf("no follower relationship found")
+    }
+    if err != nil {
+        return "", fmt.Errorf("error querying follower status: %v", err)
+    }
+    
+    return status, nil
+}
+
+func GetPendingFollowers(userID int) ([]int, error) {
+	log.Printf("Getting followers for user %d", userID)
+
+	rows, err := database.DB.Query(`
+        SELECT follower_id 
+        FROM followers 
+        WHERE followed_id = ?`,
+		userID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error querying followers: %v", err)
+	}
+	defer rows.Close()
+
+	var followers []int
+	for rows.Next() {
+		var followerID int
+		if err := rows.Scan(&followerID); err != nil {
+			return nil, fmt.Errorf("error scanning follower data: %v", err)
+		}
+		followers = append(followers, followerID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over followers: %v", err)
+	}
+
+	log.Printf("Retrieved %d followers successfully", len(followers))
+	return followers, nil
+}
+
 func GetFollowed(userID int) ([]int, error) {
 	log.Printf("Getting followed for user %d", userID)
 
