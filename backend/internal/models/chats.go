@@ -111,25 +111,28 @@ func (m *ChatModel) SaveMessage(senderID int, receiverID int, message string) (C
 	// Select conditions when user can chat with another user
 	//  sender is following receiver
 	//  or receiver is following sender
-	// or receiver is public profile
+	//  or receiver is public profile
+	//  or receiver has sent previous messages (i.e privat account to public account)
 
 	row := m.DB.QueryRow(`
 		SELECT
  		COALESCE((SELECT true FROM followers WHERE follower_id = ? AND followed_id = ?), false) AS is_following,
  		COALESCE((SELECT true FROM followers WHERE followed_id = ? AND follower_id = ?), false) AS is_followed,
- 		COALESCE((SELECT true FROM users WHERE id = ? AND is_public = true), false) AS is_public
-	`, senderID, receiverID, senderID, receiverID, receiverID)
+ 		COALESCE((SELECT true FROM users WHERE id = ? AND is_public = true), false) AS is_public,
+		CASE WHEN EXISTS (SELECT * FROM chats c WHERE sender_id = ? AND receiver_id = ?) THEN TRUE ELSE FALSE END AS is_existing
+	`, senderID, receiverID, senderID, receiverID, receiverID, receiverID, senderID)
 
 	var isFollowing int
 	var isFollowed int
 	var isPublic int
+	var isExisting int
 
-	err := row.Scan(&isFollowing, &isFollowed, &isPublic)
+	err := row.Scan(&isFollowing, &isFollowed, &isPublic, &isExisting)
 	if err != nil {
 		return ChatMessage{}, err
 	}
 
-	if !(isFollowing == 1 || isFollowed == 1 || isPublic == 1) {
+	if !(isFollowing == 1 || isFollowed == 1 || isPublic == 1 || isExisting == 1) {
 		return ChatMessage{}, &ChatError{Message: "Not allowed to send message to this user!"}
 	}
 
