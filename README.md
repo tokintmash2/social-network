@@ -2,6 +2,21 @@
 
 A modern social networking platform built with Next.js and Go, featuring real-time interactions and comprehensive user engagement features.
 
+## Running with Docker
+
+```
+# Build images if needed, start containers
+docker-compose -f docker-compose.yaml up
+
+# Stop the containers (preserves containers and data)
+docker-compose stop
+# Restart stopped containers
+docker-compose start
+
+# Stop and remove containers and networks
+docker-compose -f docker-compose.yaml down
+```
+
 ## Setup
 
 ### Backend Setup

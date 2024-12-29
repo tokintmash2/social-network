@@ -1,0 +1,56 @@
+# services:
+#   sn-back:
+#     image: sn-back
+#     ports:
+#       - 8080:8080
+#     networks:
+#       - sn-network
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8080/api/verify-session"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 3
+#       start_period: 5s
+#   sn-front:
+#     image: sn-front
+#     ports:
+#       - 3000:3000
+#     environment:
+#       - BACKEND_URL=http://sn-back:8080
+#     depends_on:
+#       sn-back:
+#         condition:  service_healthy
+#     networks:
+#       - sn-network
+
+# networks:
+#   sn-network:
+#     driver: bridge
+services:
+  sn-back:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: sn-back
+    ports:
+      - 8080:8080
+    networks:
+      - sn-network
+
+  sn-front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: sn-front
+    ports:
+      - 3000:3000
+    environment:
+      - BACKEND_URL=http://sn-back:8080
+    depends_on:
+      - sn-back
+    networks:
+      - sn-network
+
+networks:
+  sn-network:
+    driver: bridge
