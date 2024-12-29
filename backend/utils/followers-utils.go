@@ -133,7 +133,7 @@ func GetFollowers(userID int) ([]int, error) {
 	return followers, nil
 }
 
-func GetFollowerStatus(followerID, followedID int) (string, error) {
+func GetFollowStatus(followerID, followedID int) (string, error) {
 
 	var status string
     
