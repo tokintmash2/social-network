@@ -34,7 +34,7 @@ export default function UsersList({ onChat }: { onChat: Function }) {
             })
 
             if (response.data.groups) {
-                setGroups(response.data.groups)
+                setGroups(response.data.groups.map((g: any) => ({ ...g, name: g.group_name })))
             }
         }
         fetchUsers()
