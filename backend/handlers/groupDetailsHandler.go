@@ -11,53 +11,6 @@ import (
 	"time"
 )
 
-// func GroupDetailsRouter(w http.ResponseWriter, r *http.Request) {
-
-// 	log.Println("GroupDetailsRouter called")
-
-// 	cookie, err := r.Cookie("session")
-// 	log.Println("Cookie:", cookie)
-// 	if err != nil {
-// 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-// 		return
-// 	}
-
-// 	sessionUUID := cookie.Value
-// 	CurrentUserID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
-// 	if !validSession {
-// 		http.Redirect(w, r, "/login", http.StatusSeeOther)
-// 		return
-// 	}
-
-// 	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
-// 	pathParts := strings.Split(path, "/")
-
-// 	// GET
-// 	if r.Method == http.MethodGet {
-// 		if len(pathParts) < 2 {
-// 			// Handle /api/groups/:id
-// 			GroupDetailsHandler(w, r)
-// 			return
-// 		}
-// 	}
-
-// 	// POST etc
-// 	if r.Method != http.MethodGet {
-// 		groupID, _ := strconv.Atoi(pathParts[0])
-// 		switch pathParts[1] {
-// 		// case "posts":
-// 		// 	// /api/groups/:id/posts/
-// 		// 	GroupPostsHandler(w, r, CurrentUserID, groupID)
-// 		case "messages":
-// 			GroupMessagesHandler(w, r, groupID)
-// 		case "members":
-// 			GroupMembersHandler(w, r, groupID)
-// 		default:
-// 			http.NotFound(w, r)
-// 		}
-// 	}
-// }
-
 func (app *application) GroupDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GroupDetailsHandler called")
@@ -145,25 +98,7 @@ func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request
 
 		post.Title = r.FormValue("title")
 		post.Content = r.FormValue("content")
-		// post.Privacy = r.FormValue("privacy")
-
-		// if post.Privacy == "private" {
-		// 	post.AllowedUsers, _ = utils.GetFollowers(userID)
-		// } else if post.Privacy == "almost_private" {
-		// 	allowedUsersStr := r.Form["allowed_users[]"]
-		// 	post.AllowedUsers = make([]int, len(allowedUsersStr))
-		// 	for i, userStr := range allowedUsersStr {
-		// 		userID, err := strconv.Atoi(userStr)
-		// 		if err != nil {
-		// 			http.Error(w, "Invalid user ID format", http.StatusBadRequest)
-		// 			return
-		// 		}
-		// 		post.AllowedUsers[i] = userID
-		// 	}
-		// }
-		// log.Println("Allowed users arrive like this:", post.AllowedUsers)
-
-		// Handle file upload if present
+	
 		_, _, err = r.FormFile("image")
 		if err == nil {
 			filename, err := utils.HandleFileUpload(r, "image", "uploads")
@@ -177,11 +112,6 @@ func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Unsupported content type", http.StatusUnsupportedMediaType)
 		return
 	}
-
-	// if post.Privacy == "" || post.Content == "" {
-	// 	http.Error(w, "Content and Privacy setting cannot be empty", http.StatusBadRequest)
-	// 	return
-	// }
 
 	author, err := utils.GetUserProfile(userID)
 
@@ -201,6 +131,50 @@ func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request
 	response := map[string]interface{}{
 		"success": true,
 		"post":    post,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	return
+
+}
+
+func (app *application) FetchGroupPostsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("CreatePostHandler called")
+
+	cookie, err := r.Cookie("session")
+	log.Println("Cookie:", cookie)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	userID, validSession := utils.VerifySession(sessionUUID, "GroupDetailsRouter")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	path := strings.TrimPrefix(r.URL.Path, "/api/groups/")
+	pathParts := strings.Split(path, "/")
+	groupID, _ := strconv.Atoi(pathParts[0])
+
+	log.Println("User ID:", userID)
+	log.Println("Group ID:", groupID)
+
+	var posts []structs.PostResponse
+
+	posts, err = utils.GetGroupPosts(groupID)
+
+	// for _, post := range posts {
+	// 	post.Comments, _ = utils.GetGroupPostComments(post.ID)
+	// }
+
+	response := map[string]interface{}{
+		"success": true,
+		"post":    posts,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
