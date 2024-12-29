@@ -37,7 +37,7 @@ export default function Messenger({
 	const [messages, setMessages] = useState<Message[]>([])
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
-	const [subscribe, unsubscribe] = useContext(WebSocketContext)
+	const [subscribe] = useContext(WebSocketContext)
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
 	const onEmojiClick = (emojiObject: any) => {
@@ -64,9 +64,9 @@ export default function Messenger({
 	)
 
 	useEffect(() => {
-		subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
-		return () => unsubscribe(channel)
-	}, [subscribe, unsubscribe])
+		const unsub = subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
+		return () => unsub()
+	}, [subscribe])
 
 	const onSubmit = async (ev: FormEvent) => {
 		ev.preventDefault()

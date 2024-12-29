@@ -36,7 +36,7 @@ export default function GroupMessenger({
 	const [messages, setMessages] = useState<GroupMessage[]>([])
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
-	const [subscribe, unsubscribe] = useContext(WebSocketContext)
+	const [subscribe] = useContext(WebSocketContext)
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
 	const onEmojiClick = (emojiObject: any) => {
@@ -73,9 +73,9 @@ export default function GroupMessenger({
 	)
 
 	useEffect(() => {
-		subscribe(channel, ({ data }: { data: GroupMessage }) => messageReceived(data))
-		return () => unsubscribe(channel)
-	}, [subscribe, unsubscribe])
+		const unsub = subscribe(channel, ({ data }: { data: GroupMessage }) => messageReceived(data ))
+		return () => unsub()
+	}, [subscribe])
 
 	const onSubmit = async (ev: FormEvent) => {
 		ev.preventDefault()

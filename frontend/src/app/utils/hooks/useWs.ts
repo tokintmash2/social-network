@@ -1,19 +1,13 @@
 import { MutableRefObject, useEffect, useRef } from 'react'
 
-type Channel = {
-    [key: string]: Function,
-}
-
 function useWS() {
     const ws: MutableRefObject<WebSocket | null> = useRef(null)
-    const channels: MutableRefObject<Channel> = useRef({})
+    const channels: MutableRefObject<EventTarget> = useRef(new EventTarget())
 
     const subscribe = (channel: string, callback: Function) => {
-        channels.current[channel] = callback
-    }
-
-    const unsubscribe = (channel: string) => {
-        delete channels.current[channel]
+        const listener = (ev: Event) => { callback((ev as CustomEvent).detail) }
+        channels.current.addEventListener(channel, listener)
+        return () => channels.current.removeEventListener(channel, listener)
     }
 
     const send = (action: string, data: any) => {
@@ -29,7 +23,7 @@ function useWS() {
 
     // FOR DEBUGGING IN DEVTOOLS
     // @ts-ignore
-    globalThis.ws = { send, subscribe, unsubscribe };
+    globalThis.ws = { send, subscribe };
 
     useEffect(() => {
         ws.current = new WebSocket("ws://localhost:8080/ws")
@@ -39,12 +33,14 @@ function useWS() {
         ws.current.onmessage = (message) => {
             const { response_to, request_id, ...data } = JSON.parse(message.data);
             console.log("Got WS message:", response_to, request_id, data);
-            channels.current[response_to]?.(data)
+            channels.current.dispatchEvent(new CustomEvent(response_to, { detail: data }))
         }
-        return () => { ws.current?.close() }
+        return () => {
+            ws.current?.close()
+        }
     })
 
-    return [ subscribe, unsubscribe, send ]
+    return [ subscribe, send ]
 }
 
 export default useWS

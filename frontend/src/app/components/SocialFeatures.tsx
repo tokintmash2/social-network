@@ -28,7 +28,7 @@ export function SocialFeatures() {
 
 	const channel = channelTypes.chat_message()
 	const groupchannel = channelTypes.group_message()
-    const [subscribe, unsubscribe] = useContext(WebSocketContext)
+    const [subscribe] = useContext(WebSocketContext)
 	const messageReceived = useCallback(
 		(msg: Message) => {
             const exists = activeChats.some((item) => (item.type == "user" && item.id == msg.sender_id))
@@ -39,9 +39,9 @@ export function SocialFeatures() {
 		[],
 	)
 	useEffect(() => {
-		subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
-		return () => unsubscribe(channel)
-	}, [subscribe, unsubscribe])
+		const unsub = subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
+		return () => unsub()
+	}, [subscribe])
 
     const groupMessageReceived = useCallback(
 		(msg: GroupMessage) => {
@@ -53,9 +53,9 @@ export function SocialFeatures() {
 		[],
 	)
     useEffect(() => {
-		subscribe(groupchannel, ({ data }: { data: GroupMessage }) => groupMessageReceived(data))
-		return () => unsubscribe(groupchannel)
-	}, [subscribe, unsubscribe])
+		const unsub = subscribe(groupchannel, ({ data }: { data: GroupMessage }) => groupMessageReceived(data))
+		return () => unsub()
+	}, [subscribe])
 
 	return showSocialFeatures ? (
 		<>
