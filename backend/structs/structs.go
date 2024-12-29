@@ -37,11 +37,11 @@ type UserResponse struct {
 }
 
 type Group struct {
-	ID          int       `json:"id"`
-	CreatorID   int       `json:"creator_id"`
-	Name        string    `json:"group_name"`
-	Description string    `json:"group_description"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          int       `json:"id,omitempty"`
+	CreatorID   int       `json:"creator_id,omitempty"`
+	Name        string    `json:"group_name,omitempty"`
+	Description string    `json:"group_description,omitempty"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
 }
 
 type Event struct {
@@ -139,7 +139,7 @@ type PersonResponse struct {
 
 type Notification struct {
 	ID        int       `json:"id"`
-	Users    []int       `json:"user_id"`
+	Users     []int     `json:"user_id"`
 	Type      string    `json:"type"`
 	Message   string    `json:"message"`
 	Timestamp time.Time `json:"timestamp"`

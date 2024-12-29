@@ -18,6 +18,7 @@ type application struct {
 	hub    *Hub
 	users  *models.UserModel
 	chat   *models.ChatModel
+	groups *models.GroupModel
 }
 
 func SetupServer() {
@@ -42,6 +43,7 @@ func SetupServer() {
 		hub:    newHub(),
 		users:  &models.UserModel{DB: database.DB},
 		chat:   &models.ChatModel{DB: database.DB},
+		groups: &models.GroupModel{DB: database.DB},
 	}
 
 	go app.hub.run(app)
