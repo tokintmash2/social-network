@@ -152,3 +152,6 @@ VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-09-01 20
 
 INSERT INTO events (group_id, title, description, date_time, created_by)
 VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-10-01 20:00:00+00:00', 4);
+
+INSERT INTO group_posts (group_id, user_id, title, content, timestamp)
+VALUES (1, 4, 'Puppy Playdate starts tomorrow', 'Calling all dog lovers!<br><br>Join us for a tail-wagging good time at our Puppy Playdates Series, where your furry friends can romp, play, and make paw-some new pals!<br><br>When: Every Saturday<br><br>Where: Tiigiveski park Tallinnas<br><br>What to Expect: Fun games, socializing, and treats for pups and their humans alike!<br><br>Let''s make memories, one wag at a time.', '2024-08-01 20:00:00+00:00');

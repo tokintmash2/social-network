@@ -17,6 +17,7 @@ import { enGB } from 'date-fns/locale/en-GB'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import dynamic from 'next/dynamic'
+import PostsContainer from '@/app/containers/PostsContainer'
 
 const Select = dynamic(() => import('react-select'), { ssr: false })
 const ACTIONS = {
@@ -40,6 +41,14 @@ type Group_type = {
 	createdAt: string
 	creatorId: number
 	members: { id: number; firstName: string; lastName: string; role: string }[]
+	posts: {
+		id: number
+		title: string
+		content: string
+		media: string
+		author: UserBasic_type
+		createdAt: string
+	}[]
 }
 
 type UserBasic_type = {
@@ -70,6 +79,7 @@ type GroupState_type = {
 	users: Group_type['members']
 	showInviteModal: boolean
 	events: Event_type[]
+	posts: Group_type['posts']
 }
 
 const GroupState_default: GroupState_type = {
@@ -84,6 +94,7 @@ const GroupState_default: GroupState_type = {
 	users: [],
 	showInviteModal: false,
 	events: [],
+	posts: [],
 }
 
 type UserResponse = {
@@ -261,6 +272,7 @@ export default function Group() {
 						createdAt: response.data.created_at,
 						creatorId: response.data.creator_id,
 						members: response.data.group_members,
+						posts: response.data.group_posts,
 					},
 				})
 			} catch (error) {
@@ -510,141 +522,149 @@ export default function Group() {
 					</div>
 				</div>
 
-				{(state.membershipRole === 'ADMIN' || state.membershipRole === 'MEMBER') && (
-					<>
-						<div className='mb-4'>
-							<div className='flex justify-between'>
-								<div>
-									<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
-										Members
-									</h1>
-									<div className='text-sm text-gray-500 mb-4'>
-										<span className='font-semibold'>Total members:</span>{' '}
-										{
-											state.members.filter(
-												(m) => m.role === 'member' || m.role === 'admin',
-											).length
-										}
+				{(state.membershipRole === 'ADMIN' || state.membershipRole === 'MEMBER') &&
+					!state.loading && (
+						<>
+							<div className='mb-4'>
+								<div className='flex justify-between'>
+									<div>
+										<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
+											Members
+										</h1>
+										<div className='text-sm text-gray-500 mb-4'>
+											<span className='font-semibold'>Total members:</span>{' '}
+											{
+												state.members.filter(
+													(m) =>
+														m.role === 'member' || m.role === 'admin',
+												).length
+											}
+										</div>
+									</div>
+									<div>
+										<button
+											className='btn bg-white'
+											onClick={() => {
+												inviteModalRef.current?.showModal()
+												dispatch({
+													type: ACTIONS.TOGGLE_INVITE_MODAL,
+													payload: true,
+												})
+											}}
+										>
+											<FontAwesomeIcon icon={faPlus} />
+											Invite member
+										</button>
 									</div>
 								</div>
-								<div>
+
+								<div className='bg-base-100 p-6 mb-6 rounded-lg'>
+									{state.members
+										.filter(
+											(member) =>
+												member.role === 'admin' || member.role === 'member',
+										)
+										.map((member) => (
+											<Link
+												key={'member-' + member.id}
+												href={`/profile/${member.id}`}
+												className='link link-hover mr-2 block'
+											>
+												{member.firstName} {member.lastName}{' '}
+												{member.role === 'admin' && (
+													<FontAwesomeIcon icon={faCrown} />
+												)}
+											</Link>
+										))}
+								</div>
+							</div>
+
+							<div className='mb-4'>
+								<div className='flex justify-between'>
+									<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
+										Events
+									</h1>
 									<button
 										className='btn bg-white'
-										onClick={() => {
-											inviteModalRef.current?.showModal()
-											dispatch({
-												type: ACTIONS.TOGGLE_INVITE_MODAL,
-												payload: true,
-											})
-										}}
+										onClick={() => createEventRef.current?.showModal()}
 									>
 										<FontAwesomeIcon icon={faPlus} />
-										Invite member
+										Create new event
 									</button>
 								</div>
-							</div>
 
-							<div className='bg-base-100 p-6 mb-6 rounded-lg'>
-								{state.members
-									.filter(
-										(member) =>
-											member.role === 'admin' || member.role === 'member',
-									)
-									.map((member) => (
-										<Link
-											key={'member-' + member.id}
-											href={`/profile/${member.id}`}
-											className='link link-hover mr-2 block'
+								{state.events?.length > 0 &&
+									state.events.map((event) => (
+										<div
+											key={'event-' + event.id}
+											className='bg-base-100 p-6 mb-6 rounded-lg'
 										>
-											{member.firstName} {member.lastName}{' '}
-											{member.role === 'admin' && (
-												<FontAwesomeIcon icon={faCrown} />
-											)}
-										</Link>
+											<div className='form-control mb-4'>
+												<div className='flex items-center justify-end'>
+													<span className='text-sm text-gray-600 mr-4'>
+														RSVP
+													</span>
+													<input
+														type='checkbox'
+														className='toggle toggle-md toggle-accent'
+														checked={
+															event.attendees?.some(
+																(attendee) =>
+																	attendee.id ===
+																	loggedInUser?.id,
+															) || false
+														}
+														onChange={() => handleRSVPChange(event.id)}
+													/>
+												</div>
+											</div>
+
+											<p>Event title: {event.title}</p>
+											<p>
+												Event description:{' '}
+												<span
+													dangerouslySetInnerHTML={{
+														__html: DOMPurify.sanitize(
+															event.description,
+														),
+													}}
+												></span>
+											</p>
+											<p>Event date: {formatDateTime(event.date_time)}</p>
+											<p>
+												Event author: {event.author.firstName}{' '}
+												{event.author.lastName}
+											</p>
+											<p>
+												Event attendees:{' '}
+												{event.attendees?.length > 0 && (
+													<>
+														{event.attendees.map((attendee) => (
+															<Link
+																key={
+																	'event-' +
+																	event.id +
+																	'-attendee-' +
+																	attendee.id
+																}
+																href={`/profile/${attendee.id}`}
+																className='link link-hover mr-2 block'
+															>
+																{attendee.firstName}{' '}
+																{attendee.lastName}
+															</Link>
+														))}
+													</>
+												)}{' '}
+												{!event.attendees && 'No attendees'}
+											</p>
+										</div>
 									))}
 							</div>
-						</div>
 
-						<div className='mb-4'>
-							<div className='flex justify-between'>
-								<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
-									Events
-								</h1>
-								<button
-									className='btn bg-white'
-									onClick={() => createEventRef.current?.showModal()}
-								>
-									<FontAwesomeIcon icon={faPlus} />
-									Create new event
-								</button>
-							</div>
-
-							{state.events?.length > 0 &&
-								state.events.map((event) => (
-									<div
-										key={'event-' + event.id}
-										className='bg-base-100 p-6 mb-6 rounded-lg'
-									>
-										<div className='form-control mb-4'>
-											<div className='flex items-center justify-end'>
-												<span className='text-sm text-gray-600 mr-4'>
-													RSVP
-												</span>
-												<input
-													type='checkbox'
-													className='toggle toggle-md toggle-accent'
-													checked={
-														event.attendees?.some(
-															(attendee) =>
-																attendee.id === loggedInUser?.id,
-														) || false
-													}
-													onChange={() => handleRSVPChange(event.id)}
-												/>
-											</div>
-										</div>
-
-										<p>Event title: {event.title}</p>
-										<p>
-											Event description:{' '}
-											<span
-												dangerouslySetInnerHTML={{
-													__html: DOMPurify.sanitize(event.description),
-												}}
-											></span>
-										</p>
-										<p>Event date: {formatDateTime(event.date_time)}</p>
-										<p>
-											Event author: {event.author.firstName}{' '}
-											{event.author.lastName}
-										</p>
-										<p>
-											Event attendees:{' '}
-											{event.attendees?.length > 0 && (
-												<>
-													{event.attendees.map((attendee) => (
-														<Link
-															key={
-																'event-' +
-																event.id +
-																'-attendee-' +
-																attendee.id
-															}
-															href={`/profile/${attendee.id}`}
-															className='link link-hover mr-2 block'
-														>
-															{attendee.firstName} {attendee.lastName}
-														</Link>
-													))}
-												</>
-											)}{' '}
-											{!event.attendees && 'No attendees'}
-										</p>
-									</div>
-								))}
-						</div>
-					</>
-				)}
+							<PostsContainer group={true} groupId={Number(id)} />
+						</>
+					)}
 
 				<dialog ref={inviteModalRef} className='modal'>
 					<div className='modal-box w-11/12 max-w-5xl min-h-96'>

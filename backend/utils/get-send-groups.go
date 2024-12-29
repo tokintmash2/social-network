@@ -184,10 +184,10 @@ func GetGroupMembers(groupID int) ([]structs.PersonResponse, error) {
 
 func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 
-	var posts []structs.PostResponse
+	posts := []structs.PostResponse{}
 
 	rows, err := database.DB.Query(`
-	SELECT group_post_id, user_id, content, image, timestamp
+	SELECT group_post_id, user_id, title, content, image, timestamp
         FROM group_posts
         WHERE group_id = ?
         ORDER BY timestamp DESC`, groupID)
@@ -199,7 +199,7 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 
 	for rows.Next() {
 		var post structs.PostResponse
-		err := rows.Scan(&post.ID, &post.Author.ID, &post.Content, &post.MediaURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.Author.ID, &post.Title, &post.Content, &post.MediaURL, &post.CreatedAt)
 		if err != nil {
 			log.Println("Error scanning post:", err)
 			return nil, err

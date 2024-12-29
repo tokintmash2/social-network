@@ -5,7 +5,13 @@ import DOMPurify from 'dompurify'
 import SetPostPrivacy from './SetPostPrivacy'
 import Image from 'next/image'
 
-export default function Post({ post, dispatch, followers, isOwnPost = false }: PostProps_type) {
+export default function Post({
+	post,
+	dispatch,
+	followers,
+	isOwnPost = false,
+	group = false,
+}: PostProps_type) {
 	const sanitizedContent = DOMPurify.sanitize(post.content)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const uploadsUrl = `${backendUrl}/uploads/`
@@ -23,7 +29,7 @@ export default function Post({ post, dispatch, followers, isOwnPost = false }: P
 						{new Date(post.createdAt).toLocaleString()}
 					</p>
 				</div>
-				{isOwnPost && (
+				{isOwnPost && !group && (
 					<SetPostPrivacy
 						postId={post.id}
 						initialPrivacy={post.privacy}
