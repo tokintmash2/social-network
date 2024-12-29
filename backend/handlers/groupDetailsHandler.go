@@ -41,12 +41,12 @@ func (app *application) GroupDetailsHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	group.GroupPosts, err = utils.GetGroupPosts(groupID)
-	if err != nil {
-		log.Printf("Error fetching group posts: %v", err)
-		http.Error(w, "Error fetching group posts", http.StatusInternalServerError)
-		return
-	}
+	// group.GroupPosts, err = utils.GetGroupPosts(groupID)
+	// if err != nil {
+	// 	log.Printf("Error fetching group posts: %v", err)
+	// 	http.Error(w, "Error fetching group posts", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	if group == nil {
 		http.Error(w, "Group not found", http.StatusNotFound)
@@ -167,10 +167,6 @@ func (app *application) FetchGroupPostsHandler(w http.ResponseWriter, r *http.Re
 	var posts []structs.PostResponse
 
 	posts, err = utils.GetGroupPosts(groupID)
-
-	// for _, post := range posts {
-	// 	post.Comments, _ = utils.GetGroupPostComments(post.ID)
-	// }
 
 	response := map[string]interface{}{
 		"success": true,

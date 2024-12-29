@@ -127,7 +127,6 @@ type GroupResponse struct {
 	CreatedAt   string           `json:"created_at"`
 	CreatorID   int              `json:"creator_id"`
 	Members     []PersonResponse `json:"group_members"`
-	GroupPosts  []PostResponse   `json:"group_posts"`
 }
 
 type PersonResponse struct {
