@@ -1,13 +1,8 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 )
-
-type UserModel struct {
-	DB *sql.DB
-}
 
 func (app *application) UsersHandler(w http.ResponseWriter, r *http.Request) {
 	userID := app.contextGetUser(r)

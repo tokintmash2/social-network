@@ -12,29 +12,28 @@ import {
 import EmojiPicker from 'emoji-picker-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faWindowMinimize, faPaperPlane, faSmile } from '@fortawesome/free-solid-svg-icons'
-import { Message, User } from '../utils/types/types'
+import { Group, GroupMessage, User } from '../utils/types/types'
 import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
-import { WebSocketContext, channelTypes } from '../components/WsContext'
+import { WebSocketContext, channelTypes } from './WsContext'
 import { useLoggedInUser } from '../context/UserContext'
 import Image from 'next/image'
 import Link from 'next/link'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
-export default function Messenger({
+export default function GroupMessenger({
 	onClose,
-	receiverID,
-	chatIndex,
+	groupID,
 }: {
 	onClose: Function
-	receiverID: number
-	chatIndex: number
+	groupID: number
 }) {
 	const [isMinimized, setIsMinimized] = useState(false)
 	const [messageContent, setMessageContent] = useState('')
-	const [user, setUser] = useState<User>()
-	const [messages, setMessages] = useState<Message[]>([])
+	const [group, setGroup] = useState<Group>()
+	const [users, setUsers] = useState<User[]>([])
+	const [messages, setMessages] = useState<GroupMessage[]>([])
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
 	const [subscribe] = useContext(WebSocketContext)
@@ -46,17 +45,27 @@ export default function Messenger({
 
 	const msgListRef = useRef(null)
 	const msgScrollDetect = useRef(null)
-	const channel = channelTypes.chat_message()
+	const channel = channelTypes.group_message()
 
 	const { loggedInUser } = useLoggedInUser()
 	const isMyUser = (id: number) => {
 		return loggedInUser != null && loggedInUser.id == id
 	}
+	const getUser = (id: number) => {
+		const user = users.find((user) => user.id == id)
+		return user
+	}
 
 	const messageReceived = useCallback(
-		(msg: Message) => {
-			if (msg.sender_id == receiverID) {
-				setMessages((p) => [...p, msg])
+		(msg: GroupMessage) => {
+			if (msg.group_id == groupID) { 
+				setMessages((p) => {
+					const exists = p.some((item) => item.message_id == msg.message_id)
+					if (exists) {
+						return p
+					}
+					return [...p, msg] 
+				})
 				setLatest(msg.sent_at)
 			}
 		},
@@ -64,7 +73,7 @@ export default function Messenger({
 	)
 
 	useEffect(() => {
-		const unsub = subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
+		const unsub = subscribe(channel, ({ data }: { data: GroupMessage }) => messageReceived(data ))
 		return () => unsub()
 	}, [subscribe])
 
@@ -73,10 +82,9 @@ export default function Messenger({
 		const form = ev.target as HTMLFormElement
 		const text = form.messageContent.value.trim()
 		const res = await axios.post(
-			`${backendUrl}/api/chat`,
+			`${backendUrl}/api/groupchat/${encodeURIComponent(groupID)}`,
 			{
-				message: text,
-				receiver: receiverID,
+				message: text
 			},
 			{
 				withCredentials: true,
@@ -99,21 +107,30 @@ export default function Messenger({
 	}
 
 	useEffect(() => {
-		const fetchMessages = async () => {
+		const fetchGroup = async () => {
 			const response = await axios.get(
-				`${backendUrl}/api/chat/${encodeURIComponent(receiverID)}`,
+				`${backendUrl}/api/groups/${encodeURIComponent(groupID)}`,
 				{
 					withCredentials: true,
 				},
 			)
-
-			if (response.data.data.profile) {
-				setUser(mapUserApiResponseToUser(response.data.data.profile))
+			if (response.data.group_members) {
+				setUsers(response.data.group_members)
 			}
+			setGroup(response.data)
+		}
+		const fetchMessages = async () => {
+			const response = await axios.get(
+				`${backendUrl}/api/groupchat/${encodeURIComponent(groupID)}`,
+				{
+					withCredentials: true,
+				},
+			)
 			if (response.data.data.messages) {
 				setMessages(response.data.data.messages)
 			}
 		}
+		fetchGroup()
 		fetchMessages()
 	}, [backendUrl])
 
@@ -129,9 +146,8 @@ export default function Messenger({
 			return
 		}
 		const fetchMessages = async (timestamp: string) => {
-			console.log('before load msg count', messages.length)
 			const response = await axios.get(
-				`${backendUrl}/api/chat/${encodeURIComponent(receiverID)}?timestamp=${encodeURIComponent(timestamp)}`,
+				`${backendUrl}/api/groupchat/${encodeURIComponent(groupID)}?timestamp=${encodeURIComponent(timestamp)}`,
 				{
 					withCredentials: true,
 				},
@@ -139,7 +155,6 @@ export default function Messenger({
 			if (response.data.data.messages) {
 				const msgs = [...messages, ...response.data.data.messages]
 				msgs.sort((a, b) => (a.sent_at < b.sent_at ? -1 : 1))
-				console.log('after msg count', msgs.length)
 				setMessages(msgs)
 
 				// Scroll back to the element that triggered load more
@@ -154,8 +169,6 @@ export default function Messenger({
 				}
 			}
 		}
-
-		console.log('load more! earlier than:', earliest)
 		fetchMessages(earliest)
 	}, [earliest])
 
@@ -209,20 +222,9 @@ export default function Messenger({
 					onClick={() => setIsMinimized(false)}
 					className='w-12 h-12 rounded-full bg-white shadow-lg hover:bg-gray-50 flex items-center justify-center overflow-hidden'
 				>
-					{user?.avatar && user.avatar !== 'default_avatar.jpg' ? (
-						<Image
-							src={`${backendUrl}/uploads/${user.avatar}`}
-							alt={`${user.username}'s avatar`}
-							width={48}
-							height={48}
-							className='object-cover'
-						/>
-					) : (
-						<span className='text-lg uppercase'>
-							{user?.firstName[0]}
-							{user?.lastName[0]}
-						</span>
-					)}
+					<span className='text-lg uppercase'>
+						{group?.name}
+					</span>
 				</button>
 			</div>
 		)
@@ -232,12 +234,12 @@ export default function Messenger({
 		<div className='fixed bottom-4 right-4 z-50'>
 			<div className='w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col'>
 				<div className='p-4 border-b flex justify-between items-center'>
-					<div className='p-4 border-b flex justify-between items-center'>
+					<div className='p-4 flex justify-between items-center'>
 						<Link
-							href={`/profile/${receiverID}`}
+							href={`/groups/${groupID}/`}
 							className='hover:underline cursor-pointer'
 						>
-							<h3 className='font-semibold'>{user?.username}</h3>
+							<h3 className='font-semibold'>{group?.name}</h3>
 						</Link>
 					</div>
 
@@ -252,7 +254,7 @@ export default function Messenger({
 							/>
 						</button>
 						<button
-							onClick={() => onClose(receiverID)}
+							onClick={() => onClose(groupID)}
 							className='hover:bg-gray-100 p-1 rounded-full'
 						>
 							<FontAwesomeIcon icon={faXmark} className='w-5 h-5' />
@@ -265,8 +267,9 @@ export default function Messenger({
 					{messages.length ? <div ref={msgScrollDetect}>&nbsp;</div> : ''}
 					{messages.map((message) => (
 						<MessageBubble
-							key={message.chat_id}
+							key={message.message_id}
 							message={message}
+							user={getUser(message.user_id)}
 							isMyUser={isMyUser}
 						/>
 					))}
@@ -312,18 +315,19 @@ export default function Messenger({
 		</div>
 	)
 }
-function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
-	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
+function MessageBubble({ message, user, isMyUser }: { message: GroupMessage; user: User | undefined, isMyUser: Function }) {
+	if (user === undefined) {
+		// User info not yet loaded, don't render yet
+		return ''
+	}
+	const bubbleType = isMyUser(user.id) ? 'chat chat-end' : 'chat chat-start'
 	return (
 		<div className={bubbleType} data-timestamp={message.sent_at}>
 			<div className='chat-image avatar'>
 				<div className='avatar placeholder'>
 					<div className='bg-neutral text-neutral-content w-10 rounded-full'>
 						<span className='text-xs uppercase'>
-							{message.sender_name
-								.split(' ')
-								.map((n) => n[0])
-								.join('')}
+							{user.firstName.charAt(0)}{user.lastName.charAt(0)}
 						</span>
 					</div>
 				</div>

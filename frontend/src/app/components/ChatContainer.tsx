@@ -1,30 +1,39 @@
 'use client'
-import { useState } from 'react'
+
 import Messenger from './Messenger'
+import GroupMessenger from './GroupMessenger'
+import { ActiveChat } from './SocialFeatures'
 
 export function ChatContainer({
 	activeChats,
 	setActiveChats,
 }: {
-	activeChats: number[]
+	activeChats: ActiveChat[]
 	setActiveChats: Function
 }) {
-	const closeChat = (id: number) => {
+	const closeChat = (type: string, id: number) => {
 		console.log('Close chat with:', id)
-		const s = new Set([...activeChats])
-		s.delete(id)
-		setActiveChats(Array.from(s.values()))
+		const chats = activeChats.filter((item) => !(item.type == type && item.id == id))
+		setActiveChats(chats)
 	}
 
 	return (
         <div className="fixed bottom-4 right-4 z-50 flex flex-col-reverse gap-4">
-            {activeChats.map((id, index) => (
-                <Messenger 
-                    key={`chat-${id}`}
-                    onClose={closeChat}
-                    receiverID={id}
-                    chatIndex={index}
-                />
+            {activeChats.map((chat, index) => (
+                chat.type == "user" ? (
+                    <Messenger 
+                        key={`chat-${chat.id}`}
+                        onClose={(id: number) => closeChat("user", id)}
+                        receiverID={chat.id}
+                        chatIndex={index}
+                    />
+                ) : (
+                    <GroupMessenger
+                        key={`groupchat-${chat.id}`}
+                        onClose={(id: number) => closeChat("group", id)}
+                        groupID={chat.id}
+                    />
+                )
             ))}
         </div>
     )

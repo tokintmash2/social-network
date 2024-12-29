@@ -127,3 +127,19 @@ export type Message = {
 	sent_at: string
 	message: string
 }
+
+export type Group = {
+	id: number
+	name: string
+	creator_id?: number
+	description?: string
+	created_at?: Date
+}
+
+export type GroupMessage = {
+	message_id: number
+	group_id: number
+	user_id: number
+	sent_at: string
+	message: string
+}
