@@ -204,7 +204,7 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 			log.Println("Error scanning post:", err)
 			return nil, err
 		}
-		post.Comments, _ = GetGroupPostComments(groupID)
+		post.Comments, _ = GetGroupPostComments(post.ID)
 		posts = append(posts, post)
 	}
 	if err := rows.Err(); err != nil {
