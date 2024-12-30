@@ -61,16 +61,16 @@ func (app *application) FollowersHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		notifyUsers := []int{followedID}
 		userNotification := &structs.Notification{
-			Users:     []int{followedID},
 			Type:      "follow_request",
 			Message:   "You have a new follow request!",
 			Timestamp: time.Now(),
 			Read:      false,
 		}
 
-		utils.CreateNotification(userNotification)
-		app.sendWSNotification(followedID, "new_follower", userNotification.Message)
+		notifications, _ := utils.CreateNotification(notifyUsers, userNotification)
+		app.sendWSNotification(notifications)
 
 		message = "Followe request sent successfully"
 	}
@@ -82,16 +82,16 @@ func (app *application) FollowersHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		notifyUsers := []int{followedID}
 		userNotification := &structs.Notification{
-			Users:     []int{followedID},
 			Type:      "new_follower",
 			Message:   "You have a new follower!",
 			Timestamp: time.Now(),
 			Read:      false,
 		}
 
-		utils.CreateNotification(userNotification)
-		app.sendWSNotification(followedID, "follow_request", userNotification.Message)
+		notifications, _ := utils.CreateNotification(notifyUsers, userNotification)
+		app.sendWSNotification(notifications)
 
 		message = "Follower added successfully"
 	}
@@ -139,19 +139,6 @@ func (app *application) RemoveFollowerHandler(w http.ResponseWriter, r *http.Req
 		http.Error(w, "Error adding follower", http.StatusInternalServerError)
 		return
 	}
-
-	// userNotification := &structs.Notification{
-	// 	Users:     []int{followedID},
-	// 	Type:      "follow_request",
-	// 	Message:   "You have a new follow request!",
-	// 	Timestamp: time.Now(),
-	// 	Read:      false,
-	// }
-
-	// utils.CreateNotification(userNotification)
-	// app.sendWSNotification(followedID, "new_follower", userNotification.Message)
-
-	// message = "Followe request sent successfully"
 
 	response := map[string]interface{}{
 		"success": true,

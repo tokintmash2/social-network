@@ -98,7 +98,7 @@ func (app *application) GroupPostsHandler(w http.ResponseWriter, r *http.Request
 
 		post.Title = r.FormValue("title")
 		post.Content = r.FormValue("content")
-	
+
 		_, _, err = r.FormFile("image")
 		if err == nil {
 			filename, err := utils.HandleFileUpload(r, "image", "uploads")
@@ -177,7 +177,4 @@ func (app *application) FetchGroupPostsHandler(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(response)
 	return
 
-}
-
-func (app *application) GroupMessagesHandler(w http.ResponseWriter, r *http.Request, groupID int) {
 }

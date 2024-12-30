@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"social-network/utils"
 	"strconv"
-	"strings"
 )
 
 func (app *application) FetchNotificationsHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,10 +57,13 @@ func (app *application) MarkNotificationHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	path := strings.TrimPrefix(r.URL.Path, "/api/notifications/")
-	pathParts := strings.Split(path, "/")
-	notificationID, _ := strconv.Atoi(pathParts[0])
+	notificationID, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, "Invalid notification", http.StatusInternalServerError)
+		return
+	}
 
 	utils.MarkNotificationAsRead(notificationID)
 
+	app.writeJSON(w, http.StatusOK, envelope{"status": "ok"}, nil)
 }

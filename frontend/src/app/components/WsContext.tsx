@@ -9,6 +9,7 @@ const channelTypes = {
     chat_message: () => 'chat_message',
     group_message: () => 'group_message',
     online_user: () => 'online_users',
+    notification: () => 'notification',
 }
 
 const WebSocketContext = createContext<Function[]>([])

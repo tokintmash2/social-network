@@ -87,46 +87,28 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 
 	log.Println("Members: ", members)
 
-	userIDs := make([]int, len(members))
+	notifyUsers := make([]int, len(members))
 	for i, member := range members {
-		userIDs[i] = member.ID
+		notifyUsers[i] = member.ID
 	}
 
-	log.Println("UserIDs: ", userIDs)
+	log.Println("UserIDs: ", notifyUsers)
 
 	notification := &structs.Notification{
-		Users:     userIDs,
 		Type:      "event_created",
 		Message:   fmt.Sprintf("New group event: %s", event.Title),
 		Timestamp: time.Now(),
 		Read:      false,
 	}
 
-	log.Println("Notification: ", notification)
-
-	utils.CreateNotification(notification)	
-
 	// Fetch updated event details with attendees and author
 	eventWithDetails := utils.FetchEvent(event.EventID)
 
-	// Broadcast the event creation to the WebSocket hub
-	wsMessage := map[string]interface{}{
-		"response_to": "notification",
-		"data": map[string]interface{}{
-			"type":    "event_created",
-			"event":   eventWithDetails,
-			"message": notification.Message,
-		},
+	notifications, _ := utils.CreateNotification(notifyUsers, notification)
+	for i := range notifications {
+		notifications[i].Event = eventWithDetails
 	}
-
-	log.Println("WS Message: ", wsMessage)
-
-	jsonMessage, _ := json.Marshal(wsMessage)
-	for client := range app.hub.clients {
-		if utils.Contains(userIDs, client.userID) {
-			client.send <- jsonMessage
-		}
-	}
+	app.sendWSNotification(notifications)
 
 	response := map[string]interface{}{
 		"success": true,
