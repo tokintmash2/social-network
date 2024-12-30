@@ -10,13 +10,8 @@ import { mapUserApiResponseToUser } from "../utils/userMapper"
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export default function UsersList({ onChat }: { onChat: Function }) {
-    // unused const
-    const [isOpen, setIsOpen] = useState(false)
-
     const [users, setUsers] = useState<User[]>([])
     const [groups, setGroups] = useState<Group[]>([])
-    // unused
-    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         const fetchUsers = async () => {
