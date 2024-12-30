@@ -162,8 +162,9 @@ export default function PostsContainer({
 				dispatch({ type: ACTIONS.SET_LOADING, payload: false })
 			}
 		}
-
-		fetchPosts()
+		if (!group) {
+			fetchPosts()
+		}
 	}, [userId, group, groupId])
 
 	if (state.loading) {

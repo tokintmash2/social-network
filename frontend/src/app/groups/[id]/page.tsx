@@ -18,121 +18,16 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import dynamic from 'next/dynamic'
 import PostsContainer from '@/app/containers/PostsContainer'
+import { ACTIONS } from '../../utils/actions/groupActions'
+import {
+	GroupState_type,
+	GroupActions_type,
+	MembershipRole_type,
+	UserResponse_type,
+	GroupState_default,
+} from '../../utils/types/groupTypes'
 
 const Select = dynamic(() => import('react-select'), { ssr: false })
-const ACTIONS = {
-	SET_GROUP: 'SET_GROUP',
-	SET_GROUP_MEMBERSHIP_ROLE: 'SET_GROUP_MEMBERSHIP_ROLE',
-	SET_USERS: 'SET_USERS',
-	TOGGLE_INVITE_MODAL: 'TOGGLE_INVITE_MODAL',
-
-	SET_LOADING: 'SET_LOADING',
-
-	SET_EVENTS: 'SET_EVENTS',
-	TOGGLE_EVENT_RSVP: 'TOGGLE_EVENT_RSVP',
-	CREATE_EVENT: 'CREATE_EVENT',
-	RSVP: 'RSVP',
-}
-
-type Group_type = {
-	id: number
-	name: string
-	description: string
-	createdAt: string
-	creatorId: number
-	members: { id: number; firstName: string; lastName: string; role: string }[]
-	posts: {
-		id: number
-		title: string
-		content: string
-		media: string
-		author: UserBasic_type
-		createdAt: string
-	}[]
-}
-
-type UserBasic_type = {
-	id: number
-	firstName: string
-	lastName: string
-}
-
-type Event_type = {
-	id: number
-	title: string
-	description: string
-	date_time: string
-	group_id: number
-	author: UserBasic_type
-	attendees: UserBasic_type[]
-}
-
-type GroupState_type = {
-	id: Group_type['id']
-	name: Group_type['name']
-	description: Group_type['description']
-	createdAt: Group_type['createdAt']
-	creatorId: Group_type['creatorId']
-	members: Group_type['members']
-	membershipRole: MembershipRole_type
-	loading: boolean
-	users: Group_type['members']
-	showInviteModal: boolean
-	events: Event_type[]
-	posts: Group_type['posts']
-}
-
-const GroupState_default: GroupState_type = {
-	id: 0,
-	name: '',
-	description: '',
-	createdAt: '',
-	creatorId: 0,
-	members: [],
-	membershipRole: 'NOT_MEMBER',
-	loading: true,
-	users: [],
-	showInviteModal: false,
-	events: [],
-	posts: [],
-}
-
-type UserResponse = {
-	ID: number
-	FirstName: string
-	LastName: string
-}
-
-type MembershipRole_type = 'NOT_MEMBER' | 'PENDING' | 'MEMBER' | 'ADMIN'
-type GroupActions_type =
-	| {
-			type: typeof ACTIONS.SET_GROUP
-			payload: Group_type
-	  }
-	| {
-			type: typeof ACTIONS.SET_GROUP_MEMBERSHIP_ROLE
-			payload: MembershipRole_type
-	  }
-	| {
-			type: typeof ACTIONS.SET_LOADING
-			payload: boolean
-	  }
-	| {
-			type: typeof ACTIONS.SET_USERS
-			payload: Group_type['members']
-	  }
-	| {
-			type: typeof ACTIONS.TOGGLE_INVITE_MODAL
-			payload: boolean
-	  }
-	| {
-			type: typeof ACTIONS.SET_EVENTS
-			payload: Event_type[]
-	  }
-	| {
-			type: typeof ACTIONS.TOGGLE_EVENT_RSVP
-			payload: { eventId: Event_type['id']; attendeeList: UserBasic_type[] }
-	  }
 
 function reducer(state: GroupState_type, action: GroupActions_type): GroupState_type {
 	switch (action.type) {
@@ -331,11 +226,11 @@ export default function Group() {
 				if (response.data.success) {
 					const allUsers = response.data.users
 					const nonMembers = allUsers.filter(
-						(user: UserResponse) =>
+						(user: UserResponse_type) =>
 							user.ID !== loggedInUser?.id &&
 							!state.members.some((member) => member.id === user.ID),
 					)
-					const formattedOptions = nonMembers.map((user: UserResponse) => ({
+					const formattedOptions = nonMembers.map((user: UserResponse_type) => ({
 						value: user.ID,
 						label: `${user.FirstName} ${user.LastName}`,
 					}))
