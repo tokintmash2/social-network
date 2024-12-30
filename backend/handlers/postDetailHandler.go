@@ -23,7 +23,9 @@ func PostDetailHandler(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		FetchPostDetailHandler(w, r)
 	case "POST":
-        CreateCommentHandler(w, r)
+		CreateCommentHandler(w, r)
+	case "PATCH":
+		UpdatePostHandler(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -52,4 +54,69 @@ func FetchPostDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
+
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	sessionUUID := cookie.Value
+	userID, validSession := utils.VerifySession(sessionUUID, "FetchAllGroupsHandler")
+	if !validSession {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	var postUpdate structs.PostResponse
+
+	postID, err := utils.FetchIdFromPath(r.URL.Path, 2)
+	if err != nil {
+		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&postUpdate)
+	if err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return
+	}
+
+	if postUpdate.Privacy == "private" {
+		postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
+	}
+
+	log.Println("postUpdate:", postUpdate)
+
+	// if postUpdate.Privacy == "private" {
+	// 	postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
+	// } else if postUpdate.Privacy == "almost_private" {
+	// 	allowedUsersStr := r.Form["allowed_users[]"]
+	// 	postUpdate.AllowedUsers = make([]int, len(allowedUsersStr))
+	// 	for i, userStr := range allowedUsersStr {
+	// 		userID, err := strconv.Atoi(userStr)
+	// 		if err != nil {
+	// 			http.Error(w, "Invalid user ID format", http.StatusBadRequest)
+	// 			return
+	// 		}
+	// 		postUpdate.AllowedUsers[i] = userID
+	// 	}
+	// }
+
+	// utils.UpdatePost(postID, postUpdate)
+
+	// utils.SetPostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+	utils.UpdatePostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Post updated successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+	return
 }

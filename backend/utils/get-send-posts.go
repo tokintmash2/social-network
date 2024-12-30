@@ -12,7 +12,6 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	var post structs.PostResponse
 	var author structs.PersonResponse
-	// var followers []structs.AllowedUserResponse
 
 	err := database.DB.QueryRow(`
         SELECT 
@@ -24,6 +23,46 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 			u.first_name,
 			u.last_name
         FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.post_id = ?
+    `, postID).Scan(&post.ID, &post.Content, &post.Privacy, &post.CreatedAt, &post.MediaURL,
+		&author.ID, &author.FirstName, &author.LastName)
+	if err != nil {
+		log.Println("Error with query:", err)
+		return nil, err
+	}
+	post.Author = author
+
+	// Fetch allowed users for the post
+	post.AllowedUsers, err = FetchAllowedUsers(postID)
+	post.Comments, err = FetchComments(postID)
+	if err != nil {
+		log.Println("Error fetching allowed users:", err)
+		return nil, err
+	}
+
+	log.Println("Fetched post:", post)
+
+	return &post, nil
+}
+
+func FetchGroupPostDetails(postID int) (*structs.PostResponse, error) {
+
+	log.Println("FetchPostDetails called with postID:", postID)
+
+	var post structs.PostResponse
+	var author structs.PersonResponse
+
+	err := database.DB.QueryRow(`
+        SELECT 
+            p.post_id,
+			p.content,
+			p.privacy_setting,
+			p.timestamp, p.image,
+            u.id,
+			u.first_name,
+			u.last_name
+        FROM group_posts p
         JOIN users u ON p.user_id = u.id
         WHERE p.post_id = ?
     `, postID).Scan(&post.ID, &post.Content, &post.Privacy, &post.CreatedAt, &post.MediaURL,
@@ -183,10 +222,6 @@ func CreateGroupPost(newPost structs.PostResponse) error {
 	}
 
 	log.Println("Last inserted post ID:", postID)
-
-	// var postresponse structs.PostResponse
-
-	// log.Println("Post privacy setting:", newPost.Privacy)
 
 	log.Println("About to commit transaction")
 	if err = tx.Commit(); err != nil {

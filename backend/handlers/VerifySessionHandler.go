@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"social-network/utils"
+	"time"
 )
 
 type Response struct {
@@ -21,6 +22,17 @@ func VerifySessionHandler(w http.ResponseWriter, r *http.Request) {
 			Success: false,
 			Message: "No session found",
 		}
+
+		// Clear the session cookie if it's not valid
+		expiredCookie := &http.Cookie{
+			Name:    "session",
+			Value:   "",
+			Path:    "/",
+			Expires: time.Unix(0, 0), // Set to time in the past
+			MaxAge:  -1,              // MaxAge<0 means delete cookie immediately
+		}
+		http.SetCookie(w, expiredCookie)
+
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(response)
 		return

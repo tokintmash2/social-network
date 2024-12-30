@@ -7,15 +7,16 @@ import useWS from '../utils/hooks/useWs'
 const channelTypes = {
     echo: () => 'echo',
     chat_message: () => 'chat_message',
+    group_message: () => 'group_message',
     online_user: () => 'online_users',
 }
 
 const WebSocketContext = createContext<Function[]>([])
 
 function WebSocketProvider({ children }: PropsWithChildren) {
-    const [subscribe, unsubscribe, send] = useWS()
+    const [subscribe, send] = useWS()
 
-    return <WebSocketContext.Provider value={[subscribe, unsubscribe, send]}>
+    return <WebSocketContext.Provider value={[subscribe, send]}>
         {children}
     </WebSocketContext.Provider>
 }

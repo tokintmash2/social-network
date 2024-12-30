@@ -204,6 +204,7 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 			log.Println("Error scanning post:", err)
 			return nil, err
 		}
+		post.Comments, _ = GetGroupPostComments(groupID)
 		posts = append(posts, post)
 	}
 	if err := rows.Err(); err != nil {
@@ -212,6 +213,41 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 	}
 
 	return posts, nil
+}
+
+func GetGroupPostComments(postID int) ([]structs.CommentResponse, error) {
+	var comments []structs.CommentResponse
+	rows, err := database.DB.Query(`
+	SELECT comment_id, user_id, content, media_url, created_at
+	FROM group_post_comments
+	WHERE group_post_id = ?
+	ORDER BY created_at DESC`, postID)
+	if err != nil {
+		log.Println("Error fetching group members:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var comment structs.CommentResponse
+		err := rows.Scan(
+			&comment.ID,
+			&comment.UserID,
+			&comment.Content,
+			&comment.Image,
+			&comment.CreatedAt)
+		if err != nil {
+			log.Println("Error scanning comment:", err)
+			return nil, err
+		}
+		comments = append(comments, comment)
+		log.Println("Comment:", comment)
+		if err := rows.Err(); err != nil {
+			log.Println("Error iterating over group members:", err)
+			return nil, err
+		}
+	}
+	return comments, nil
 }
 
 func CreateGroup(group structs.Group) error {

@@ -175,6 +175,7 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		followerName.ID = followerProfile.ID
 		followerName.FirstName = followerProfile.FirstName
 		followerName.LastName = followerProfile.LastName
+		followerName.Status,_ = utils.GetFollowStatus(userIDProcessed, followerID)
 
 		followers = append(followers, followerName)
 	}
@@ -195,6 +196,8 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		followedName.ID = followedProfile.ID
 		followedName.FirstName = followedProfile.FirstName
 		followedName.LastName = followedProfile.LastName
+		followedName.Status,_ = utils.GetFollowStatus(followedID, userIDProcessed)
+
 
 		following = append(following, followedName)
 	}
