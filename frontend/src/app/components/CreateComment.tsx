@@ -9,9 +9,13 @@ import toast, { Toaster } from 'react-hot-toast'
 
 function CreateComment({
 	postId,
+	group = false,
+	groupId = undefined,
 	dispatch,
 }: {
 	postId: number
+	group: boolean
+	groupId: number | undefined
 	dispatch: (action: PostsAction_type) => void
 }) {
 	const [comment, setComment] = useState<{ content: string; mediaUrl: File | null }>({
@@ -65,17 +69,16 @@ function CreateComment({
 				'Content-Type': 'multipart/form-data',
 				withCredentials: true,
 			})
+			const postUrl = group
+				? `${backendUrl}/api/groups/${groupId}/posts/${postId}/comments`
+				: `${backendUrl}/api/posts/${postId}/comments`
 
-			const response = await axios.post(
-				`${backendUrl}/api/posts/${postId}/comments`,
-				formData,
-				{
-					withCredentials: true,
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
+			const response = await axios.post(postUrl, formData, {
+				withCredentials: true,
+				headers: {
+					'Content-Type': 'multipart/form-data',
 				},
-			)
+			})
 
 			const newComment = response.data.comment
 			console.log({

@@ -1,37 +1,18 @@
 'use client'
 
 import { useEffect, useState, useReducer, useRef } from 'react'
-import Header from '../components/Header'
 import { useRouter } from 'next/navigation'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios'
-import { UserBasic_type } from '../utils/types/types'
 import DOMPurify from 'dompurify'
 
-const ACTIONS = {
-	SET_GROUPS: 'SET_GROUPS',
-	CREATE_GROUP: 'CREATE_GROUP',
-}
+import Header from '../components/Header'
 
-type GroupsState_type = {
-	groups: Group_type[]
-}
-
-type Group_type = {
-	id: number
-	name: string
-	description: string
-	createdAt: string
-	creatorId: number
-}
-
-type GroupsActions_type =
-	| {
-		type: typeof ACTIONS.SET_GROUPS
-		payload: Group_type[]
-	}
-	| { type: typeof ACTIONS.CREATE_GROUP; payload: Group_type }
+import { GroupsState_type, GroupsActions_type } from '../utils/types/groupListTypes'
+import { UserBasic_type } from '../utils/types/types'
+import { ACTIONS } from '../utils/actions/groupListActions'
 
 function reducer(state: GroupsState_type, action: GroupsActions_type): GroupsState_type {
 	switch (action.type) {
@@ -211,9 +192,7 @@ export default function GroupsList() {
 								value={newGroup.name}
 								autoFocus
 								spellCheck={false}
-								onChange={(e) =>
-									setNewGroup({ ...newGroup, name: e.target.value })
-								}
+								onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
 							/>
 						</label>
 
@@ -246,6 +225,5 @@ export default function GroupsList() {
 				</div>
 			</dialog>
 		</div>
-
 	)
 }
