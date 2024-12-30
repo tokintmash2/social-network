@@ -4,13 +4,39 @@ import PostsContainer from '../containers/PostsContainer'
 import Image from 'next/image'
 import { useLoggedInUser } from '../context/UserContext'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export default function HomePage() {
 	const { loggedInUser } = useLoggedInUser()
+	const [followers, setFollowers] = useState<
+		{ id: number; firstName: string; lastName: string }[]
+	>([])
 
+	useEffect(() => {
+		const fetchFollowers = async () => {
+			try {
+				const response = await axios.get(
+					`${backendUrl}/api/users/${loggedInUser?.id}/followers`,
+					{
+						withCredentials: true,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+				setFollowers(response.data.followers)
+			} catch (error) {
+				console.error('Error fetching followers:', error)
+			}
+		}
 
+		if (loggedInUser?.id) {
+			fetchFollowers()
+		}
+	}, [loggedInUser?.id])
 	return (
 		<div className='min-h-screen pt-16'>
 			<Header />
@@ -51,7 +77,12 @@ export default function HomePage() {
 						</div>
 					</aside>
 					<section className='flex-1 ml-[16.666667%] px-8 pl-12 pr-2 pt-2 max-[980px]:ml-0 max-[980px]:px-4'>
-						<PostsContainer userId={loggedInUser.id} isOwnProfile={false} feed={true} />
+						<PostsContainer
+							userId={loggedInUser.id}
+							isOwnProfile={false}
+							feed={true}
+							followers={followers}
+						/>
 					</section>
 				</main>
 			)}

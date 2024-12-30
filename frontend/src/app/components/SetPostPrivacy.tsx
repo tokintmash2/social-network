@@ -78,14 +78,17 @@ function SetPostPrivacy({
 		setTempAllowedUsers(newAllowedUsers)
 	}
 
-	const getParsedFollowers = () =>
-		followers
-			? followers.map((follower) => ({
-					value: follower.id.toString(),
-					label: `${follower.firstName} ${follower.lastName}`,
-				}))
-			: []
-
+	const getParsedFollowers = () => {
+		console.log('followers', followers)
+		if (followers) {
+			return followers.map((follower) => ({
+				value: follower.id.toString(),
+				label: `${follower.firstName} ${follower.lastName}`,
+			}))
+		} else {
+			return []
+		}
+	}
 	return (
 		<div>
 			<div className='flex items-center'>
