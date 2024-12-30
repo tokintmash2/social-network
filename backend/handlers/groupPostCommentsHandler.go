@@ -10,9 +10,22 @@ import (
 	"time"
 )
 
-func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("CreateCommentHandler called")
+func (app *application) GroupPostCommentHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("GroupPostCommentHandler called")
 	log.Printf("Content-Type: %s\n", r.Header.Get("Content-Type"))
+
+	groupID, err := utils.FetchIdFromPath(r.URL.Path, 2) // Position of group_id
+	if err != nil {
+		http.Error(w, "Error fetching group ID", http.StatusBadRequest)
+		return
+	}
+
+	postID, err := utils.FetchIdFromPath(r.URL.Path, 4) // Position of post_id
+	if err != nil {
+		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
+		return
+	}
 
 	var newComment structs.CommentResponse
 
@@ -60,6 +73,8 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		newComment.UserID = userID
+		newComment.GroupID = groupID
+		newComment.PostID = postID
 		newComment.CreatedAt = time.Now()
 		newComment.PostID, err = utils.FetchIdFromPath(r.URL.Path, 2)
 		if err != nil {
@@ -67,7 +82,7 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = utils.CreateComment(newComment)
+		err = utils.CreateGroupPostComment(newComment)
 		if err != nil {
 			http.Error(w, "Error creating comment", http.StatusInternalServerError)
 			return
@@ -98,5 +113,3 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-
