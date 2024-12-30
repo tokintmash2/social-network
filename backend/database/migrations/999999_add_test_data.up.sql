@@ -152,3 +152,35 @@ VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-09-01 20
 
 INSERT INTO events (group_id, title, description, date_time, created_by)
 VALUES (4, 'Puppy Playdate', 'Join us for a fun puppy playdate!', '2024-10-01 20:00:00+00:00', 4);
+
+-- Additional Group Posts
+INSERT INTO group_posts (group_id, user_id, title, content) 
+VALUES (2, 1, 'My Monstera is Thriving!', 'Check out these new leaves on my Monstera Deliciosa. The fenestration is amazing this season!');
+
+INSERT INTO group_posts (group_id, user_id, title, content) 
+VALUES (3, 2, 'Barn Door Restoration Complete', 'Finally finished restoring this 100-year-old barn door. Swipe to see the before and after!');
+
+-- Additional Regular Posts
+INSERT INTO posts (user_id, title, content, privacy_setting) 
+VALUES (3, 'Weekend Hiking Adventure', 'Just completed a 15km hike in Soomaa National Park. The views were incredible!', 'public');
+
+INSERT INTO posts (user_id, title, content, privacy_setting) 
+VALUES (2, 'My Secret Recipe', 'Grandmother''s special black bread recipe - only sharing with close friends!', 'almost_private');
+
+-- Comments on Regular Posts
+INSERT INTO comments (post_id, user_id, content) 
+VALUES (1, 2, 'This is exactly what I needed to hear about AI tools!');
+
+INSERT INTO comments (post_id, user_id, content) 
+VALUES (1, 3, 'Great insights! Which AI tool did you use specifically?');
+
+-- Comments on Group Posts
+INSERT INTO group_post_comments (group_post_id, user_id, content) 
+VALUES (1, 3, 'Stunning capture! The colors are absolutely magical.');
+
+INSERT INTO group_post_comments (group_post_id, user_id, content) 
+VALUES (2, 4, 'The composition in this shot is perfect! What camera settings did you use?');
+
+-- Additional Group Membership for Context
+INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
+VALUES (2, 3, 'member', CURRENT_TIMESTAMP);

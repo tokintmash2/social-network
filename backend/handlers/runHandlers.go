@@ -10,25 +10,26 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("/register", SignupHandler)
 	r.HandleFunc("/logout", LogoutHandler)
 
-	// r.HandleFunc("/api/users/", UsersRouter)
 	r.HandleFunc("GET /api/users", app.ProfileHandler)
 	r.HandleFunc("GET /api/users/", app.ProfileHandler)
 	r.HandleFunc("GET /api/users/{u_id}/followers", app.FetchFollowersHandler)
 	r.HandleFunc("POST /api/users/{u_id}/followers/{f_id}", app.FollowersHandler)
 	r.HandleFunc("PATCH /api/users/{u_id}/followers/{f_id}", app.FollowersHandler)
 	r.HandleFunc("DELETE /api/users/{u_id}/followers/{f_id}", app.RemoveFollowerHandler)
-	// r.HandleFunc("/api/followers/", FollowersHandler)
-	// r.HandleFunc("/api/followers/requests", FollowRequestHandler)
 
 	r.HandleFunc("/api/verify-session", VerifySessionHandler)
 	r.HandleFunc("/toggle-privacy", TogglePrivacyHandler)
+
 	r.HandleFunc("GET /api/groups", app.FetchAllGroupsHandler)
 	r.HandleFunc("POST /api/groups", app.CreateGroupHandler)
 	r.HandleFunc("GET /api/groups/{id}", app.GroupDetailsHandler)
+	r.HandleFunc("GET /api/groups/{group_id}/posts", app.FetchGroupPostsHandler)
 	r.HandleFunc("POST /api/groups/{group_id}/posts", app.GroupPostsHandler)
+
 	r.HandleFunc("POST /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
 	r.HandleFunc("PATCH /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
 	r.HandleFunc("DELETE /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
+
 	r.HandleFunc("POST /api/groups/{group_id}/events", app.CreateEventHandler)
 	r.HandleFunc("GET /api/groups/{group_id}/events", app.FetchGroupEventsHandler)           // Fetch all
 	r.HandleFunc("GET /api/groups/{group_id}/events/{event_id}", app.FetchGroupEventHandler) // Fetch one
@@ -39,14 +40,13 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("GET /api/notifications", app.FetchNotificationsHandler) // Fetch all user notifications
 	r.HandleFunc("PATCH /api/notifications/{id}", app.MarkNotificationHandler)
 
-	//r.HandleFunc("GET /api/chat", app.ListChatRoomsHandler)
 	r.HandleFunc("GET /api/chat/{id}", app.authenticate(app.ListChatHandler, false))
 	r.HandleFunc("POST /api/chat", app.authenticate(app.SaveChatHandler, false))
 	r.HandleFunc("GET /api/chat/users", app.authenticate(app.UsersHandler, true))
 
-	// r.HandleFunc("GET /api/groupchat/{id}", app.authenticate(app.ListGroupChatHandler, false))
-	// r.HandleFunc("POST /api/chat", app.authenticate(app.SaveChatHandler, false))
-	// r.HandleFunc("GET /api/chat/users", app.authenticate(app.UsersHandler, true))
+	r.HandleFunc("GET /api/groupchat/{id}", app.authenticate(app.ListGroupChatHandler, false))
+	r.HandleFunc("POST /api/groupchat/{id}", app.authenticate(app.SaveGroupChatHandler, false))
+	r.HandleFunc("GET /api/groupchat", app.authenticate(app.GroupChatListHandler, true))
 
 	r.HandleFunc("POST /api/posts", app.CreatePostHandler)
 	r.HandleFunc("GET /api/posts", app.FetchPostsHandler)

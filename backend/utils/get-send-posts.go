@@ -12,7 +12,6 @@ func FetchPostDetails(postID int) (*structs.PostResponse, error) {
 
 	var post structs.PostResponse
 	var author structs.PersonResponse
-	// var followers []structs.AllowedUserResponse
 
 	err := database.DB.QueryRow(`
         SELECT 
@@ -183,10 +182,6 @@ func CreateGroupPost(newPost structs.PostResponse) error {
 	}
 
 	log.Println("Last inserted post ID:", postID)
-
-	// var postresponse structs.PostResponse
-
-	// log.Println("Post privacy setting:", newPost.Privacy)
 
 	log.Println("About to commit transaction")
 	if err = tx.Commit(); err != nil {
