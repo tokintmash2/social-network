@@ -39,19 +39,20 @@ const NotificationSystem = () => {
 			setNotifications(response.data.notifications)
 		}
 		fetchNotifications()
-	}, [backendUrl])
+	}, [])
 
 	const channel = channelTypes.notification()
-	const [subscribe] = useContext(WebSocketContext)
+	const { subscribe } = useContext(WebSocketContext)!
 	const messageReceived = useCallback((msg: Notification) => {
 		setNotifications((p) => [...p, msg])
 	}, [])
 	useEffect(() => {
-		const unsub = subscribe(channel, ({ data }: { data: Notification }) =>
-			messageReceived(data),
-		)
+		const unsub = subscribe(channel, (payload: unknown) => {
+			const { data } = payload as { data: Notification }
+			messageReceived(data)
+		})
 		return () => unsub()
-	}, [subscribe])
+	}, [subscribe, channel, messageReceived])
 
 	useEffect(() => {
 		setUnreadCount(notifications.filter((n) => !n.read).length)

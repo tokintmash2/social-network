@@ -9,7 +9,7 @@ export function ChatContainer({
 	setActiveChats,
 }: {
 	activeChats: ActiveChat[]
-	setActiveChats: Function
+	setActiveChats: (chats: ActiveChat[]) => void
 }) {
 	const closeChat = (type: string, id: number) => {
 		console.log('Close chat with:', id)
@@ -19,13 +19,12 @@ export function ChatContainer({
 
 	return (
         <div className="fixed bottom-4 right-4 z-50 flex flex-col-reverse gap-4">
-            {activeChats.map((chat, index) => (
+            {activeChats.map((chat) => (
                 chat.type == "user" ? (
                     <Messenger 
                         key={`chat-${chat.id}`}
                         onClose={(id: number) => closeChat("user", id)}
                         receiverID={chat.id}
-                        chatIndex={index}
                     />
                 ) : (
                     <GroupMessenger

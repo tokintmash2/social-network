@@ -96,7 +96,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 		if (userData.accessType === 'PRIVATE' || userData.accessType === 'PUBLIC') {
 			followButtonText = 'Follow'
 		} else if (userData.accessType === 'PRIVATE_PENDING') {
-			followButtonText = 'Follow request pending'
+			followButtonText = 'Follow request pending'`
 		} else {
 			followButtonText = 'Unfollow'
 		}
@@ -147,7 +147,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								</div>
 							</div>
 							{/* Follow Stats */}
-							{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+							{accessType == 'PUBLIC' ? (
 								<div className='absolute bottom-8 left-8 flex gap-6 text-white'>
 									<div>
 										<span className='font-semibold'>
@@ -162,7 +162,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 										<span className='ml-2'>Followers</span>
 									</div>
 								</div>
-							)}
+							) : ''}
 						</div>
 						{/* Profile Info Card */}
 						<div className='w-full bg-white rounded-lg shadow-sm p-6 mt-8'>
@@ -201,7 +201,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 										{formatDate(userData.dob)}
 									</p>
 								)}
-								{accessType !== 'PRIVATE' && accessType !== 'PRIVATE_PENDING' && (
+								{accessType == 'PUBLIC' ? (
 									<>
 										<p className='text-sm mb-2'>
 											<span className='font-semibold'>Email:</span>{' '}
@@ -214,7 +214,7 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 											</p>
 										)}
 									</>
-								)}
+								) : ''}
 							</div>
 						</div>
 						{/* Posts Container */}

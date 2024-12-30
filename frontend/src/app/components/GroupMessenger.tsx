@@ -9,15 +9,13 @@ import {
 	useContext,
 	useCallback,
 } from 'react'
-import EmojiPicker from 'emoji-picker-react'
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faWindowMinimize, faPaperPlane, faSmile } from '@fortawesome/free-solid-svg-icons'
 import { Group, GroupMessage, User } from '../utils/types/types'
-import { mapUserApiResponseToUser } from '../utils/userMapper'
 import axios from 'axios'
 import { WebSocketContext, channelTypes } from './WsContext'
 import { useLoggedInUser } from '../context/UserContext'
-import Image from 'next/image'
 import Link from 'next/link'
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -26,7 +24,7 @@ export default function GroupMessenger({
 	onClose,
 	groupID,
 }: {
-	onClose: Function
+	onClose: (id: number) => void
 	groupID: number
 }) {
 	const [isMinimized, setIsMinimized] = useState(false)
@@ -36,10 +34,10 @@ export default function GroupMessenger({
 	const [messages, setMessages] = useState<GroupMessage[]>([])
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
-	const [subscribe] = useContext(WebSocketContext)
+	const { subscribe } = useContext(WebSocketContext)!
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
-	const onEmojiClick = (emojiObject: any) => {
+	const onEmojiClick = (emojiObject: EmojiClickData) => {
 		setMessageContent((prev) => prev + emojiObject.emoji)
 	}
 
@@ -69,13 +67,16 @@ export default function GroupMessenger({
 				setLatest(msg.sent_at)
 			}
 		},
-		[messages],
+		[groupID],
 	)
 
 	useEffect(() => {
-		const unsub = subscribe(channel, ({ data }: { data: GroupMessage }) => messageReceived(data ))
+		const unsub = subscribe(channel, (payload: unknown) => {
+			const { data } = payload as { data: GroupMessage }
+			messageReceived(data)
+		})
 		return () => unsub()
-	}, [subscribe])
+	}, [subscribe, channel, messageReceived])
 
 	const onSubmit = async (ev: FormEvent) => {
 		ev.preventDefault()
@@ -132,14 +133,14 @@ export default function GroupMessenger({
 		}
 		fetchGroup()
 		fetchMessages()
-	}, [backendUrl])
+	}, [groupID])
 
 	useEffect(() => {
 		if (msgListRef.current != null) {
 			const list = msgListRef.current as HTMLElement
 			list.lastElementChild?.scrollIntoView()
 		}
-	}, [msgListRef.current, latest])
+	}, [msgListRef, latest])
 
 	useEffect(() => {
 		if (!earliest.length) {
@@ -170,7 +171,7 @@ export default function GroupMessenger({
 			}
 		}
 		fetchMessages(earliest)
-	}, [earliest])
+	}, [groupID, messages, earliest])
 
 	useEffect(() => {
 		if (msgScrollDetect.current === null || msgListRef.current === null) {
@@ -199,7 +200,7 @@ export default function GroupMessenger({
 			console.log('unobserving!!!')
 			observer.disconnect()
 		}
-	}, [msgListRef.current, msgScrollDetect.current, messages])
+	}, [msgListRef, msgScrollDetect, messages])
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -315,7 +316,7 @@ export default function GroupMessenger({
 		</div>
 	)
 }
-function MessageBubble({ message, user, isMyUser }: { message: GroupMessage; user: User | undefined, isMyUser: Function }) {
+function MessageBubble({ message, user, isMyUser }: { message: GroupMessage; user: User | undefined, isMyUser: (id: number) => boolean }) {
 	if (user === undefined) {
 		// User info not yet loaded, don't render yet
 		return ''
