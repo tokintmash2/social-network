@@ -25,6 +25,7 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("GET /api/groups/{id}", app.GroupDetailsHandler)
 	r.HandleFunc("GET /api/groups/{group_id}/posts", app.FetchGroupPostsHandler)
 	r.HandleFunc("POST /api/groups/{group_id}/posts", app.GroupPostsHandler)
+	r.HandleFunc("POST /api/groups/{group_id}/posts/{post_id}/comments", app.GroupPostCommentHandler)
 
 	r.HandleFunc("POST /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)
 	r.HandleFunc("PATCH /api/groups/{group_id}/members/{user_id}", app.GroupMembersHandler)

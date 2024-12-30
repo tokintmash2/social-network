@@ -113,6 +113,7 @@ type Comment struct {
 type CommentResponse struct {
 	ID             int            `json:"id"`
 	PostID         int            `json:"post_id"`
+	GroupID        int            `json:"group_id"`
 	UserID         int            `json:"user_id"`
 	Content        string         `json:"content"`
 	Image          *string        `json:"mediaUrl,omitempty"`
