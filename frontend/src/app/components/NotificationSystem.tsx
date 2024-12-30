@@ -1,15 +1,61 @@
-import { useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { Notification } from '../utils/types/notifications'
-import { dummyNotifications } from '../dummyData'
 import NotificationsContainer from '../containers/NotificationsContainer'
+import { channelTypes, WebSocketContext } from './WsContext'
+import axios from 'axios'
+
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 const NotificationSystem = () => {
-	const [notifications] = useState<Notification[]>(dummyNotifications)
-	const [unreadCount] = useState(dummyNotifications.filter((n) => !n.read).length)
+	const [notifications, setNotifications] = useState<Notification[]>([])
+	const [unreadCount, setUnreadCount] = useState(0)
 
-	const handleNotificationClick = (notification: Notification) => {
-		console.log('Notification clicked:', notification)
+	const handleNotificationClick = async (notification: Notification) => {
+		await axios.patch(
+			`${backendUrl}/api/notifications/${encodeURIComponent(notification.id)}`,
+			{},
+			{
+				withCredentials: true,
+			},
+		)
+		setNotifications((p) =>
+			p.map((item) => {
+				if (item.id == notification.id) {
+					item.read = true
+				}
+				return item
+			}),
+		)
 	}
+
+	useEffect(() => {
+		const fetchNotifications = async () => {
+			const response = await axios.get(
+				`${backendUrl}/api/notifications`,
+				{
+					withCredentials: true,
+				},
+			)
+			setNotifications(response.data.notifications)
+		}
+		fetchNotifications()
+	}, [backendUrl])
+
+	const channel = channelTypes.notification()
+	const [subscribe] = useContext(WebSocketContext)
+	const messageReceived = useCallback((msg: Notification) => {
+		setNotifications((p) => [...p, msg])
+	}, [])
+	useEffect(() => {
+		const unsub = subscribe(channel, ({ data }: { data: Notification }) =>
+			messageReceived(data),
+		)
+		return () => unsub()
+	}, [subscribe])
+
+	useEffect(() => {
+		setUnreadCount(notifications.filter((n) => !n.read).length)
+	}, [notifications])
 
 	return (
 		<div className='dropdown dropdown-end'>

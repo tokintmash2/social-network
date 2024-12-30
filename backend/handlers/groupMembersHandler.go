@@ -68,8 +68,8 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		// Send notification to the user & admin
 
 		// Notify admin for approval
+		notifyUsers := []int{adminID}
 		adminNotification := &structs.Notification{
-			Users:     []int{adminID},
 			Type:      "group_member_added",
 			Message:   fmt.Sprintf("User %d wants to add user %d to group", currentUser, userIDtoProcess),
 			Timestamp: time.Now(),
@@ -79,14 +79,14 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		log.Println("Admin notification:", adminNotification)
 
 		// Store notification
-		utils.CreateNotification(adminNotification)
-		
-		// Send WS notification 
-		app.sendWSNotification(adminID, "group_member_added", adminNotification.Message)
+		notifications, _ := utils.CreateNotification(notifyUsers, adminNotification)
+
+		// Send WS notification
+		app.sendWSNotification(notifications)
 
 		// Notify added user that they're pending
+		notifyUsers = []int{userIDtoProcess}
 		userNotification := &structs.Notification{
-			Users:     []int{userIDtoProcess},
 			Type:      "group_member_added",
 			Message:   "Your group membership is pending admin approval",
 			Timestamp: time.Now(),
@@ -94,10 +94,10 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		}
 
 		// Store notification
-		utils.CreateNotification(userNotification)
-		
-		// Send WS notification 
-		app.sendWSNotification(userIDtoProcess, "group_member_added", userNotification.Message)
+		notifications, _ = utils.CreateNotification(notifyUsers, userNotification)
+
+		// Send WS notification
+		app.sendWSNotification(notifications)
 
 		message = "Member added successfully"
 	}
@@ -123,17 +123,17 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
+		notifyUsers := []int{userIDtoProcess}
 		userNotification := &structs.Notification{
-			Users:     []int{userIDtoProcess},
 			Type:      "group_member_approved",
 			Message:   fmt.Sprintf("You've been approved to group %d", groupID),
 			Timestamp: time.Now(),
 			Read:      false,
 		}
-		
+
 		// Store & send notification
-		utils.CreateNotification(userNotification)
-		app.sendWSNotification(userIDtoProcess, "group_member_approved", userNotification.Message)
+		notification, _ := utils.CreateNotification(notifyUsers, userNotification)
+		app.sendWSNotification(notification)
 
 		message = "Member approved successfully"
 	}
@@ -182,27 +182,4 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 	return
-}
-
-func (app *application) sendWSNotification(userID int, notificationType string, message string) {
-	wsMessage := map[string]interface{}{
-        "response_to": "notification",
-        "data": map[string]interface{}{
-            "type":    notificationType,
-            "message": message,
-        },
-    }
-
-    data, err := json.Marshal(wsMessage)
-    if err != nil {
-        app.logger.Error(err.Error())
-        return
-    }
-
-    go func() {
-        app.hub.outgoing <- OutgoingMessage{
-            userID: userID,
-            data:   data,
-        }
-    }()
 }
