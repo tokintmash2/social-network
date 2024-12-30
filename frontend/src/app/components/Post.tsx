@@ -11,6 +11,7 @@ export default function Post({
 	followers,
 	isOwnPost = false,
 	group = false,
+	groupId = undefined,
 }: PostProps_type) {
 	const sanitizedContent = DOMPurify.sanitize(post.content)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
@@ -61,7 +62,13 @@ export default function Post({
 			</div>
 
 			<div className='comments-container mt-4'>
-				<CommentsContainer postId={post.id} comments={post.comments} dispatch={dispatch} />
+				<CommentsContainer
+					postId={post.id}
+					group={group}
+					groupId={groupId}
+					comments={post.comments}
+					dispatch={dispatch}
+				/>
 			</div>
 		</div>
 	)

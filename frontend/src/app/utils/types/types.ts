@@ -80,11 +80,14 @@ export type PostProps_type = {
 	allowedUsers?: Post_type['allowedUsers']
 	isOwnPost: boolean
 	group: boolean
+	groupId?: number | undefined
 }
 
 export type CommentsContainerProps_type = {
 	postId: number
 	comments: Post_type['comments']
+	group: boolean
+	groupId?: number | undefined
 	dispatch: (action: PostsAction_type) => void
 }
 

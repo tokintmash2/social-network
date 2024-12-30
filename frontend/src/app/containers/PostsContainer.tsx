@@ -144,16 +144,16 @@ export default function PostsContainer({
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
-				// Replace groupsPosts endpoint with api/groups/{group_id}/posts when ready
+
 				const fetchUrl = group
-					? `${backendUrl}/api/groups/${groupId}`
+					? `${backendUrl}/api/groups/${groupId}/posts`
 					: `${backendUrl}/api/posts?user_id=${userId}`
 				const response = await axios.get(fetchUrl, {
 					withCredentials: true,
 				})
 				console.log('fetchPosts response', response.data)
 
-				const postsPayload = group ? response.data.group_posts : response.data
+				const postsPayload = group ? response.data.post : response.data
 				dispatch({ type: ACTIONS.SET_POSTS, payload: postsPayload })
 			} catch (err) {
 				dispatch({ type: ACTIONS.SET_ERROR, payload: 'Failed to fetch posts' })
@@ -162,9 +162,8 @@ export default function PostsContainer({
 				dispatch({ type: ACTIONS.SET_LOADING, payload: false })
 			}
 		}
-		if (!group) {
-			fetchPosts()
-		}
+
+		fetchPosts()
 	}, [userId, group, groupId])
 
 	if (state.loading) {
@@ -211,6 +210,7 @@ export default function PostsContainer({
 						key={'post-' + post.id}
 						post={post}
 						group={group}
+						groupId={groupId}
 						dispatch={dispatch}
 						followers={followers}
 						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
