@@ -32,13 +32,14 @@ export function SocialFeatures() {
 	const messageReceived = useCallback(
 		(msg: Message) => {
             setActiveChats((p) => {
+                const isMe = msg.sender_id == loggedInUser?.id
                 const exists = p.some((item) => (item.type == "user" && item.id == msg.sender_id))
-                if (!exists) {
+                if (!exists && !isMe) {
                     return [...p, { type: "user", id: msg.sender_id }]
                 }
                 return p
             })
-        }, [],
+        }, [loggedInUser],
 	)
 	useEffect(() => {
 		const unsub = subscribe(channel, (payload: unknown) => {
