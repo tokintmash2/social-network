@@ -1,49 +1,22 @@
-# # Build stage
-# FROM node:23-alpine3.20 AS builder
-
-# WORKDIR /app
-
-# # Copy package files
-# COPY package*.json ./
-
-# # Install dependencies
-# RUN npm install
-
-# # Copy source code
-# COPY . .
-
-# # Build the application
-# RUN npm run build
-
-# # Final stage
-# FROM node:23-alpine3.20
-
-# WORKDIR /app
-
-# # Copy necessary files from builder
-# COPY --from=builder /app/package*.json ./
-# COPY --from=builder /app/.next ./.next
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/node_modules ./node_modules
-
-# # Start the application
-# CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
-
-FROM node:23-alpine3.20
-
+# Build stage
+FROM node:23-alpine3.20 AS deps
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy source code
+FROM node:23-alpine3.20 AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npm run build
 
-# Expose the port
+FROM node:23-alpine3.20 AS runner
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
 EXPOSE 3000
-
-# Start in development mode
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+CMD ["npm", "start"]
