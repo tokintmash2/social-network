@@ -17,111 +17,17 @@ import { enGB } from 'date-fns/locale/en-GB'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import dynamic from 'next/dynamic'
+import PostsContainer from '@/app/containers/PostsContainer'
+import { ACTIONS } from '../../utils/actions/groupActions'
+import {
+	GroupState_type,
+	GroupActions_type,
+	MembershipRole_type,
+	UserResponse_type,
+	GroupState_default,
+} from '../../utils/types/groupTypes'
 
 const Select = dynamic(() => import('react-select'), { ssr: false })
-const ACTIONS = {
-	SET_GROUP: 'SET_GROUP',
-	SET_GROUP_MEMBERSHIP_ROLE: 'SET_GROUP_MEMBERSHIP_ROLE',
-	SET_USERS: 'SET_USERS',
-	TOGGLE_INVITE_MODAL: 'TOGGLE_INVITE_MODAL',
-
-	SET_LOADING: 'SET_LOADING',
-
-	SET_EVENTS: 'SET_EVENTS',
-	TOGGLE_EVENT_RSVP: 'TOGGLE_EVENT_RSVP',
-	CREATE_EVENT: 'CREATE_EVENT',
-	RSVP: 'RSVP',
-}
-
-type Group_type = {
-	id: number
-	name: string
-	description: string
-	createdAt: string
-	creatorId: number
-	members: { id: number; firstName: string; lastName: string; role: string }[]
-}
-
-type UserBasic_type = {
-	id: number
-	firstName: string
-	lastName: string
-}
-
-type Event_type = {
-	id: number
-	title: string
-	description: string
-	date_time: string
-	group_id: number
-	author: UserBasic_type
-	attendees: UserBasic_type[]
-}
-
-type GroupState_type = {
-	id: Group_type['id']
-	name: Group_type['name']
-	description: Group_type['description']
-	createdAt: Group_type['createdAt']
-	creatorId: Group_type['creatorId']
-	members: Group_type['members']
-	membershipRole: MembershipRole_type
-	loading: boolean
-	users: Group_type['members']
-	showInviteModal: boolean
-	events: Event_type[]
-}
-
-const GroupState_default: GroupState_type = {
-	id: 0,
-	name: '',
-	description: '',
-	createdAt: '',
-	creatorId: 0,
-	members: [],
-	membershipRole: 'NOT_MEMBER',
-	loading: true,
-	users: [],
-	showInviteModal: false,
-	events: [],
-}
-
-type UserResponse = {
-	ID: number
-	FirstName: string
-	LastName: string
-}
-
-type MembershipRole_type = 'NOT_MEMBER' | 'PENDING' | 'MEMBER' | 'ADMIN'
-type GroupActions_type =
-	| {
-			type: typeof ACTIONS.SET_GROUP
-			payload: Group_type
-	  }
-	| {
-			type: typeof ACTIONS.SET_GROUP_MEMBERSHIP_ROLE
-			payload: MembershipRole_type
-	  }
-	| {
-			type: typeof ACTIONS.SET_LOADING
-			payload: boolean
-	  }
-	| {
-			type: typeof ACTIONS.SET_USERS
-			payload: Group_type['members']
-	  }
-	| {
-			type: typeof ACTIONS.TOGGLE_INVITE_MODAL
-			payload: boolean
-	  }
-	| {
-			type: typeof ACTIONS.SET_EVENTS
-			payload: Event_type[]
-	  }
-	| {
-			type: typeof ACTIONS.TOGGLE_EVENT_RSVP
-			payload: { eventId: Event_type['id']; attendeeList: UserBasic_type[] }
-	  }
 
 function reducer(state: GroupState_type, action: GroupActions_type): GroupState_type {
 	switch (action.type) {
@@ -261,6 +167,7 @@ export default function Group() {
 						createdAt: response.data.created_at,
 						creatorId: response.data.creator_id,
 						members: response.data.group_members,
+						posts: response.data.group_posts,
 					},
 				})
 			} catch (error) {
@@ -319,11 +226,11 @@ export default function Group() {
 				if (response.data.success) {
 					const allUsers = response.data.users
 					const nonMembers = allUsers.filter(
-						(user: UserResponse) =>
+						(user: UserResponse_type) =>
 							user.ID !== loggedInUser?.id &&
 							!state.members.some((member) => member.id === user.ID),
 					)
-					const formattedOptions = nonMembers.map((user: UserResponse) => ({
+					const formattedOptions = nonMembers.map((user: UserResponse_type) => ({
 						value: user.ID,
 						label: `${user.FirstName} ${user.LastName}`,
 					}))
@@ -510,141 +417,149 @@ export default function Group() {
 					</div>
 				</div>
 
-				{(state.membershipRole === 'ADMIN' || state.membershipRole === 'MEMBER') && (
-					<>
-						<div className='mb-4'>
-							<div className='flex justify-between'>
-								<div>
-									<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
-										Members
-									</h1>
-									<div className='text-sm text-gray-500 mb-4'>
-										<span className='font-semibold'>Total members:</span>{' '}
-										{
-											state.members.filter(
-												(m) => m.role === 'member' || m.role === 'admin',
-											).length
-										}
+				{(state.membershipRole === 'ADMIN' || state.membershipRole === 'MEMBER') &&
+					!state.loading && (
+						<>
+							<div className='mb-4'>
+								<div className='flex justify-between'>
+									<div>
+										<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
+											Members
+										</h1>
+										<div className='text-sm text-gray-500 mb-4'>
+											<span className='font-semibold'>Total members:</span>{' '}
+											{
+												state.members.filter(
+													(m) =>
+														m.role === 'member' || m.role === 'admin',
+												).length
+											}
+										</div>
+									</div>
+									<div>
+										<button
+											className='btn bg-white'
+											onClick={() => {
+												inviteModalRef.current?.showModal()
+												dispatch({
+													type: ACTIONS.TOGGLE_INVITE_MODAL,
+													payload: true,
+												})
+											}}
+										>
+											<FontAwesomeIcon icon={faPlus} />
+											Invite member
+										</button>
 									</div>
 								</div>
-								<div>
+
+								<div className='bg-base-100 p-6 mb-6 rounded-lg'>
+									{state.members
+										.filter(
+											(member) =>
+												member.role === 'admin' || member.role === 'member',
+										)
+										.map((member) => (
+											<Link
+												key={'member-' + member.id}
+												href={`/profile/${member.id}`}
+												className='link link-hover mr-2 block'
+											>
+												{member.firstName} {member.lastName}{' '}
+												{member.role === 'admin' && (
+													<FontAwesomeIcon icon={faCrown} />
+												)}
+											</Link>
+										))}
+								</div>
+							</div>
+
+							<div className='mb-4'>
+								<div className='flex justify-between'>
+									<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
+										Events
+									</h1>
 									<button
 										className='btn bg-white'
-										onClick={() => {
-											inviteModalRef.current?.showModal()
-											dispatch({
-												type: ACTIONS.TOGGLE_INVITE_MODAL,
-												payload: true,
-											})
-										}}
+										onClick={() => createEventRef.current?.showModal()}
 									>
 										<FontAwesomeIcon icon={faPlus} />
-										Invite member
+										Create new event
 									</button>
 								</div>
-							</div>
 
-							<div className='bg-base-100 p-6 mb-6 rounded-lg'>
-								{state.members
-									.filter(
-										(member) =>
-											member.role === 'admin' || member.role === 'member',
-									)
-									.map((member) => (
-										<Link
-											key={'member-' + member.id}
-											href={`/profile/${member.id}`}
-											className='link link-hover mr-2 block'
+								{state.events?.length > 0 &&
+									state.events.map((event) => (
+										<div
+											key={'event-' + event.id}
+											className='bg-base-100 p-6 mb-6 rounded-lg'
 										>
-											{member.firstName} {member.lastName}{' '}
-											{member.role === 'admin' && (
-												<FontAwesomeIcon icon={faCrown} />
-											)}
-										</Link>
+											<div className='form-control mb-4'>
+												<div className='flex items-center justify-end'>
+													<span className='text-sm text-gray-600 mr-4'>
+														RSVP
+													</span>
+													<input
+														type='checkbox'
+														className='toggle toggle-md toggle-accent'
+														checked={
+															event.attendees?.some(
+																(attendee) =>
+																	attendee.id ===
+																	loggedInUser?.id,
+															) || false
+														}
+														onChange={() => handleRSVPChange(event.id)}
+													/>
+												</div>
+											</div>
+
+											<p>Event title: {event.title}</p>
+											<p>
+												Event description:{' '}
+												<span
+													dangerouslySetInnerHTML={{
+														__html: DOMPurify.sanitize(
+															event.description,
+														),
+													}}
+												></span>
+											</p>
+											<p>Event date: {formatDateTime(event.date_time)}</p>
+											<p>
+												Event author: {event.author.firstName}{' '}
+												{event.author.lastName}
+											</p>
+											<p>
+												Event attendees:{' '}
+												{event.attendees?.length > 0 && (
+													<>
+														{event.attendees.map((attendee) => (
+															<Link
+																key={
+																	'event-' +
+																	event.id +
+																	'-attendee-' +
+																	attendee.id
+																}
+																href={`/profile/${attendee.id}`}
+																className='link link-hover mr-2 block'
+															>
+																{attendee.firstName}{' '}
+																{attendee.lastName}
+															</Link>
+														))}
+													</>
+												)}{' '}
+												{!event.attendees && 'No attendees'}
+											</p>
+										</div>
 									))}
 							</div>
-						</div>
 
-						<div className='mb-4'>
-							<div className='flex justify-between'>
-								<h1 className='text-2xl font-bold text-[#B9D7EA] bg-clip-text mb-6'>
-									Events
-								</h1>
-								<button
-									className='btn bg-white'
-									onClick={() => createEventRef.current?.showModal()}
-								>
-									<FontAwesomeIcon icon={faPlus} />
-									Create new event
-								</button>
-							</div>
-
-							{state.events?.length > 0 &&
-								state.events.map((event) => (
-									<div
-										key={'event-' + event.id}
-										className='bg-base-100 p-6 mb-6 rounded-lg'
-									>
-										<div className='form-control mb-4'>
-											<div className='flex items-center justify-end'>
-												<span className='text-sm text-gray-600 mr-4'>
-													RSVP
-												</span>
-												<input
-													type='checkbox'
-													className='toggle toggle-md toggle-accent'
-													checked={
-														event.attendees?.some(
-															(attendee) =>
-																attendee.id === loggedInUser?.id,
-														) || false
-													}
-													onChange={() => handleRSVPChange(event.id)}
-												/>
-											</div>
-										</div>
-
-										<p>Event title: {event.title}</p>
-										<p>
-											Event description:{' '}
-											<span
-												dangerouslySetInnerHTML={{
-													__html: DOMPurify.sanitize(event.description),
-												}}
-											></span>
-										</p>
-										<p>Event date: {formatDateTime(event.date_time)}</p>
-										<p>
-											Event author: {event.author.firstName}{' '}
-											{event.author.lastName}
-										</p>
-										<p>
-											Event attendees:{' '}
-											{event.attendees?.length > 0 && (
-												<>
-													{event.attendees.map((attendee) => (
-														<Link
-															key={
-																'event-' +
-																event.id +
-																'-attendee-' +
-																attendee.id
-															}
-															href={`/profile/${attendee.id}`}
-															className='link link-hover mr-2 block'
-														>
-															{attendee.firstName} {attendee.lastName}
-														</Link>
-													))}
-												</>
-											)}{' '}
-											{!event.attendees && 'No attendees'}
-										</p>
-									</div>
-								))}
-						</div>
-					</>
-				)}
+							<PostsContainer group={true} groupId={Number(id)} />
+						</>
+					)}
 
 				<dialog ref={inviteModalRef} className='modal'>
 					<div className='modal-box w-11/12 max-w-5xl min-h-96'>

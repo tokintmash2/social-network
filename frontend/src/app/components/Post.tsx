@@ -5,7 +5,14 @@ import DOMPurify from 'dompurify'
 import SetPostPrivacy from './SetPostPrivacy'
 import Image from 'next/image'
 
-export default function Post({ post, dispatch, followers, isOwnPost = false }: PostProps_type) {
+export default function Post({
+	post,
+	dispatch,
+	followers,
+	isOwnPost = false,
+	group = false,
+	groupId = undefined,
+}: PostProps_type) {
 	const sanitizedContent = DOMPurify.sanitize(post.content)
 	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const uploadsUrl = `${backendUrl}/uploads/`
@@ -23,7 +30,7 @@ export default function Post({ post, dispatch, followers, isOwnPost = false }: P
 						{new Date(post.createdAt).toLocaleString()}
 					</p>
 				</div>
-				{isOwnPost && (
+				{isOwnPost && !group && (
 					<SetPostPrivacy
 						postId={post.id}
 						initialPrivacy={post.privacy}
@@ -55,7 +62,13 @@ export default function Post({ post, dispatch, followers, isOwnPost = false }: P
 			</div>
 
 			<div className='comments-container mt-4'>
-				<CommentsContainer postId={post.id} comments={post.comments} dispatch={dispatch} />
+				<CommentsContainer
+					postId={post.id}
+					group={group}
+					groupId={groupId}
+					comments={post.comments}
+					dispatch={dispatch}
+				/>
 			</div>
 		</div>
 	)

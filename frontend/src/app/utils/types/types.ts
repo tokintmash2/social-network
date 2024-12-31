@@ -66,7 +66,10 @@ export type PostsAction_type =
 export type PostsContainerProps_type = {
 	userId?: number
 	feed?: boolean
+	group?: boolean
 	isOwnProfile?: boolean
+	followers?: Follower_type[]
+	groupId?: number | undefined
 }
 
 // Define the props's type for Post component
@@ -76,11 +79,15 @@ export type PostProps_type = {
 	followers?: Follower_type[]
 	allowedUsers?: Post_type['allowedUsers']
 	isOwnPost: boolean
+	group: boolean
+	groupId?: number | undefined
 }
 
 export type CommentsContainerProps_type = {
 	postId: number
 	comments: Post_type['comments']
+	group: boolean
+	groupId?: number | undefined
 	dispatch: (action: PostsAction_type) => void
 }
 

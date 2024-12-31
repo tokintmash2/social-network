@@ -5,7 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import CreateComment from '../components/CreateComment'
 
-function CommentsContainer({ postId, comments, dispatch }: CommentsContainerProps_type) {
+function CommentsContainer({
+	postId,
+	comments,
+	group = false,
+	groupId = undefined,
+	dispatch,
+}: CommentsContainerProps_type) {
 	const [showComments, setShowComments] = useState(false)
 
 	const handleToggleShowComments = () => {
@@ -13,7 +19,7 @@ function CommentsContainer({ postId, comments, dispatch }: CommentsContainerProp
 	}
 	return (
 		<>
-			<CreateComment postId={postId} dispatch={dispatch} />
+			<CreateComment postId={postId} group={group} groupId={groupId} dispatch={dispatch} />
 			<div className='link link-hover' onClick={handleToggleShowComments}>
 				{showComments ? (
 					<FontAwesomeIcon icon={faAngleUp} />

@@ -1,0 +1,4 @@
+export const ACTIONS = {
+	SET_GROUPS: 'SET_GROUPS',
+	CREATE_GROUP: 'CREATE_GROUP',
+}

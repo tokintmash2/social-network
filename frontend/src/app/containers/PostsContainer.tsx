@@ -8,7 +8,6 @@ import {
 	PostsContainerProps_type,
 	PostsAction_type,
 	PostsState_type,
-	Follower_type,
 } from '../utils/types/types'
 import { useLoggedInUser } from '../context/UserContext'
 import { ACTIONS } from '../utils/actions/postActions'
@@ -21,9 +20,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 		case ACTIONS.SET_POSTS:
 			console.log('ACTIONS.SET_POSTS payload', action.payload)
 			if (Array.isArray(action.payload)) {
-				console.log('action.payload', action.payload)
-
-				return { ...state, posts: [...state.posts, ...action.payload] }
+				return { ...state, posts: action.payload }
 			} else if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -36,10 +33,7 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			throw new Error('Invalid payload for SET_POSTS')
 
 		case ACTIONS.CREATE_POST:
-			console.log('ACTIONS.CREATE_POST payload', action.payload)
 			if (Array.isArray(action.payload)) {
-				console.log('action.payload', action.payload)
-
 				return { ...state, posts: [...action.payload, ...state.posts] }
 			} else if (
 				action.payload &&
@@ -85,7 +79,6 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			}
 			throw new Error('Invalid payload for SET_POST_PRIVACY')
 		case ACTIONS.ADD_COMMENT:
-			console.log('action.payload', action.payload)
 			if (
 				action.payload &&
 				typeof action.payload === 'object' &&
@@ -134,17 +127,14 @@ function reducer(state: PostsState_type, action: PostsAction_type): PostsState_t
 			return state
 	}
 }
-// todo: fetch only when feed or when isOwnProfile
-export const dummyFollowers: Follower_type[] = [
-	{ id: 1, firstName: 'John', lastName: 'Doe' },
-	{ id: 2, firstName: 'Jane', lastName: 'Smith' },
-	{ id: 3, firstName: 'Alice', lastName: 'Johnson' },
-]
 
 export default function PostsContainer({
 	userId,
 	feed = false,
+	group = false,
+	groupId = undefined,
 	isOwnProfile = false,
+	followers = [],
 }: PostsContainerProps_type) {
 	const { loggedInUser } = useLoggedInUser()
 
@@ -154,11 +144,17 @@ export default function PostsContainer({
 		const fetchPosts = async () => {
 			try {
 				dispatch({ type: ACTIONS.SET_LOADING, payload: true })
-				const response = await axios.get(`${backendUrl}/api/posts?user_id=${userId}`, {
+
+				const fetchUrl = group
+					? `${backendUrl}/api/groups/${groupId}/posts`
+					: `${backendUrl}/api/posts?user_id=${userId}`
+				const response = await axios.get(fetchUrl, {
 					withCredentials: true,
 				})
-				console.log('response', response.data)
-				dispatch({ type: ACTIONS.SET_POSTS, payload: response.data })
+				console.log('fetchPosts response', response.data)
+
+				const postsPayload = group ? response.data.post : response.data
+				dispatch({ type: ACTIONS.SET_POSTS, payload: postsPayload })
 			} catch (err) {
 				dispatch({ type: ACTIONS.SET_ERROR, payload: 'Failed to fetch posts' })
 				console.error(err)
@@ -166,27 +162,9 @@ export default function PostsContainer({
 				dispatch({ type: ACTIONS.SET_LOADING, payload: false })
 			}
 		}
-		fetchPosts()
-	}, [userId, feed])
 
-	useEffect(() => {
-		if ((feed || isOwnProfile) && loggedInUser) {
-			const fetchFollowers = async () => {
-				try {
-					const response = await axios.get(
-						`${backendUrl}/api/users/${loggedInUser.id}/followers`,
-						{
-							withCredentials: true,
-						},
-					)
-					console.log('fetchFollowers response', response.data)
-				} catch (error) {
-					console.log(error)
-				}
-			}
-			fetchFollowers()
-		}
-	}, [feed, isOwnProfile, loggedInUser])
+		fetchPosts()
+	}, [userId, group, groupId])
 
 	if (state.loading) {
 		return <div>Loading...</div>
@@ -206,8 +184,13 @@ export default function PostsContainer({
 
 	return (
 		<div className='mb-4'>
-			{(isOwnProfile || feed) && (
-				<CreatePost followers={dummyFollowers || []} dispatch={dispatch} />
+			{(isOwnProfile || feed || group) && (
+				<CreatePost
+					followers={followers || []}
+					dispatch={dispatch}
+					group={group}
+					groupId={groupId}
+				/>
 			)}
 
 			{/* Header */}
@@ -226,8 +209,10 @@ export default function PostsContainer({
 					<Post
 						key={'post-' + post.id}
 						post={post}
+						group={group}
+						groupId={groupId}
 						dispatch={dispatch}
-						followers={dummyFollowers}
+						followers={followers}
 						isOwnPost={loggedInUser ? post.author.id === loggedInUser.id : false}
 					/>
 				))}

@@ -12,9 +12,13 @@ import { PostsAction_type } from '../utils/types/types'
 function CreatePost({
 	followers = [],
 	dispatch,
+	group = false,
+	groupId = undefined,
 }: {
 	followers: { id: number; firstName: string; lastName: string }[]
 	dispatch: (action: PostsAction_type) => void
+	group: boolean
+	groupId?: number | undefined
 }) {
 	const [newPost, setNewPost] = useState<{ title: string; content: string; media: File | null }>({
 		title: '',
@@ -90,7 +94,10 @@ function CreatePost({
 				withCredentials: true,
 			})
 
-			const response = await axios.post(`${backendUrl}/api/posts`, formData, {
+			const postUrl = group
+				? `${backendUrl}/api/groups/${groupId}/posts`
+				: `${backendUrl}/api/posts`
+			const response = await axios.post(postUrl, formData, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'multipart/form-data',
@@ -127,14 +134,17 @@ function CreatePost({
 				<>
 					<Toaster />
 				</>
-				<div className='flex justify-end'>
-					<SetPostPrivacy
-						followers={followers || []}
-						dispatch={dispatch}
-						setNewPostPrivacy={setPrivacy}
-						setNewPostAllowedUsers={setAllowedUsers}
-					/>
-				</div>
+				{!group && (
+					<div className='flex justify-end'>
+						<SetPostPrivacy
+							followers={followers || []}
+							dispatch={dispatch}
+							setNewPostPrivacy={setPrivacy}
+							setNewPostAllowedUsers={setAllowedUsers}
+						/>
+					</div>
+				)}
+
 				<input
 					type='text'
 					placeholder='Title'
