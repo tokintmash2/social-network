@@ -58,11 +58,16 @@ func UpdatePostAccess(postID, userID int, privacy string, allowedUsers []int) er
         SELECT user_id 
         FROM posts 
         WHERE post_id = ?`, postID).Scan(&ownerID)
+	if err != nil {
+		log.Printf("Error fetching post owner: %v", err)
+		return err
+	}
 
 	log.Printf("Post %d is owned by user %d, update requested by user %d", postID, ownerID, userID)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
+		log.Printf("Error starting transaction %v", err)
 		return err
 	}
 	defer tx.Rollback()
@@ -73,12 +78,13 @@ func UpdatePostAccess(postID, userID int, privacy string, allowedUsers []int) er
 	WHERE post_id = ? AND user_id = ?`,
 		privacy, postID, userID)
 	if err != nil {
+		log.Printf("Error updating post privacy: %v", err)
 		return err
 	}
 
-	result, err := tx.Exec(`UPDATE posts...`)
-	rowsAffected, _ := result.RowsAffected()
-	log.Printf("Update affected %d rows", rowsAffected)
+	// result, err := tx.Exec(`UPDATE posts...`)
+	// rowsAffected, _ := result.RowsAffected()
+	// log.Printf("Update affected %d rows", rowsAffected)
 
 	// Delete existing post_access entries
 	_, err = tx.Exec(`
@@ -88,9 +94,9 @@ func UpdatePostAccess(postID, userID int, privacy string, allowedUsers []int) er
 		return err
 	}
 
-	result, err = tx.Exec(`DELETE FROM post_access...`)
-	rowsAffected, _ = result.RowsAffected()
-	log.Printf("Delete affected %d rows", rowsAffected)
+	// result, err = tx.Exec(`DELETE FROM post_access...`)
+	// rowsAffected, _ = result.RowsAffected()
+	// log.Printf("Delete affected %d rows", rowsAffected)
 
 	// Insert new post_access entries
 	if len(allowedUsers) > 0 {
