@@ -79,7 +79,7 @@ function CreateComment({
 					'Content-Type': 'multipart/form-data',
 				},
 			})
-
+			console.log('create new comment posturl', postUrl)
 			const newComment = response.data.comment
 			console.log({
 				postId,
@@ -96,25 +96,27 @@ function CreateComment({
 				},
 			})
 
-			console.log('new Comment', newComment)
+			console.log('create new comment Response', response)
 
-			dispatch({
-				type: ACTIONS.ADD_COMMENT,
-				payload: {
-					postId,
-					comment: {
-						id: newComment.id,
-						content: newComment.content,
-						mediaUrl: newComment.mediaUrl,
-						createdAt: new Date(newComment.created_at),
-						author: {
-							id: newComment.user_id,
-							firstName: newComment.author?.firstName || 'Annonymous',
-							lastName: newComment.author?.lastName || '',
+			if (response.data.success) {
+				dispatch({
+					type: ACTIONS.ADD_COMMENT,
+					payload: {
+						postId,
+						comment: {
+							id: newComment.id,
+							content: newComment.content,
+							mediaUrl: newComment.mediaUrl,
+							createdAt: new Date(newComment.created_at),
+							author: {
+								id: newComment.user_id,
+								firstName: newComment.author?.firstName || 'Annonymous',
+								lastName: newComment.author?.lastName || '',
+							},
 						},
 					},
-				},
-			})
+				})
+			}
 
 			setComment({ content: '', mediaUrl: null }) // Reset comment
 			setImagePreview(null) // Remove preview
