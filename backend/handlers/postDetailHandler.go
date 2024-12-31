@@ -71,13 +71,16 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var postUpdate structs.PostResponse
+	postUpdate := structs.PostResponse{}
+	postPrivacyChangeResponse := structs.PostPrivacyChangeResponse{}
 
 	postID, err := utils.FetchIdFromPath(r.URL.Path, 2)
 	if err != nil {
 		http.Error(w, "Error fetching post ID", http.StatusBadRequest)
 		return
 	}
+
+	log.Println("UpdatePostHandler | Post ID in the handler:", postID)
 
 	err = json.NewDecoder(r.Body).Decode(&postUpdate)
 	if err != nil {
@@ -89,7 +92,7 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
 	}
 
-	log.Println("postUpdate:", postUpdate)
+	log.Printf("Received privacy update request - Post ID: %d, Privacy: %s, Allowed Users: %v", postID, postUpdate.Privacy, postUpdate.AllowedUsers)
 
 	// if postUpdate.Privacy == "private" {
 	// 	postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
@@ -109,11 +112,15 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 	// utils.UpdatePost(postID, postUpdate)
 
 	// utils.SetPostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
-	utils.UpdatePostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+	updateErr := utils.UpdatePostAccess(postID, userID, postUpdate.Privacy, postUpdate.AllowedUsers)
+	if updateErr != nil {
+		http.Error(w, "Updates were unable to be made", http.StatusBadRequest)
+		return
+	}
 
 	response := map[string]interface{}{
 		"success": true,
-		"message": "Post updated successfully",
+		"update":  postPrivacyChangeResponse,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
