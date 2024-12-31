@@ -73,6 +73,9 @@ export default function Messenger({
 		ev.preventDefault()
 		const form = ev.target as HTMLFormElement
 		const text = form.messageContent.value.trim()
+		if (!text.length) {
+			return
+		}
 		const res = await axios.post(
 			`${backendUrl}/api/chat`,
 			{
@@ -94,6 +97,7 @@ export default function Messenger({
 	const submitOnEnter = (ev: KeyboardEvent) => {
 		if (ev.key == 'Enter' && !ev.shiftKey) {
 			ev.preventDefault()
+			ev.stopPropagation()
 			const form = (ev.target as HTMLTextAreaElement).form
 			form?.requestSubmit()
 		}
@@ -112,6 +116,12 @@ export default function Messenger({
 			}
 			if (response.data.data.messages) {
 				setMessages(response.data.data.messages)
+				// Find the latest timestamp
+				setLatest(response.data.data.messages.reduce(
+					(acc: string, val: { sent_at: string }) => (
+						val.sent_at > acc ? val.sent_at : acc
+					), ""
+				))
 			}
 		}
 		fetchMessages()
@@ -168,7 +178,7 @@ export default function Messenger({
 		}
 
 		const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-			console.log('intesection callback called')
+			console.log('intersection callback called')
 			if (!entries[0].isIntersecting) {
 				return
 			}
@@ -293,7 +303,7 @@ export default function Messenger({
 								className='textarea textarea-bordered w-full min-h-[40px] resize-none'
 								value={messageContent}
 								name='messageContent'
-								onKeyUp={submitOnEnter}
+								onKeyDown={submitOnEnter}
 								onChange={(e) => setMessageContent(e.target.value)}
 							/>
 							<button
@@ -327,7 +337,9 @@ function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: (id:
 					</div>
 				</div>
 			</div>
-			<div className='chat-bubble'>{message.message}</div>
+			<div className='chat-bubble'>
+				<div className='whitespace-pre-line	overflow-hidden'>{message.message}</div>
+			</div>
 		</div>
 	)
 }
