@@ -88,6 +88,8 @@ func UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	postUpdate.Privacy = strings.ToLower(postUpdate.Privacy)
+
 	if postUpdate.Privacy == "private" {
 		postUpdate.AllowedUsers, _ = utils.GetFollowers(userID)
 	}
