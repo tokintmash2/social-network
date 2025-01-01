@@ -13,8 +13,8 @@ docker-compose stop
 # Restart stopped containers
 docker-compose start
 
-# Stop and remove containers and networks
-docker-compose -f docker-compose.yaml down
+# Stop and remove images, containers and networks
+docker-compose -f docker-compose.yaml down --rmi all
 ```
 
 ## Setup
