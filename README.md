@@ -86,6 +86,8 @@ This project is licensed under the MIT License. See the [LICENSE](https://openso
 
 ### Authors:
 
-Miikael Volkonski | Discord: tokintmash
-
+Imbi Haljasorg | Discord: imbira
+Kadri Kängsep | Discord: kadrika
+Liis Eiland | Discord: liiseiland
 Liina-Maria Bakhoff | Discord: liinabakhoff
+Miikael Volkonski | Discord: tokintmash
