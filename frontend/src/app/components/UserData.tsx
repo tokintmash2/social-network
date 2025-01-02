@@ -101,7 +101,6 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			console.error('Error toggling privacy:', error)
 		}
 	}
-	const accessType = 'PUBLIC'
 
 	const getFollowButtonText = () => {
 		if (myFollowStatus === 'following') {
@@ -149,24 +148,22 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 							null,
 							{ withCredentials: true },
 						)
-						console.log(response)
+
+						console.log('handleChangeFollowButtonClick response', response)
 						if (response.data.success) {
-							console.log('handleChangeFollowButtonClick response', response)
-							if (response.data.success) {
-								setMyFollowStatus('following')
-								setFollowData((prevFollowData) => ({
-									...prevFollowData,
-									followers: [
-										...prevFollowData.followers,
-										{
-											id: loggedInUser.id,
-											firstName: loggedInUser.firstName,
-											lastName: loggedInUser.lastName,
-											status: 'accepted',
-										},
-									],
-								}))
-							}
+							setMyFollowStatus('following')
+							setFollowData((prevFollowData) => ({
+								...prevFollowData,
+								followers: [
+									...prevFollowData.followers,
+									{
+										id: loggedInUser.id,
+										firstName: loggedInUser.firstName,
+										lastName: loggedInUser.lastName,
+										status: userData?.isPublic ? 'accepted' : 'pending',
+									},
+								],
+							}))
 						}
 					} catch (error) {
 						console.log(`Error following user ${userId}`, error)
@@ -241,29 +238,38 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								</div>
 							</div>
 							{/* Follow Stats */}
-							{accessType == 'PUBLIC' ? (
-								<div className='absolute bottom-8 left-8 flex gap-6 text-white'>
-									<div>
-										<span className='font-semibold'>
-											{followData.following.length}
-										</span>
-										<span className='ml-2'>Following</span>
-									</div>
-									<div>
-										<span className='font-semibold'>
-											{followData.followers.length > 0
-												? followData.followers.filter(
-														(follower) =>
-															follower.status === 'accepted',
-													).length
-												: 0}
-										</span>
-										<span className='ml-2'>Followers</span>
-									</div>
+
+							<div className='absolute bottom-8 left-8  text-white'>
+								<div className='block'>
+									{userData.isPublic ? 'Public profile' : 'Private profile'}
 								</div>
-							) : (
-								''
-							)}
+
+								{userData.isPublic ||
+								isOwnProfile ||
+								myFollowStatus === 'following' ? (
+									<div className='flex gap-6'>
+										<div>
+											<span className='font-semibold'>
+												{followData.following.length}
+											</span>
+											<span className='ml-2'>Following</span>
+										</div>
+										<div>
+											<span className='font-semibold'>
+												{followData.followers.length > 0
+													? followData.followers.filter(
+															(follower) =>
+																follower.status === 'accepted',
+														).length
+													: 0}
+											</span>
+											<span className='ml-2'>Followers</span>
+										</div>
+									</div>
+								) : (
+									''
+								)}
+							</div>
 						</div>
 						{/* Profile Info Card */}
 						<div className='w-full bg-white rounded-lg shadow-sm p-6 mt-8'>
@@ -296,13 +302,18 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 							)}
 							{/* User Info */}
 							<div className='profile-info text-gray-700'>
-								{userData.dob && (
-									<p className='text-sm mb-2'>
-										<span className='font-semibold'>Date of birth:</span>{' '}
-										{formatDate(userData.dob)}
-									</p>
-								)}
-								{accessType == 'PUBLIC' ? (
+								{(userData.isPublic ||
+									isOwnProfile ||
+									myFollowStatus === 'following') &&
+									userData.dob && (
+										<p className='text-sm mb-2'>
+											<span className='font-semibold'>Date of birth:</span>{' '}
+											{formatDate(userData.dob)}
+										</p>
+									)}
+								{userData.isPublic ||
+								isOwnProfile ||
+								myFollowStatus === 'following' ? (
 									<>
 										<p className='text-sm mb-2'>
 											<span className='font-semibold'>Email:</span>{' '}
@@ -321,14 +332,18 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 							</div>
 						</div>
 						{/* Posts Container */}
-						<div className='mt-8'>
-							<PostsContainer
-								userId={userData.id}
-								isOwnProfile={isOwnProfile}
-								feed={false}
-								followers={followData.followers}
-							/>
-						</div>
+						{userData.isPublic ||
+							isOwnProfile ||
+							(myFollowStatus === 'following' && (
+								<div className='mt-8'>
+									<PostsContainer
+										userId={userData.id}
+										isOwnProfile={isOwnProfile}
+										feed={false}
+										followers={followData.followers}
+									/>
+								</div>
+							))}
 					</div>
 				</>
 			) : (
