@@ -17,14 +17,14 @@ const Notification = ({ notification, onClick }: NotificationProps) => {
 			{ withCredentials: true },
 		);
 		onClick()
-	}, [])
+	}, [onClick])
 	const denyGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
 		await axios.delete(
 			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
 			{ withCredentials: true },
 		);
 		onClick()
-	}, [])
+	}, [onClick])
 
 	const renderActionButtons = () => {
 		switch (notification.type) {
