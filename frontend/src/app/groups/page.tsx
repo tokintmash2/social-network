@@ -24,6 +24,7 @@ function reducer(state: GroupsState_type, action: GroupsActions_type): GroupsSta
 				throw new Error('Invalid payload for SET_POSTS')
 			}
 		case ACTIONS.CREATE_GROUP:
+			console.log('CREATE_GROUP payload', action.payload)
 			if (
 				typeof action.payload === 'object' &&
 				'id' in action.payload &&
@@ -32,6 +33,7 @@ function reducer(state: GroupsState_type, action: GroupsActions_type): GroupsSta
 				'createdAt' in action.payload &&
 				'creatorId' in action.payload
 			) {
+				console.log('CREATE_GROUP payload OK, setting new state')
 				return { ...state, groups: [...state.groups, action.payload] }
 			}
 		default:
@@ -111,7 +113,7 @@ export default function GroupsList() {
 				dispatch({
 					type: ACTIONS.CREATE_GROUP,
 					payload: {
-						id: response.data.group.ID,
+						id: response.data.group.id,
 						name: response.data.group.group_name,
 						description: response.data.group.group_description,
 						creatorId: response.data.group.creator_id,
