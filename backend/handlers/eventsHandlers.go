@@ -141,6 +141,9 @@ func (app *application) FetchGroupEventsHandler(w http.ResponseWriter, r *http.R
 	groupID, _ := strconv.Atoi(pathParts[0])
 
 	events := utils.FetchGroupEvents(groupID)
+	if events == nil {
+		events = []structs.Event{}
+	}
 
 	response := map[string]interface{}{
 		"success": true,
