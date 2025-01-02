@@ -22,8 +22,8 @@ func CreateNotification(users []int, notification *structs.Notification) ([]stru
 	defer tx.Rollback() // Will be ignored if tx.Commit() is called
 
 	stmt, err := tx.Prepare(`
-        INSERT INTO notifications (user_id, type, message, created_at, seen_status)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO notifications (user_id, type, message, created_at, seen_status, extra)
+        VALUES (?, ?, ?, ?, ?, ?)
 		RETURNING notification_id
     `)
 
@@ -42,6 +42,7 @@ func CreateNotification(users []int, notification *structs.Notification) ([]stru
 			notification.Message,
 			notification.Timestamp,
 			notification.Read,
+			notification.Extra,
 		).Scan(&ID)
 
 		if err != nil {
@@ -56,7 +57,7 @@ func CreateNotification(users []int, notification *structs.Notification) ([]stru
 	}
 
 	query, args := buildInQuery(`
-	SELECT notification_id, user_id, type, message, created_at, seen_status
+	SELECT notification_id, user_id, type, message, created_at, seen_status, extra
 	FROM notifications
 	WHERE notification_id IN (%s)
 	`, notificationIDs)
@@ -77,7 +78,9 @@ func CreateNotification(users []int, notification *structs.Notification) ([]stru
 			&notification.Type,
 			&notification.Message,
 			&notification.Timestamp,
-			&notification.Read)
+			&notification.Read,
+			&notification.Extra,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +103,7 @@ func buildInQuery(query string, args []int) (string, []interface{}) {
 func FetchNotifications(userID int) ([]structs.Notification, error) {
 
 	rows, err := database.DB.Query(`
-        SELECT notification_id, user_id, type, message, created_at, seen_status
+        SELECT notification_id, user_id, type, message, created_at, seen_status, extra
         FROM notifications
         WHERE user_id = ? AND seen_status = 0
         ORDER BY created_at DESC
@@ -120,7 +123,9 @@ func FetchNotifications(userID int) ([]structs.Notification, error) {
 			&notification.Type,
 			&notification.Message,
 			&notification.Timestamp,
-			&notification.Read)
+			&notification.Read,
+			&notification.Extra,
+		)
 		if err != nil {
 			return nil, err
 		}

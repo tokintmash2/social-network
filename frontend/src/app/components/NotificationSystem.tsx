@@ -22,6 +22,8 @@ const NotificationSystem = () => {
 			p.map((item) => {
 				if (item.id == notification.id) {
 					item.read = true
+					// Remove the actionable extra info part when read
+					delete item.extra
 				}
 				return item
 			}),

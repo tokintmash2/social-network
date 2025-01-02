@@ -5,5 +5,6 @@ CREATE TABLE notifications (
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     seen_status BOOLEAN DEFAULT FALSE,
+    extra TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

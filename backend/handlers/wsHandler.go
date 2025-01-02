@@ -5,6 +5,17 @@ import (
 	"log/slog"
 )
 
+func actionData(action string, data interface{}) ([]byte, error) {
+	res, err := json.Marshal(envelope{
+		"response_to": action,
+		"data":        data,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func responseData(ctx MessageContext, data interface{}) ([]byte, error) {
 	res, err := json.Marshal(envelope{
 		"response_to": ctx.Action,

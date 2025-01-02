@@ -1,28 +1,52 @@
+import { useCallback } from 'react'
 import { Notification as NotificationType } from '../utils/types/notifications'
+import axios from 'axios'
 
 type NotificationProps = {
 	notification: NotificationType
 	onClick: () => void
 }
 
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
+
 const Notification = ({ notification, onClick }: NotificationProps) => {
+	const acceptGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
+		await axios.patch(
+			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
+			{},
+			{ withCredentials: true },
+		);
+		onClick()
+	}, [])
+	const denyGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
+		await axios.delete(
+			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
+			{ withCredentials: true },
+		);
+		onClick()
+	}, [])
+
 	const renderActionButtons = () => {
-		switch (notification.requestType) {
-			case 'friend':
+		switch (notification.type) {
+			case 'friend_request':
 				return (
 					<div className='flex gap-4 mt-2 items-center'>
 						<button className='btn btn-xs btn-success'>Accept</button>
 						<button className='btn btn-xs btn-ghost'>Delete</button>
 					</div>
 				)
-			case 'group':
+			case 'group_member_added':
+				if (!notification.extra) {
+					return;
+				}
+				const extra = JSON.parse(notification.extra)
 				return (
 					<div className='flex gap-4 mt-2 items-center'>
-						<button className='btn btn-xs btn-success'>Accept</button>
-						<button className='btn btn-xs btn-ghost'>Delete</button>
+						<button onClick={() => acceptGroupMember(extra)} className='btn btn-xs btn-success'>Accept</button>
+						<button onClick={() => denyGroupMember(extra)} className='btn btn-xs btn-ghost'>Deny</button>
 					</div>
 				)
-			case 'event':
+			case 'event_request':
 				return (
 					<div className='flex gap-4 mt-2 items-center'>
 						<button className='btn btn-xs btn-success'>Going</button>

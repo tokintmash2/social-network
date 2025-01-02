@@ -70,7 +70,7 @@ VALUES (3, 2, "member", "2024-12-12 15:05:49.419539+02:00");
 
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
-VALUES (4, 3, "admin", "2024-12-12 15:05:49.419539+02:00");
+VALUES (4, 1, "admin", "2024-12-12 15:05:49.419539+02:00");
 
 INSERT INTO group_memberships (group_id, user_id, role, joined_at) 
 VALUES (4, 4, "member", "2024-12-12 15:05:49.419539+02:00");

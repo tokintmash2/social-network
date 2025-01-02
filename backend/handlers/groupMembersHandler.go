@@ -65,15 +65,33 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
+		groupDetails, _ := utils.FetchGroupDetails(groupID)
+		userDetails, _ := utils.GetUserProfile(userIDtoProcess)
+
+		message := fmt.Sprintf(
+			"User %s wants to add user %d to group %s",
+			userDetails.GetFriendlyName(),
+			userIDtoProcess,
+			groupDetails.Name,
+		)
+		if currentUser == userIDtoProcess {
+			message = fmt.Sprintf(
+				"User %s wants to join your group %s",
+				userDetails.GetFriendlyName(),
+				groupDetails.Name,
+			)
+		}
+
 		// Send notification to the user & admin
 
 		// Notify admin for approval
 		notifyUsers := []int{adminID}
 		adminNotification := &structs.Notification{
 			Type:      "group_member_added",
-			Message:   fmt.Sprintf("User %d wants to add user %d to group", currentUser, userIDtoProcess),
+			Message:   message,
 			Timestamp: time.Now(),
 			Read:      false,
+			Extra:     fmt.Sprintf(`{"group_id":%d,"user_id":%d}`, groupID, userIDtoProcess),
 		}
 
 		log.Println("Admin notification:", adminNotification)
@@ -87,8 +105,11 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		// Notify added user that they're pending
 		notifyUsers = []int{userIDtoProcess}
 		userNotification := &structs.Notification{
-			Type:      "group_member_added",
-			Message:   "Your group membership is pending admin approval",
+			Type: "group_member_added",
+			Message: fmt.Sprintf(
+				"Your group membership to %s is pending approval",
+				groupDetails.Name,
+			),
 			Timestamp: time.Now(),
 			Read:      false,
 		}

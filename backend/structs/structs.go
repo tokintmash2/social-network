@@ -17,6 +17,13 @@ type User struct {
 	// Gender    string
 }
 
+func (u User) GetFriendlyName() string {
+	if u.Username != "" {
+		return u.Username
+	}
+	return u.FirstName + " " + u.LastName
+}
+
 type UserBasic struct {
 	ID        int
 	FirstName string
@@ -151,6 +158,7 @@ type Notification struct {
 	Message   string      `json:"message"`
 	Timestamp time.Time   `json:"timestamp"`
 	Read      bool        `json:"read"`
+	Extra     string      `json:"extra"`
 	Event     interface{} `json:"event,omitempty"`
 	// LinkTo    string    `json:"linkTo"`
 }
