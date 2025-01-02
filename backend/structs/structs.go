@@ -101,6 +101,12 @@ type PostResponse struct {
 	GroupID      int               `json:"group_id"`
 }
 
+type PostPrivacyChangeResponse struct {
+	PostID       int    `json:"post_id"`
+	Privacy      string `json:"privacy"`
+	AllowedUsers []int  `json:"allowedUsers,omitempty"`
+}
+
 type Comment struct {
 	ID        int       `json:"id"`
 	PostID    int       `json:"post_id"`

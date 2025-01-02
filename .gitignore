@@ -124,3 +124,6 @@ node_modules
 backend/tests/
 backend/test_posts.sh
 backend/test_groups.sh
+
+# Testing
+backend/tests/
