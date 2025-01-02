@@ -332,18 +332,16 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 							</div>
 						</div>
 						{/* Posts Container */}
-						{userData.isPublic ||
-							isOwnProfile ||
-							(myFollowStatus === 'following' && (
-								<div className='mt-8'>
-									<PostsContainer
-										userId={userData.id}
-										isOwnProfile={isOwnProfile}
-										feed={false}
-										followers={followData.followers}
-									/>
-								</div>
-							))}
+						{(userData.isPublic || isOwnProfile || myFollowStatus === 'following') && (
+							<div className='mt-8'>
+								<PostsContainer
+									userId={userData.id}
+									isOwnProfile={isOwnProfile}
+									feed={false}
+									followers={followData.followers}
+								/>
+							</div>
+						)}
 					</div>
 				</>
 			) : (
