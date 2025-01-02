@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -10,13 +11,10 @@ import (
 )
 
 func HandleFileUpload(r *http.Request, fieldName string, uploadDir string) (string, error) {
-	// err := r.ParseMultipartForm(10 << 20)
-	// if err != nil {
-	// 	return "", err
-	// }
 
 	file, fileHeader, err := r.FormFile(fieldName)
 	if err != nil {
+		log.Println("HandleFileUpload: FormFile error", err)
 		return "", err
 	}
 	defer file.Close()

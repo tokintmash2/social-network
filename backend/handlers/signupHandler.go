@@ -37,7 +37,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	newUser.DOB = dob
 
 	filename, err := utils.HandleFileUpload(r, "avatar", "uploads")
-	if err != nil {
+	if err != nil && err.Error() != "http: no such file" {
 		http.Error(w, "Failed to handle avatar upload", http.StatusInternalServerError)
 		return
 	}

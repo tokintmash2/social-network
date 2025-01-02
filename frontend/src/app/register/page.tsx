@@ -62,10 +62,9 @@ export default function RegisterPage() {
 			formData.append('dob', user.dob?.toISOString().split('T')[0] || '')
 			formData.append('username', user.username || '')
 			formData.append('about', user.about || '')
+			formData.append('avatar', user.avatar || '')
 
-			if (user.avatar) {
-				formData.append('avatar', user.avatar)
-			}
+			console.log('formData', formData)
 
 			const response = await axios.post('http://localhost:8080/register', formData, {
 				headers: {
@@ -75,7 +74,7 @@ export default function RegisterPage() {
 			if (response.data.success) {
 				router.push('/login')
 			}
-		} catch (error: unknown) {
+		} catch (error) {
 			toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
 		} finally {
 			setLoading(false)
