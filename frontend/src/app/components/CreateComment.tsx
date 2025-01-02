@@ -64,11 +64,6 @@ function CreateComment({
 				formData.append('image', comment.mediaUrl)
 			}
 
-			console.log('FormData contents:', Array.from(formData.entries()))
-			console.log('Request headers:', {
-				'Content-Type': 'multipart/form-data',
-				withCredentials: true,
-			})
 			const postUrl = group
 				? `${backendUrl}/api/groups/${groupId}/posts/${postId}/comments`
 				: `${backendUrl}/api/posts/${postId}/comments`
@@ -81,40 +76,26 @@ function CreateComment({
 			})
 
 			const newComment = response.data.comment
-			console.log({
-				postId,
-				comment: {
-					id: newComment.id,
-					content: newComment.content,
-					mediaUrl: newComment.mediaUrl,
-					createdAt: new Date(newComment.created_at),
-					author: {
-						id: newComment.user_id,
-						firstName: newComment.author?.firstName || 'Annonymous',
-						lastName: newComment.author?.lastName || '',
-					},
-				},
-			})
 
-			console.log('new Comment', newComment)
-
-			dispatch({
-				type: ACTIONS.ADD_COMMENT,
-				payload: {
-					postId,
-					comment: {
-						id: newComment.id,
-						content: newComment.content,
-						mediaUrl: newComment.mediaUrl,
-						createdAt: new Date(newComment.created_at),
-						author: {
-							id: newComment.user_id,
-							firstName: newComment.author?.firstName || 'Annonymous',
-							lastName: newComment.author?.lastName || '',
+			if (response.data.success) {
+				dispatch({
+					type: ACTIONS.ADD_COMMENT,
+					payload: {
+						postId,
+						comment: {
+							id: newComment.id,
+							content: newComment.content,
+							mediaUrl: newComment.mediaUrl,
+							createdAt: new Date(newComment.created_at),
+							author: {
+								id: newComment.user_id,
+								firstName: newComment.author?.firstName || 'Annonymous',
+								lastName: newComment.author?.lastName || '',
+							},
 						},
 					},
-				},
-			})
+				})
+			}
 
 			setComment({ content: '', mediaUrl: null }) // Reset comment
 			setImagePreview(null) // Remove preview

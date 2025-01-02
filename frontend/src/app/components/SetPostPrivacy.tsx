@@ -4,6 +4,7 @@ import Select from 'react-select'
 import { ACTIONS } from '../utils/actions/postActions'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGear } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
 
 type PrivacyOption_type = { value: 'PUBLIC' | 'PRIVATE' | 'ALMOST_PRIVATE'; label: string }
 type AllowedUserOption_type = { value: string; label: string }
@@ -39,6 +40,7 @@ function SetPostPrivacy({
 	const [tempAllowedUsers, setTempAllowedUsers] = useState<number[]>(allowedUsers || [])
 	const changePrivacyRef = useRef<HTMLDialogElement | null>(null)
 
+	const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 	const handlePostPrivacyChange = (newPrivacy: PrivacyOption_type['value']) => {
 		setTempPrivacy(newPrivacy)
 		setShowAllowedUsersSelection(newPrivacy === 'ALMOST_PRIVATE')
@@ -51,15 +53,22 @@ function SetPostPrivacy({
 		setAllowedUsers(tempAllowedUsers)
 		if (postId) {
 			console.log(postId, ' sending settings via dispatch')
-			/* 
-			resume when patch endpoint is ready
+
 			try {
-				const response = await axios.(`${backendUrl}/api/posts/${postId}`, {
-					
-				})
-			} catch(error){
+				const response = await axios.patch(
+					`${backendUrl}/api/posts/${postId}`,
+					{
+						privacy: tempPrivacy,
+						allowedUsers: tempAllowedUsers,
+					},
+					{
+						withCredentials: true,
+					},
+				)
+				console.log('patch post privacy response', response)
+			} catch (error) {
 				console.log(error)
-			} */
+			}
 			dispatch({
 				type: ACTIONS.SET_POST_PRIVACY,
 				payload: { postId, privacy: tempPrivacy, allowedUsers: tempAllowedUsers },
@@ -78,14 +87,17 @@ function SetPostPrivacy({
 		setTempAllowedUsers(newAllowedUsers)
 	}
 
-	const getParsedFollowers = () =>
-		followers
-			? followers.map((follower) => ({
-					value: follower.id.toString(),
-					label: `${follower.firstName} ${follower.lastName}`,
-				}))
-			: []
-
+	const getParsedFollowers = () => {
+		console.log('followers', followers)
+		if (followers) {
+			return followers.map((follower) => ({
+				value: follower.id.toString(),
+				label: `${follower.firstName} ${follower.lastName}`,
+			}))
+		} else {
+			return []
+		}
+	}
 	return (
 		<div>
 			<div className='flex items-center'>

@@ -4,13 +4,13 @@ function useWS() {
     const ws: MutableRefObject<WebSocket | null> = useRef(null)
     const channels: MutableRefObject<EventTarget> = useRef(new EventTarget())
 
-    const subscribe = (channel: string, callback: Function) => {
+    const subscribe = (channel: string, callback: (data: unknown) => void) => {
         const listener = (ev: Event) => { callback((ev as CustomEvent).detail) }
         channels.current.addEventListener(channel, listener)
         return () => channels.current.removeEventListener(channel, listener)
     }
 
-    const send = (action: string, data: any) => {
+    const send = (action: string, data: unknown) => {
         const payload = {
             action: action,
             data: data,
@@ -20,10 +20,6 @@ function useWS() {
 
         ws.current?.send(JSON.stringify(payload))
     }
-
-    // FOR DEBUGGING IN DEVTOOLS
-    // @ts-ignore
-    globalThis.ws = { send, subscribe };
 
     useEffect(() => {
         ws.current = new WebSocket("ws://localhost:8080/ws")
@@ -40,7 +36,7 @@ function useWS() {
         }
     })
 
-    return [ subscribe, send ]
+    return { subscribe, send }
 }
 
 export default useWS

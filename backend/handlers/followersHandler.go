@@ -175,7 +175,7 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		followerName.ID = followerProfile.ID
 		followerName.FirstName = followerProfile.FirstName
 		followerName.LastName = followerProfile.LastName
-		followerName.Status,_ = utils.GetFollowStatus(userIDProcessed, followerID)
+		followerName.Status, _ = utils.GetFollowStatus(followerID, userIDProcessed)
 
 		followers = append(followers, followerName)
 	}
@@ -196,8 +196,14 @@ func (app *application) FetchFollowersHandler(w http.ResponseWriter, r *http.Req
 		followedName.ID = followedProfile.ID
 		followedName.FirstName = followedProfile.FirstName
 		followedName.LastName = followedProfile.LastName
-		followedName.Status,_ = utils.GetFollowStatus(followedID, userIDProcessed)
 
+		// followedName.Status,_ = utils.GetFollowStatus(followedID, userIDProcessed)
+
+		followedName.Status, err = utils.GetFollowStatus(userIDProcessed, followedID)
+		if err != nil {
+			log.Printf("%v", err)
+			continue
+		}
 
 		following = append(following, followedName)
 	}

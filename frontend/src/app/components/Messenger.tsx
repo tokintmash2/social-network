@@ -9,7 +9,7 @@ import {
 	useContext,
 	useCallback,
 } from 'react'
-import EmojiPicker from 'emoji-picker-react'
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faWindowMinimize, faPaperPlane, faSmile } from '@fortawesome/free-solid-svg-icons'
 import { Message, User } from '../utils/types/types'
@@ -25,11 +25,9 @@ const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 export default function Messenger({
 	onClose,
 	receiverID,
-	chatIndex,
 }: {
-	onClose: Function
+	onClose: (id: number) => void
 	receiverID: number
-	chatIndex: number
 }) {
 	const [isMinimized, setIsMinimized] = useState(false)
 	const [messageContent, setMessageContent] = useState('')
@@ -37,10 +35,10 @@ export default function Messenger({
 	const [messages, setMessages] = useState<Message[]>([])
 	const [earliest, setEarliest] = useState('')
 	const [latest, setLatest] = useState('')
-	const [subscribe] = useContext(WebSocketContext)
+	const { subscribe } = useContext(WebSocketContext)!
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
-	const onEmojiClick = (emojiObject: any) => {
+	const onEmojiClick = (emojiObject: EmojiClickData) => {
 		setMessageContent((prev) => prev + emojiObject.emoji)
 	}
 
@@ -60,18 +58,24 @@ export default function Messenger({
 				setLatest(msg.sent_at)
 			}
 		},
-		[messages],
+		[receiverID],
 	)
 
 	useEffect(() => {
-		const unsub = subscribe(channel, ({ data }: { data: Message }) => messageReceived(data))
+		const unsub = subscribe(channel, (payload: unknown) => {
+			const { data } = payload as { data: Message }
+			messageReceived(data)
+		})
 		return () => unsub()
-	}, [subscribe])
+	}, [subscribe, channel, messageReceived])
 
 	const onSubmit = async (ev: FormEvent) => {
 		ev.preventDefault()
 		const form = ev.target as HTMLFormElement
 		const text = form.messageContent.value.trim()
+		if (!text.length) {
+			return
+		}
 		const res = await axios.post(
 			`${backendUrl}/api/chat`,
 			{
@@ -93,6 +97,7 @@ export default function Messenger({
 	const submitOnEnter = (ev: KeyboardEvent) => {
 		if (ev.key == 'Enter' && !ev.shiftKey) {
 			ev.preventDefault()
+			ev.stopPropagation()
 			const form = (ev.target as HTMLTextAreaElement).form
 			form?.requestSubmit()
 		}
@@ -106,30 +111,34 @@ export default function Messenger({
 					withCredentials: true,
 				},
 			)
-
 			if (response.data.data.profile) {
 				setUser(mapUserApiResponseToUser(response.data.data.profile))
 			}
 			if (response.data.data.messages) {
 				setMessages(response.data.data.messages)
+				// Find the latest timestamp
+				setLatest(response.data.data.messages.reduce(
+					(acc: string, val: { sent_at: string }) => (
+						val.sent_at > acc ? val.sent_at : acc
+					), ""
+				))
 			}
 		}
 		fetchMessages()
-	}, [backendUrl])
+	}, [receiverID])
 
 	useEffect(() => {
 		if (msgListRef.current != null) {
 			const list = msgListRef.current as HTMLElement
 			list.lastElementChild?.scrollIntoView()
 		}
-	}, [msgListRef.current, latest])
+	}, [msgListRef, latest])
 
 	useEffect(() => {
 		if (!earliest.length) {
 			return
 		}
 		const fetchMessages = async (timestamp: string) => {
-			console.log('before load msg count', messages.length)
 			const response = await axios.get(
 				`${backendUrl}/api/chat/${encodeURIComponent(receiverID)}?timestamp=${encodeURIComponent(timestamp)}`,
 				{
@@ -137,10 +146,11 @@ export default function Messenger({
 				},
 			)
 			if (response.data.data.messages) {
-				const msgs = [...messages, ...response.data.data.messages]
-				msgs.sort((a, b) => (a.sent_at < b.sent_at ? -1 : 1))
-				console.log('after msg count', msgs.length)
-				setMessages(msgs)
+				setMessages((p) => {
+					const msgs = [...p, ...response.data.data.messages]
+					msgs.sort((a, b) => (a.sent_at < b.sent_at ? -1 : 1))
+					return msgs
+				})
 
 				// Scroll back to the element that triggered load more
 				if (msgListRef.current !== null) {
@@ -154,10 +164,8 @@ export default function Messenger({
 				}
 			}
 		}
-
-		console.log('load more! earlier than:', earliest)
 		fetchMessages(earliest)
-	}, [earliest])
+	}, [earliest, receiverID])
 
 	useEffect(() => {
 		if (msgScrollDetect.current === null || msgListRef.current === null) {
@@ -170,7 +178,7 @@ export default function Messenger({
 		}
 
 		const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-			console.log('intesection callback called')
+			console.log('intersection callback called')
 			if (!entries[0].isIntersecting) {
 				return
 			}
@@ -186,7 +194,7 @@ export default function Messenger({
 			console.log('unobserving!!!')
 			observer.disconnect()
 		}
-	}, [msgListRef.current, msgScrollDetect.current, messages])
+	}, [msgListRef, msgScrollDetect, messages])
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -295,7 +303,7 @@ export default function Messenger({
 								className='textarea textarea-bordered w-full min-h-[40px] resize-none'
 								value={messageContent}
 								name='messageContent'
-								onKeyUp={submitOnEnter}
+								onKeyDown={submitOnEnter}
 								onChange={(e) => setMessageContent(e.target.value)}
 							/>
 							<button
@@ -312,7 +320,8 @@ export default function Messenger({
 		</div>
 	)
 }
-function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Function }) {
+
+function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: (id: number) => boolean }) {
 	const bubbleType = isMyUser(message.sender_id) ? 'chat chat-end' : 'chat chat-start'
 	return (
 		<div className={bubbleType} data-timestamp={message.sent_at}>
@@ -328,7 +337,9 @@ function MessageBubble({ message, isMyUser }: { message: Message; isMyUser: Func
 					</div>
 				</div>
 			</div>
-			<div className='chat-bubble'>{message.message}</div>
+			<div className='chat-bubble'>
+				<div className='whitespace-pre-line	overflow-hidden'>{message.message}</div>
+			</div>
 		</div>
 	)
 }

@@ -113,7 +113,7 @@ export type UserBasic_type = {
 	lastName: string
 }
 
-export type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
+// type ProfileAccess = 'SELF' | 'PUBLIC' | 'FOLLOWING' | 'PRIVATE' | 'PRIVATE_PENDING'
 export type UserDataProps_type = {
 	userId: number
 	isOwnProfile: boolean

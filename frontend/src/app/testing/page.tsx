@@ -12,16 +12,19 @@ export default function LoginPage() {
     const channel = channelTypes.echo();
 	const [messages, setMessages] = useState<EchoMessage[]>([])
 
-    const [subscribe, send] = useContext(WebSocketContext)
+    const {subscribe, send} = useContext(WebSocketContext)!
     
     const messageReceived = useCallback((msg: EchoMessage) => {
         setMessages((p) => [...p, msg])
-    }, [messages])
+    }, [])
 
     useEffect(() => {
-        const unsub = subscribe(channel, ({ data }: { data: EchoMessage }) => messageReceived(data))
+        const unsub = subscribe(channel, (payload : unknown) => {
+            const { data } = payload as { data: EchoMessage }
+            messageReceived(data)
+        })
         return () => unsub()
-    }, [subscribe])
+    }, [subscribe, messageReceived, channel])
 
     const onSubmit = async (ev: FormEvent) => {
         ev.preventDefault()

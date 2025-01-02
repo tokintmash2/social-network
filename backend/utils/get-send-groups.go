@@ -187,10 +187,12 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 	posts := []structs.PostResponse{}
 
 	rows, err := database.DB.Query(`
-	SELECT group_post_id, user_id, title, content, image, timestamp
-        FROM group_posts
-        WHERE group_id = ?
-        ORDER BY timestamp DESC`, groupID)
+	SELECT gp.group_post_id, gp.user_id, gp.title, gp.content, gp.image, gp.timestamp,
+		u.first_name, u.last_name
+		FROM group_posts gp
+		JOIN users u ON gp.user_id = u.id
+		WHERE gp.group_id = ?
+		ORDER BY gp.timestamp DESC`, groupID)
 	if err != nil {
 		log.Println("Error fetching group members:", err)
 		return nil, err
@@ -199,12 +201,13 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 
 	for rows.Next() {
 		var post structs.PostResponse
-		err := rows.Scan(&post.ID, &post.Author.ID, &post.Title, &post.Content, &post.MediaURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.Author.ID, &post.Title, &post.Content, &post.MediaURL, &post.CreatedAt,
+			&post.Author.FirstName, &post.Author.LastName)
 		if err != nil {
 			log.Println("Error scanning post:", err)
 			return nil, err
 		}
-		post.Comments, _ = GetGroupPostComments(groupID)
+		post.Comments, _ = GetGroupPostComments(post.ID)
 		posts = append(posts, post)
 	}
 	if err := rows.Err(); err != nil {
@@ -218,10 +221,12 @@ func GetGroupPosts(groupID int) ([]structs.PostResponse, error) {
 func GetGroupPostComments(postID int) ([]structs.CommentResponse, error) {
 	var comments []structs.CommentResponse
 	rows, err := database.DB.Query(`
-	SELECT comment_id, user_id, content, media_url, created_at
-	FROM group_post_comments
-	WHERE group_post_id = ?
-	ORDER BY created_at DESC`, postID)
+        SELECT c.comment_id, c.group_post_id, c.user_id, c.content, c.media_url, c.created_at,
+               u.first_name, u.last_name
+        FROM group_post_comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.group_post_id = ?
+        ORDER BY c.created_at DESC`, postID)
 	if err != nil {
 		log.Println("Error fetching group members:", err)
 		return nil, err
@@ -232,10 +237,13 @@ func GetGroupPostComments(postID int) ([]structs.CommentResponse, error) {
 		var comment structs.CommentResponse
 		err := rows.Scan(
 			&comment.ID,
+			&comment.PostID,
 			&comment.UserID,
 			&comment.Content,
 			&comment.Image,
-			&comment.CreatedAt)
+			&comment.CreatedAt,
+			&comment.AuthorResponse.FirstName,
+			&comment.AuthorResponse.LastName)
 		if err != nil {
 			log.Println("Error scanning comment:", err)
 			return nil, err

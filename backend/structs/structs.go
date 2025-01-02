@@ -101,6 +101,12 @@ type PostResponse struct {
 	GroupID      int               `json:"group_id"`
 }
 
+type PostPrivacyChangeResponse struct {
+	PostID       int    `json:"post_id"`
+	Privacy      string `json:"privacy"`
+	AllowedUsers []int  `json:"allowedUsers,omitempty"`
+}
+
 type Comment struct {
 	ID        int       `json:"id"`
 	PostID    int       `json:"post_id"`
@@ -139,12 +145,13 @@ type PersonResponse struct {
 }
 
 type Notification struct {
-	ID        int       `json:"id"`
-	Users     []int     `json:"user_id"`
-	Type      string    `json:"type"`
-	Message   string    `json:"message"`
-	Timestamp time.Time `json:"timestamp"`
-	Read      bool      `json:"read"`
+	ID        int         `json:"id"`
+	UserID    int         `json:"user_id"`
+	Type      string      `json:"type"`
+	Message   string      `json:"message"`
+	Timestamp time.Time   `json:"timestamp"`
+	Read      bool        `json:"read"`
+	Event     interface{} `json:"event,omitempty"`
 	// LinkTo    string    `json:"linkTo"`
 }
 

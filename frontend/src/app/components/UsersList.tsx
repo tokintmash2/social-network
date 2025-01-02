@@ -9,14 +9,13 @@ import { mapUserApiResponseToUser } from "../utils/userMapper"
 
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
-export default function UsersList({ onChat }: { onChat: Function }) {
-    // unused const
-    const [isOpen, setIsOpen] = useState(false)
+interface GroupInput extends Group {
+    group_name: string
+}
 
+export default function UsersList({ onChat }: { onChat: (type: string, id: number) => void }) {
     const [users, setUsers] = useState<User[]>([])
     const [groups, setGroups] = useState<Group[]>([])
-    // unused
-    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -34,25 +33,25 @@ export default function UsersList({ onChat }: { onChat: Function }) {
             })
 
             if (response.data.groups) {
-                setGroups(response.data.groups.map((g: any) => ({ ...g, name: g.group_name })))
+                setGroups(response.data.groups.map((g: GroupInput) => ({ ...g, name: g.group_name })))
             }
         }
         fetchUsers()
         fetchGroups()
-    }, [backendUrl])
+    }, [])
 
     const handleUserClick = (ev: MouseEvent) => {
         const card = ev.target as HTMLElement;
         if (card.dataset.userId) {
             const id = parseInt(card.dataset.userId, 10)
-            onChat("user",id)
+            onChat("user", id)
         }
     }
     const handleGroupClick = (ev: MouseEvent) => {
         const card = ev.target as HTMLElement;
         if (card.dataset.groupId) {
             const id = parseInt(card.dataset.groupId, 10)
-            onChat("group",id)
+            onChat("group", id)
         }
     }
 
