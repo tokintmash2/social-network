@@ -13,12 +13,15 @@ const avatarUrl = `${backendUrl}/uploads/`
 export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 	const [userData, setUserData] = useState<User | null>(null)
 	const [followData, setFollowData] = useState<{
-		following: { id: number; firstName: string; lastName: string }[]
-		followers: { id: number; firstName: string; lastName: string }[]
+		following: { id: number; firstName: string; lastName: string; status: string }[]
+		followers: { id: number; firstName: string; lastName: string; status: string }[]
 	}>({
 		following: [],
 		followers: [],
 	})
+	const [myFollowStatus, setMyFollowStatus] = useState<
+		'following' | 'not following' | 'pending' | undefined
+	>(undefined)
 
 	useEffect(() => {
 		console.log('userData:', userData)
@@ -62,18 +65,20 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 				const response = await axios.get(`${backendUrl}/api/users/${userId}/followers`, {
 					withCredentials: true,
 				})
-				console.log(response)
+				console.log('fetchFollowers response', response)
 				if (response.data.success) {
 					setFollowData({
-						following: [...followData.following, ...response.data.following],
-						followers: [...followData.followers, ...response.data.followers],
+						following: response.data.following,
+						followers: response.data.followers,
 					})
 				}
 			} catch (error) {
 				console.log(error)
 			}
 		}
-		fetchFollowers()
+		if (userId) {
+			fetchFollowers()
+		}
 	}, [userId])
 
 	const handleToggleProfilePrivacy = async () => {
@@ -96,21 +101,102 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 			console.error('Error toggling privacy:', error)
 		}
 	}
-	const accessType = 'PUBLIC' // remove when user has accessType info from api
-	/*
-    UNCOMMENT WHEN USER HAS ACCESSTYPE INFO FROM API.
-    useEffect(() => {
-		let followButtonText = ''
-		if (userData.accessType === 'PRIVATE' || userData.accessType === 'PUBLIC') {
-			followButtonText = 'Follow'
-		} else if (userData.accessType === 'PRIVATE_PENDING') {
-			followButtonText = 'Follow request pending'`
+	const accessType = 'PUBLIC'
+
+	const getFollowButtonText = () => {
+		if (myFollowStatus === 'following') {
+			return 'Unfollow'
+		} else if (myFollowStatus === 'pending') {
+			return 'Cancel request to follow'
 		} else {
-			followButtonText = 'Unfollow'
+			return 'Follow'
 		}
-	}, [userData]) */
-	const followButtonText = 'dummy text'
-	const handleFollow = () => {}
+	}
+
+	const handleChangeFollowButtonClick = async () => {
+		if (loggedInUser) {
+			switch (myFollowStatus) {
+				case 'following':
+				case 'pending':
+					// Unfollow or cancel follow request logic
+					try {
+						const response = await axios.delete(
+							`${backendUrl}/api/users/${userId}/followers/${loggedInUser.id}`,
+							{
+								withCredentials: true,
+							},
+						)
+						console.log('handleChangeFollowButtonClick response', response)
+						if (response.data.success) {
+							setMyFollowStatus('not following')
+							setFollowData((prevFollowData) => ({
+								...prevFollowData,
+								followers: prevFollowData.followers.filter(
+									(follower) => follower.id !== loggedInUser.id,
+								),
+							}))
+						}
+					} catch (error) {
+						console.log(`Error unfollowing user ${userId}`, error)
+					}
+					break
+
+				case 'not following':
+					// Join followers logic
+					try {
+						const response = await axios.post(
+							`${backendUrl}/api/users/${userId}/followers/${loggedInUser.id}`,
+							null,
+							{ withCredentials: true },
+						)
+						console.log(response)
+						if (response.data.success) {
+							console.log('handleChangeFollowButtonClick response', response)
+							if (response.data.success) {
+								setMyFollowStatus('following')
+								setFollowData((prevFollowData) => ({
+									...prevFollowData,
+									followers: [
+										...prevFollowData.followers,
+										{
+											id: loggedInUser.id,
+											firstName: loggedInUser.firstName,
+											lastName: loggedInUser.lastName,
+											status: 'accepted',
+										},
+									],
+								}))
+							}
+						}
+					} catch (error) {
+						console.log(`Error following user ${userId}`, error)
+					}
+					break
+			}
+		}
+	}
+	useEffect(() => {
+		if (followData && loggedInUser) {
+			if (followData.followers.length > 0) {
+				const myFollowData = followData.followers.filter(
+					(follower) => follower.id === loggedInUser.id,
+				)
+				console.log(`My (user id ${loggedInUser.id}) follow data`, myFollowData)
+				if (myFollowData.length > 0) {
+					if (myFollowData[0].status === 'accepted') {
+						setMyFollowStatus('following')
+					} else {
+						setMyFollowStatus('pending')
+					}
+				} else {
+					setMyFollowStatus('not following')
+				}
+			}
+		} else {
+			setMyFollowStatus('not following')
+		}
+	}, [followData, loggedInUser])
+
 	return (
 		<div>
 			{userData ? (
@@ -165,12 +251,19 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 									</div>
 									<div>
 										<span className='font-semibold'>
-											{followData.followers.length}
+											{followData.followers.length > 0
+												? followData.followers.filter(
+														(follower) =>
+															follower.status === 'accepted',
+													).length
+												: 0}
 										</span>
 										<span className='ml-2'>Followers</span>
 									</div>
 								</div>
-							) : ''}
+							) : (
+								''
+							)}
 						</div>
 						{/* Profile Info Card */}
 						<div className='w-full bg-white rounded-lg shadow-sm p-6 mt-8'>
@@ -191,13 +284,13 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								</div>
 							)}
 							{/* Follow Button */}
-							{!isOwnProfile && (
+							{!isOwnProfile && followData && (
 								<div className='mb-4'>
 									<button
 										className='btn btn-outline btn-sm'
-										onClick={handleFollow}
+										onClick={handleChangeFollowButtonClick}
 									>
-										{followButtonText}
+										{getFollowButtonText()}
 									</button>
 								</div>
 							)}
@@ -222,7 +315,9 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 											</p>
 										)}
 									</>
-								) : ''}
+								) : (
+									''
+								)}
 							</div>
 						</div>
 						{/* Posts Container */}
