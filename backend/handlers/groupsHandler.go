@@ -50,13 +50,20 @@ func (app *application) FetchAllGroupsHandler(w http.ResponseWriter, r *http.Req
 	queryParams := r.URL.Query()
 	targetUserIDStr := queryParams.Get("user_id")
 
-	if targetUserIDStr == "" { 
+	if targetUserIDStr == "" {
 		groups, err = utils.FetchAllGroups()
 	} else {
 		userID, _ := strconv.Atoi(targetUserIDStr)
-        groups, err = utils.FetchUserGroups(userID)
+		groups, err = utils.FetchUserGroups(userID)
 	}
-	json.NewEncoder(w).Encode(groups)
+
+	response := map[string]interface{}{
+		"success": true,
+		"groups":  groups,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 	return
 }
 

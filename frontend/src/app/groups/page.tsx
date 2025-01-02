@@ -56,7 +56,7 @@ export default function GroupsList() {
 					withCredentials: true,
 				})
 				console.log('groups', response)
-				const modifiedGroups = response.data.map(
+				const modifiedGroups = response.data.groups.map(
 					(group: {
 						id: number
 						name: string
@@ -75,26 +75,9 @@ export default function GroupsList() {
 						}
 					},
 				)
-				// use dummy data until the api is ready
-				/* const response = {
-					data: [
-						{
-							id: 1,
-							name: 'Group 1',
-							description: 'Description 1',
-							createdAt: '2023-08-01',
-							creator: 4,
-						},
-						{
-							id: 2,
-							name: 'Group 2',
-							description: 'Description 2',
-							createdAt: '2023-08-01',
-							creator: 4,
-						},
-					],
-				} */
-				dispatch({ type: ACTIONS.SET_GROUPS, payload: modifiedGroups })
+				if (response.data.success) {
+					dispatch({ type: ACTIONS.SET_GROUPS, payload: modifiedGroups })
+				}
 			} catch (error) {
 				console.log('Error fetching groups', error)
 			}
@@ -123,18 +106,20 @@ export default function GroupsList() {
 					},
 				},
 			)
-			console.log('Response:', response.data.group)
-			dispatch({
-				type: ACTIONS.CREATE_GROUP,
-				payload: {
-					id: response.data.group.ID,
-					name: response.data.group.group_name,
-					description: response.data.group.group_description,
-					creatorId: response.data.group.creator_id,
-					createdAt: response.data.group.created_at,
-				},
-			})
-			createGroupRef.current?.close()
+			console.log('handleSubmit Response:', response)
+			if (response.data.success) {
+				dispatch({
+					type: ACTIONS.CREATE_GROUP,
+					payload: {
+						id: response.data.group.ID,
+						name: response.data.group.group_name,
+						description: response.data.group.group_description,
+						creatorId: response.data.group.creator_id,
+						createdAt: response.data.group.created_at,
+					},
+				})
+				createGroupRef.current?.close()
+			}
 		} catch (error) {
 			console.error('Full error:', error)
 		} finally {
@@ -157,7 +142,7 @@ export default function GroupsList() {
 						</button>
 						{state.groups.map((group) => (
 							<div
-								key={group.id}
+								key={`"group-${group.id}"`}
 								className='card bg-base-100 shadow-sm mb-4 hover:bg-gray-50 cursor-pointer'
 								onClick={() => router.push(`/groups/${group.id}`)}
 							>
