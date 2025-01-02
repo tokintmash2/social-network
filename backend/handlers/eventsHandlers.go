@@ -47,7 +47,7 @@ func (app *application) CreateEventHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	dateTime, err := time.Parse("2006-01-02T15:04", dateTimeStr)
+	dateTime, err := time.Parse(time.RFC3339, dateTimeStr)
 	if err != nil {
 		http.Error(w, "Invalid date format", http.StatusBadRequest)
 		return
