@@ -194,6 +194,16 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 		}
 	}, [followData, loggedInUser])
 
+	const acceptedFollowees =
+		followData.following.length > 0
+			? followData.following.filter((followee) => followee.status === 'accepted')
+			: []
+
+	const acceptedFollowers =
+		followData.followers.length > 0
+			? followData.followers.filter((follower) => follower.status === 'accepted')
+			: []
+
 	return (
 		<div>
 			{userData ? (
@@ -247,25 +257,34 @@ export default function UserData({ userId, isOwnProfile }: UserDataProps_type) {
 								{userData.isPublic ||
 								isOwnProfile ||
 								myFollowStatus === 'following' ? (
-									<div className='flex gap-6'>
+									<>
 										<div>
 											<span className='font-semibold'>
-												{followData.following.length}
+												{acceptedFollowees.length}
 											</span>
 											<span className='ml-2'>Following</span>
+											{acceptedFollowees.map((followee, index) => (
+												<span key={`followee-${followee.id}`}>
+													{index === 0 && ': '}
+													{followee.firstName} {followee.lastName}
+													{index < acceptedFollowees.length - 1 && ', '}
+												</span>
+											))}
 										</div>
 										<div>
 											<span className='font-semibold'>
-												{followData.followers.length > 0
-													? followData.followers.filter(
-															(follower) =>
-																follower.status === 'accepted',
-														).length
-													: 0}
+												{acceptedFollowers.length}
 											</span>
 											<span className='ml-2'>Followers</span>
+											{acceptedFollowers.map((follower, index) => (
+												<span key={`follower-${follower.id}`}>
+													{index === 0 && ': '}
+													{follower.firstName} {follower.lastName}
+													{index < acceptedFollowers.length - 1 && ', '}
+												</span>
+											))}
 										</div>
-									</div>
+									</>
 								) : (
 									''
 								)}
