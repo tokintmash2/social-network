@@ -258,12 +258,12 @@ func GetGroupPostComments(postID int) ([]structs.CommentResponse, error) {
 	return comments, nil
 }
 
-func CreateGroup(group structs.Group) error {
+func CreateGroup(group structs.Group) (int64, error) {
 	log.Println("Got group:", group)
 
 	tx, err := database.DB.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
@@ -276,14 +276,14 @@ func CreateGroup(group structs.Group) error {
 	log.Printf("Insert result: %+v", result)
 	if err != nil {
 		log.Println("Error inserting group:", err)
-		return err
+		return 0, err
 	}
 
 	// Get the newly created group ID
 	groupID, err := result.LastInsertId()
 	if err != nil {
 		log.Println("Error getting last insert ID:", err)
-		return err
+		return 0, err
 	}
 
 	// Add creator as admin member
@@ -294,14 +294,14 @@ func CreateGroup(group structs.Group) error {
 	)
 	if err != nil {
 		log.Println("Error adding creator as admin:", err)
-		return err
+		return 0, err
 	}
 
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v\n", err)
-		return err
+		return 0, err
 	}
-	return nil
+	return groupID, nil
 }
 
 func GetGroupAdmin(groupID int) (int, error) {

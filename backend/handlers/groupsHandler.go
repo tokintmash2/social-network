@@ -99,13 +99,14 @@ func (app *application) CreateGroupHandler(w http.ResponseWriter, r *http.Reques
 
 	group.CreatorID = userID
 	group.CreatedAt = time.Now()
-
-	err = utils.CreateGroup(group)
+	var groupID int64
+	groupID, err = utils.CreateGroup(group)
 	if err != nil {
 		log.Printf("Error creating group: %v\n", err)
 		http.Error(w, "Error creating group", http.StatusInternalServerError)
 		return
 	}
+	group.ID = int(groupID)
 
 	response := map[string]interface{}{
 		"success": true,
