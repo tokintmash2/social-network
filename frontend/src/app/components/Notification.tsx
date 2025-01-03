@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Notification as NotificationType } from '../utils/types/notifications'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
 type NotificationProps = {
 	notification: NotificationType
@@ -41,18 +41,26 @@ const Notification = ({ notification, onClick }: NotificationProps) => {
 	
 
 	const acceptGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
-		await axios.patch(
-			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
-			{},
-			{ withCredentials: true },
-		);
+		try {
+			await axios.patch(
+				`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
+				{},
+				{ withCredentials: true },
+			)
+		} catch (err) {
+			console.log("Failed to accept group membership", err)
+		}
 		onClick()
 	}, [onClick])
 	const denyGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
-		await axios.delete(
-			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
-			{ withCredentials: true },
-		);
+		try {
+			await axios.delete(
+				`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
+				{ withCredentials: true },
+			);
+		} catch (err) {
+			console.log("Failed to deny group membership, probably not member any more", err)
+		}
 		onClick()
 	}, [onClick])
 

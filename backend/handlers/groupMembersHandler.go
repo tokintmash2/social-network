@@ -59,14 +59,9 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		}
 
 		currentIsAdmin := currentUserID == adminID
+		isSelfJoining := userIDtoProcess == currentUserID
 
-		role := "pending"
-		// If admin adds then immediately accepted
-		if currentIsAdmin {
-			role = "member"
-		}
-
-		err = utils.AddGroupMember(groupID, userIDtoProcess, role)
+		err = utils.AddGroupMember(groupID, userIDtoProcess, "pending")
 		if err != nil {
 			log.Printf("Error adding member to group: %v\n", err)
 			http.Error(w, "Error adding member to group", http.StatusInternalServerError)
@@ -77,6 +72,7 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		userDetails, _ := utils.GetUserProfile(userIDtoProcess)
 		currentUserDetails, _ := utils.GetUserProfile(currentUserID)
 
+		// message goes to group admin
 		message := fmt.Sprintf(
 			"User %s wants to add user %s to group %s",
 			currentUserDetails.GetFriendlyName(),
@@ -85,23 +81,22 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		)
 		extra := fmt.Sprintf(`{"group_id":%d,"user_id":%d}`, groupID, userIDtoProcess)
 
-		if currentUserID == userIDtoProcess {
-			message = fmt.Sprintf(
-				"User %s wants to join your group %s",
-				userDetails.GetFriendlyName(),
-				groupDetails.Name,
-			)
-		}
 		if currentIsAdmin {
 			message = fmt.Sprintf(
-				"%s was added to your group %s",
+				"You added user %s to group %s, they need to approve",
 				userDetails.GetFriendlyName(),
 				groupDetails.Name,
 			)
 			extra = ""
 		}
 
-		// Send notification to the user & admin
+		if isSelfJoining {
+			message = fmt.Sprintf(
+				"User %s wants to join your group %s",
+				userDetails.GetFriendlyName(),
+				groupDetails.Name,
+			)
+		}
 
 		// Notify admin for approval
 		notifyUsers := []int{adminID}
@@ -122,14 +117,18 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 		app.sendWSNotification(notifications)
 
 		message = fmt.Sprintf(
-			"Your group membership to %s is pending approval",
+			"User %s wants to add you to group %s",
+			currentUserDetails.GetFriendlyName(),
 			groupDetails.Name,
 		)
-		if role == "member" {
+		extra = fmt.Sprintf(`{"group_id":%d,"user_id":%d}`, groupID, userIDtoProcess)
+
+		if isSelfJoining {
 			message = fmt.Sprintf(
-				"You were added to group %s",
+				"Your group membership to %s is pending approval",
 				groupDetails.Name,
 			)
+			extra = ""
 		}
 
 		// Notify added user that they're pending
@@ -139,6 +138,7 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			Message:   message,
 			Timestamp: time.Now(),
 			Read:      false,
+			Extra:     extra,
 		}
 
 		// Store notification
@@ -151,8 +151,8 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	if r.Method == http.MethodPatch {
-		// Check if the requesting user is an admin
-		if !utils.IsGroupAdmin(groupID, currentUserID) {
+		// Check if the requesting user is an admin or is invited
+		if !(userIDtoProcess == currentUserID || utils.IsGroupAdmin(groupID, currentUserID)) {
 			http.Error(w, "Unauthorized: Only group admins can approve members", http.StatusForbidden)
 			return
 		}
@@ -188,35 +188,35 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 
 	if r.Method == http.MethodDelete { // Reject member/leave group
 
-		if userIDtoProcess == currentUserID || utils.IsGroupAdmin(groupID, currentUserID) {
-			// Check if user exists in group
-			if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
-				http.Error(w, "User is not a member of this group", http.StatusConflict)
-				return
-			}
-
-			// Check if user exists and is in pending state
-			if utils.IsPendingMember(groupID, userIDtoProcess) {
-				message = "Membership rejected"
-			} else {
-				message = "Member removed successfully"
-			}
-
-			// Prevent admin from being removed
-			if utils.IsGroupAdmin(groupID, userIDtoProcess) {
-				http.Error(w, "Cannot remove group admin", http.StatusConflict)
-				return
-			}
-
-			// Remove member
-			err = utils.RemoveGroupMember(groupID, userIDtoProcess)
-			if err != nil {
-				log.Printf("Error removing member: %v\n", err)
-				http.Error(w, "Error removing member", http.StatusInternalServerError)
-				return
-			}
-		} else {
+		if !(userIDtoProcess == currentUserID || utils.IsGroupAdmin(groupID, currentUserID)) {
 			http.Error(w, "Unauthorized: Only group admins can remove other members", http.StatusForbidden)
+			return
+		}
+
+		// Check if user exists in group
+		if !utils.IsMemberInGroup(groupID, userIDtoProcess) {
+			http.Error(w, "User is not a member of this group", http.StatusConflict)
+			return
+		}
+
+		// Check if user exists and is in pending state
+		if utils.IsPendingMember(groupID, userIDtoProcess) {
+			message = "Membership rejected"
+		} else {
+			message = "Member removed successfully"
+		}
+
+		// Prevent admin from being removed
+		if utils.IsGroupAdmin(groupID, userIDtoProcess) {
+			http.Error(w, "Cannot remove group admin", http.StatusConflict)
+			return
+		}
+
+		// Remove member
+		err = utils.RemoveGroupMember(groupID, userIDtoProcess)
+		if err != nil {
+			log.Printf("Error removing member: %v\n", err)
+			http.Error(w, "Error removing member", http.StatusInternalServerError)
 			return
 		}
 	}
