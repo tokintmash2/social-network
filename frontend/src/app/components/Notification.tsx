@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Notification as NotificationType } from '../utils/types/notifications'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 
 type NotificationProps = {
 	notification: NotificationType
