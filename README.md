@@ -2,57 +2,21 @@
 
 A modern social networking platform built with Next.js and Go, featuring real-time interactions and comprehensive user engagement features.
 
-## Running with Docker
+- More info about the task: [social-network](https://github.com/01-edu/public/tree/master/subjects/social-network)
+- Review questions: [audit](https://github.com/01-edu/public/tree/master/subjects/social-network/audit) 
 
-```
-# Build images if needed, start containers
-docker-compose -f docker-compose.yaml up
+## Table of Contents
 
-# Stop the containers (preserves containers and data)
-docker-compose stop
-# Restart stopped containers
-docker-compose start
+- [Core Features](#core-features)
+- [Tech Stack](#tech-stack)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+- [Setup](#setup)
+    - [Backend Setup](#backend-setup)
+    - [Frontend Setup](#frontend-setup)
+- [Running with Docker](#running-with-docker)
+- [Authors](#authors)
 
-# Stop and remove images, containers and networks
-docker-compose -f docker-compose.yaml down --rmi all
-```
-
-## Setup
-
-### Backend Setup
-
-1. Navigate to backend directory:
-
-```bash
-cd backend
-```
-
-Install Go dependencies and start the backend server:
-
-```bash
-go mod tidy
-go run main.go
-```
-
-The server will run on http://localhost:8080
-
-### Frontend Setup
-
-Navigate to frontend directory:
-
-```bash
-cd frontend
-```
-
-Install dependencies and run production server:
-
-```bash
-npm install
-npm run build
-npm start
-```
-
-The application will be available at http://localhost:3000
 
 ## Core Features
 
@@ -66,13 +30,6 @@ The application will be available at http://localhost:3000
 
 ## Tech Stack
 
-### Frontend
-
--   Next.js 15.0.2
--   TypeScript
--   WebSocket for real-time features
--   DaisyUI for UI components
-
 ### Backend
 
 -   Go
@@ -80,9 +37,84 @@ The application will be available at http://localhost:3000
 -   WebSocket implementation
 -   Session-based authentication
 
-### License
+### Frontend
 
-This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/license/mit) file for details.
+-   Next.js 15.0.2
+-   TypeScript
+-   WebSocket for real-time features
+-   DaisyUI for UI components
+
+## Setup
+
+Clone the repository:
+
+```
+git clone https://01.kood.tech/git/mvolkons/social-network.git
+cd social-network
+```
+
+### Backend Setup
+
+1. Navigate to backend directory in one termninal:
+
+    ```bash
+    cd backend
+    ```
+
+2. Install Go dependencies and start the backend server:
+
+    ```bash
+    go mod tidy
+    go run main.go
+    ```
+
+The server will run on http://localhost:8080
+
+### Frontend Setup
+
+1. Navigate to frontend directory in a second terminal:
+
+    ```bash
+    cd frontend
+    ```
+
+2. Install dependencies and run production server:
+
+    ```bash
+    npm install
+    npm run build
+    npm start
+    ```
+
+The application will be available at http://localhost:3000
+
+## Running with Docker
+
+Make sure you have [Docker](https://www.docker.com/) installed.
+
+1. Build images, start containers
+
+    ```bash
+    docker-compose -f docker-compose.yaml up
+    ```
+
+2. Optional: Stop the containers (preserves containers and data)
+
+    ```bash
+    docker-compose stop
+    ```
+
+3. Optional: Restart stopped containers
+
+    ```bash
+    docker-compose start
+    ```
+
+4. Stop and remove images, containers and networks
+
+    ```bash
+    docker-compose -f docker-compose.yaml down --rmi all
+    ```
 
 ### Authors:
 
