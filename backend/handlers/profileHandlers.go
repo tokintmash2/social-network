@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"social-network/structs"
@@ -10,20 +11,6 @@ import (
 	"strings"
 	"time"
 )
-
-// func UsersRouter(w http.ResponseWriter, r *http.Request) {
-
-// 	log.Println("UsersRouter called")
-
-// 	switch r.Method {
-// 	case "GET":
-// 		ProfileHandler(w, r)
-// 	case "POST":
-// 		AddFollowerHandler(w, r)
-// 	default:
-// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-// 	}
-// }
 
 func (app *application) FollowersHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -61,18 +48,35 @@ func (app *application) FollowersHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		followerDetails, _ := utils.GetUserProfile(followerID)
+		message := fmt.Sprintf(
+			"%s has started following you!",
+			followerDetails.GetFriendlyName(),
+		)
+		followedDetails, _ := utils.GetUserProfile(followedID)
+
 		notifyUsers := []int{followedID}
-		userNotification := &structs.Notification{
-			Type:      "follow_request",
-			Message:   "You have a new follow request!",
-			Timestamp: time.Now(),
-			Read:      false,
+		var userNotification *structs.Notification
+
+		if followedDetails.IsPublic {
+			userNotification = &structs.Notification{
+				Type:      "new_follower",
+				Message:   message,
+				Timestamp: time.Now(),
+				Read:      false,
+			}
+		} else {
+			userNotification = &structs.Notification{
+				Type:      "follow_request",
+				Message:   message,
+				Timestamp: time.Now(),
+				Read:      false,
+				Extra:     fmt.Sprintf(`{"followedUser_id":%d,"followingUser_id":%d}`, followedID, followerID),
+			}
 		}
 
 		notifications, _ := utils.CreateNotification(notifyUsers, userNotification)
 		app.sendWSNotification(notifications)
-
-		message = "Followe request sent successfully"
 	}
 
 	if r.Method == http.MethodPatch {
@@ -88,18 +92,16 @@ func (app *application) FollowersHandler(w http.ResponseWriter, r *http.Request)
 			Message:   "You have a new follower!",
 			Timestamp: time.Now(),
 			Read:      false,
+			Extra:     fmt.Sprintf(`{"followedUser_id":%d,"followingUser_id":%d}`, followedID, followerID),
 		}
 
 		notifications, _ := utils.CreateNotification(notifyUsers, userNotification)
 		app.sendWSNotification(notifications)
-
-		message = "Follower added successfully"
 	}
 
 	response := map[string]interface{}{
 		"success": true,
 		"message": message,
-		// "message": "Follower added successfully",
 	}
 
 	w.Header().Set("Content-Type", "application/json")

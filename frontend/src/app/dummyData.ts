@@ -165,7 +165,7 @@ export const dummyNotifications: Notification[] = [
 		id: 1,
 		message: 'John Doe sent you a friend request',
 		timestamp: formatTimestamp(new Date()),
-		type: 'friend_request',
+		type: 'follow_request',
 		linkTo: '/profile/john',
 		read: false,
 		requestType: 'friend',

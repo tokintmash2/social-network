@@ -10,6 +10,26 @@ type NotificationProps = {
 const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080'
 
 const Notification = ({ notification, onClick }: NotificationProps) => {
+
+	const acceptFriendRequest = useCallback(async ({ followedUser_id, followingUser_id }: { followedUser_id: number, followingUser_id: number }) => {
+		await axios.patch(
+			`${backendUrl}/api/users/${followedUser_id}/followers/${followingUser_id}`,
+			{},
+			{ withCredentials: true },
+		);
+		onClick()
+	}, [onClick])
+
+	const denyFriendRequest = useCallback(async ({ followedUser_id, followingUser_id }: { followedUser_id: number, followingUser_id: number }) => {
+		await axios.patch(
+			`${backendUrl}/api/users/${followedUser_id}/followers/${followingUser_id}`,
+			{},
+			{ withCredentials: true },
+		);
+		onClick()
+	}, [onClick])
+	
+
 	const acceptGroupMember = useCallback(async ({ group_id, user_id }: { group_id: number, user_id: number }) => {
 		await axios.patch(
 			`${backendUrl}/api/groups/${group_id}/members/${user_id}`,
@@ -28,22 +48,26 @@ const Notification = ({ notification, onClick }: NotificationProps) => {
 
 	const renderActionButtons = () => {
 		switch (notification.type) {
-			case 'friend_request':
+			case 'follow_request':
+				if (!notification.extra) {
+					return;
+				}
+				const friendReq = JSON.parse(notification.extra)
 				return (
 					<div className='flex gap-4 mt-2 items-center'>
-						<button className='btn btn-xs btn-success'>Accept</button>
-						<button className='btn btn-xs btn-ghost'>Delete</button>
+						<button onClick={() => acceptFriendRequest(friendReq)} className='btn btn-xs btn-success'>Accept</button>
+						<button onClick={() => denyFriendRequest(friendReq)} className='btn btn-xs btn-ghost'>Deny</button>
 					</div>
 				)
 			case 'group_member_added':
 				if (!notification.extra) {
 					return;
 				}
-				const extra = JSON.parse(notification.extra)
+				const groupReq = JSON.parse(notification.extra)
 				return (
 					<div className='flex gap-4 mt-2 items-center'>
-						<button onClick={() => acceptGroupMember(extra)} className='btn btn-xs btn-success'>Accept</button>
-						<button onClick={() => denyGroupMember(extra)} className='btn btn-xs btn-ghost'>Deny</button>
+						<button onClick={() => acceptGroupMember(groupReq)} className='btn btn-xs btn-success'>Accept</button>
+						<button onClick={() => denyGroupMember(groupReq)} className='btn btn-xs btn-ghost'>Deny</button>
 					</div>
 				)
 			case 'event_request':

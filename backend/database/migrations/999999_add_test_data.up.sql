@@ -1,14 +1,20 @@
 -- Users
 
-
-INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
-VALUES ('asd@asd.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Taylor', 'Lorenzo', '1990-03-01 00:00:00+00:00', 'taylor_l', 'I am a student of the University of Tartu.', 'default_avatar.jpg');
-INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) 
-VALUES ('qwe@qwe.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'qwe', 'qwe', '1990-03-01 00:00:00+00:00', 'qwe', 'testuser', 'default_avatar.jpg');
-INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar, is_public) 
-VALUES ('test@mail.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Peter', 'Parker', '1985-03-01 00:00:00+00:00', 'pparker', 
+INSERT INTO users (id, email, password, first_name, last_name, dob, username, about_me, avatar) 
+VALUES (1, 'User@email.com', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Asd', 'Asd', '1990-03-01 00:00:00+00:00', 'User', 'default user', 'default_avatar.jpg');
+INSERT INTO users (id, email, password, first_name, last_name, dob, username, about_me, avatar) 
+VALUES (2, 'asd@asd.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Taylor', 'Lorenzo', '1990-03-01 00:00:00+00:00', 'taylor_l', 'I am a student of the University of Tartu.', 'default_avatar.jpg');
+INSERT INTO users (id, email, password, first_name, last_name, dob, username, about_me, avatar) 
+VALUES (3, 'qwe@qwe.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'qwe', 'qwe', '1990-03-01 00:00:00+00:00', 'qwe', 'testuser', 'default_avatar.jpg');
+INSERT INTO users (id, email, password, first_name, last_name, dob, username, about_me, avatar, is_public) 
+VALUES (4, 'test@mail.ee', '$2a$10$SoSjc4fBxSbXvl1R15ispOhE70e2tZoLAzISkc.2Ky8hzysC7FNbC', 'Peter', 'Parker', '1985-03-01 00:00:00+00:00', 'pparker', 
 'Aspiring software engineer from Paide, Estonia. I like to play tennis and play video games, read autobiographies and listen to classical music.', 'peter.jpg', false);
 
+
+-- update users auto increment to next available id value
+UPDATE sqlite_sequence
+SET seq = (SELECT MAX(id) FROM users)
+WHERE name = 'users';
 
 
 -- Followers

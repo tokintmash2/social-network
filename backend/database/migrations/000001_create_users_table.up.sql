@@ -10,7 +10,3 @@ CREATE TABLE users (
     about_me TEXT,
     is_public BOOLEAN DEFAULT TRUE
 );
-
-INSERT INTO users (email, password, first_name, last_name, dob, username, about_me, avatar) VALUES ("User@email.com", "$2a$14$9pBHahAGnvMkrF5o7yDQl.jWU5cRzEC8Fb6SHJJnCU..kQZmhWPSe", "Asd", "Asd", "1990-03-01 00:00:00+00:00", "User", "default user", "default_avatar.jpg");
--- INSERT INTO users (email, password, first_name, last_name, date_of_birth, username, about_user, avatar) VALUES ("User1@email.com", "$2a$14$9pBHahAGnvMkrF5o7yDQl.jWU5cRzEC8Fb6SHJJnCU..kQZmhWPSe", "Asd", "Asd", "1990-03-01 00:00:00+00:00", "User1", "default user", "defaultAvatar.jpg");
--- INSERT INTO users (email, password, first_name, last_name, date_of_birth, username, about_user, avatar) VALUES ("User2@email.com", "$2a$14$9pBHahAGnvMkrF5o7yDQl.jWU5cRzEC8Fb6SHJJnCU..kQZmhWPSe", "Asd", "Asd", "1990-03-01 00:00:00+00:00", "User2", "default user", "defaultAvatar.jpg");
