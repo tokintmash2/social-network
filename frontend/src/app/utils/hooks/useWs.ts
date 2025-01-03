@@ -21,7 +21,10 @@ function useWS() {
         ws.current?.send(JSON.stringify(payload))
     }
 
-    useEffect(() => {
+    const connect = () => {
+        if (ws.current && ws.current.readyState == WebSocket.OPEN) {
+            return
+        }
         ws.current = new WebSocket("ws://localhost:8080/ws")
         ws.current.onopen = () => { console.log('WS open') }
         ws.current.onclose = () => { console.log('WS close') }
@@ -31,12 +34,16 @@ function useWS() {
             console.log("Got WS message:", response_to, request_id, data);
             channels.current.dispatchEvent(new CustomEvent(response_to, { detail: data }))
         }
+    }
+
+    useEffect(() => {
+        connect()
         return () => {
             ws.current?.close()
         }
     })
 
-    return { subscribe, send }
+    return { subscribe, send, connect }
 }
 
 export default useWS

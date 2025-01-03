@@ -15,14 +15,15 @@ const channelTypes = {
 interface WebSocketContextType {
     subscribe: (channel: string, callback: (data: unknown) => void) => () => void;
     send: (action: string, data: unknown) => void;
+    connect: () => void
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined)
 
 function WebSocketProvider({ children }: PropsWithChildren) {
-    const { subscribe, send } = useWS()
+    const { subscribe, send, connect } = useWS()
 
-    return <WebSocketContext.Provider value={{subscribe, send}}>
+    return <WebSocketContext.Provider value={{ subscribe, send, connect }}>
         {children}
     </WebSocketContext.Provider>
 }

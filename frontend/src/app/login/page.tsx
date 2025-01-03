@@ -1,10 +1,11 @@
 'use client'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
 import { useLoggedInUser } from '../context/UserContext'
+import { WebSocketContext } from '../components/WsContext'
 
 export default function LoginPage() {
 	const router = useRouter()
@@ -32,6 +33,7 @@ export default function LoginPage() {
 	}, [user])
 
 	const [loading, setLoading] = React.useState(false)
+	const { connect } = useContext(WebSocketContext)!
 
 	const onLogin = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -43,6 +45,7 @@ export default function LoginPage() {
 
 			if (response.data.success) {
 				await refetchUser()
+				connect() // reconnect to websocket
 				router.push('/')
 			} else {
 				toast.error(response.data.message)
