@@ -81,6 +81,11 @@ export default function RegisterPage() {
 		}
 	}
 
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		await onRegister()
+	}
+
 	registerLocale('en-GB', enGB)
 
 	return (
@@ -92,7 +97,10 @@ export default function RegisterPage() {
 
 				<div className='card rounded-md w-full max-w-128 py-2'>
 					<div className='card-body'>
-						<form className='flex flex-col items-center justify-center space-y-2 w-full'>
+						<form
+							className='flex flex-col items-center justify-center space-y-2 w-full'
+							onSubmit={handleSubmit}
+						>
 							<label className='form-control w-2/3'>
 								<span className='label-text text-xs mb-0.5 text-[#8DABC2] font-light'>
 									First Name
@@ -212,10 +220,9 @@ export default function RegisterPage() {
 
 							<div className='form-control mt-2 w-2/3'>
 								<button
-									type='button'
+									type='submit'
 									className='btn h-9 btn-primary bg-[#B9D7EA] border-0 shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-2xl text-[#687984] font-light hover:bg-[#A3B8C5] hover:text-[#FFFFFF]'
 									disabled={buttonDisabled}
-									onClick={onRegister}
 								>
 									{loading ? 'Registering...' : 'Register'}
 								</button>
