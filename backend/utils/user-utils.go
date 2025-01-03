@@ -159,6 +159,8 @@ func CreateUser(user structs.User) (int, error) {
 		return 0, err
 	}
 
+	log.Println("Starting to create user:", user)
+
 	// SQL query to insert new user
 	query := `
 		INSERT INTO users (email, password, first_name, last_name, dob, username, avatar, about_me)
