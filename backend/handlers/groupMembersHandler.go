@@ -143,11 +143,11 @@ func (app *application) GroupMembersHandler(w http.ResponseWriter, r *http.Reque
 			http.Error(w, "Error updating member status", http.StatusInternalServerError)
 			return
 		}
-
+		groupDetails, _ := utils.FetchGroupDetails(groupID)
 		notifyUsers := []int{userIDtoProcess}
 		userNotification := &structs.Notification{
 			Type:      "group_member_approved",
-			Message:   fmt.Sprintf("You've been approved to group %d", groupID),
+			Message:   fmt.Sprintf("You've been approved to group %s", groupDetails.Name),
 			Timestamp: time.Now(),
 			Read:      false,
 		}

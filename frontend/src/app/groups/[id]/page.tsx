@@ -276,13 +276,19 @@ export default function Group() {
 		}
 	}
 
-	const handleSendInvites = () => {
+	const handleSendInvites = async () => {
 		if (selectedOptions.length > 0) {
 			const invitees = selectedOptions.map((option) => option.value)
 			inviteModalRef.current?.close()
 			dispatch({ type: ACTIONS.TOGGLE_INVITE_MODAL, payload: false })
 			console.log('Invitees:', invitees)
-			// TODO-WS: Send invite notifications to invitees
+			for (const user_id of invitees) {
+				await axios.post(
+					`${backendUrl}/api/groups/${id}/members/${user_id}`,
+					{},
+					{ withCredentials: true },
+				)
+			}
 		}
 	}
 

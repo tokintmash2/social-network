@@ -17,6 +17,10 @@ func RunHandlers(r *http.ServeMux, app *application) {
 	r.HandleFunc("PATCH /api/users/{u_id}/followers/{f_id}", app.FollowersHandler)
 	r.HandleFunc("DELETE /api/users/{u_id}/followers/{f_id}", app.RemoveFollowerHandler)
 
+	r.HandleFunc("POST /api/users/{user_id}/invitee/{invitee_id}", app.GroupMembersHandler)
+	r.HandleFunc("PATCH /api/users/{user_id}/invitee/{invitee_id}", app.GroupMembersHandler)
+	r.HandleFunc("DELETE /api/users/{user_id}/invitee/{invitee_id}", app.GroupMembersHandler)
+
 	r.HandleFunc("/api/verify-session", VerifySessionHandler)
 	r.HandleFunc("/toggle-privacy", TogglePrivacyHandler)
 
