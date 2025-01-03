@@ -86,7 +86,7 @@ The server will run on http://localhost:8080
     npm start
     ```
 
-The application will be available at http://localhost:3000
+You can start using the application at http://localhost:3000
 
 ## Running with Docker
 
@@ -97,6 +97,8 @@ Make sure you have [Docker](https://www.docker.com/) installed.
     ```bash
     docker-compose -f docker-compose.yaml up
     ```
+
+You can start using the application at http://localhost:3000
 
 2. Optional: Stop the containers (preserves containers and data)
 
@@ -116,7 +118,7 @@ Make sure you have [Docker](https://www.docker.com/) installed.
     docker-compose -f docker-compose.yaml down --rmi all
     ```
 
-### Authors:
+## Authors:
 
 Imbi Haljasorg | Discord: imbira \
 Kadri Kängsep | Discord: kadrika \
