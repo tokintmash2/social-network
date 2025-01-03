@@ -5,7 +5,7 @@ export interface Notification {
 	type:
 		| 'follow'
 		| 'follow_request'
-		| 'follow_notice'
+		| 'new_follower'
 		| 'group'
 		| 'group_request'
 		| 'group_member_added'
