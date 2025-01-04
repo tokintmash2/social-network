@@ -5,6 +5,13 @@ A modern social networking platform built with Next.js and Go, featuring real-ti
 - More info about the task: [social-network](https://github.com/01-edu/public/tree/master/subjects/social-network)
 - Review questions: [audit](https://github.com/01-edu/public/tree/master/subjects/social-network/audit) 
 
+Test users:
+
+- e-mail: `asd@asd.ee`, password: `123`
+- e-mail: `User@email.com`, password: `123`
+- e-mail: `qwe@qwe.ee`, password: `123`
+- e-mail: `test@mail.ee`, yep, you've guessed it, password: `123`, private account
+
 ## Table of Contents
 
 - [Core Features](#core-features)
