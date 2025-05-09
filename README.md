@@ -1,9 +1,8 @@
 # Social Network Project
 
-A modern social networking platform built with Next.js and Go, featuring real-time interactions and comprehensive user engagement features.
+A school assigment to create a modern social networking platform built with Next.js and Go, featuring real-time interactions and comprehensive user engagement features.
 
 - More info about the task: [social-network](https://github.com/01-edu/public/tree/master/subjects/social-network)
-- Review questions: [audit](https://github.com/01-edu/public/tree/master/subjects/social-network/audit) 
 
 Test users:
 
@@ -56,13 +55,13 @@ Test users:
 Clone the repository:
 
 ```
-git clone https://01.kood.tech/git/mvolkons/social-network.git
+git clone https://github.com/tokintmash2/social-network.git
 cd social-network
 ```
 
 ### Backend Setup
 
-1. Navigate to backend directory in one termninal:
+1. Navigate to backend directory in one terminal:
 
     ```bash
     cd backend
